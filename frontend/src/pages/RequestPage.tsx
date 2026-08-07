@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { useSound } from '../audio/useSound'
+import { getBaseUrl } from '../constants/baseUrl'
 import './RequestPage.css'
 
 interface WakRequest {
@@ -82,7 +83,7 @@ export const RequestPage = () => {
   }, [items, playingReq, play])
 
   const getShareUrl = (req: WakRequest) => {
-    const base = window.location.origin + window.location.pathname
+    const base = getBaseUrl()
     const params = new URLSearchParams()
     if (req.title) params.set('req_title', req.title)
     if (req.team) params.set('req_team', req.team)

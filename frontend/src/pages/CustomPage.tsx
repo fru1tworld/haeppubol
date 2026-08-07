@@ -10,7 +10,24 @@ import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/
 import { BallColorPicker } from '../components/BallColorPicker'
 import { Controls } from '../components/Controls'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
+import { getBaseUrl } from '../constants/baseUrl'
 import './CustomPage.css'
+
+const hashCode = (str: string): number => {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h)
+  return h
+}
+
+const randomShellColor = (id: string): string => {
+  const h = ((hashCode(id) % 360) + 360) % 360
+  return `hsl(${h}, 65%, 82%)`
+}
+
+const randomCoreColor = (id: string): string => {
+  const h = ((hashCode(id + '_core') % 360) + 360) % 360
+  return `hsl(${h}, 60%, 45%)`
+}
 
 interface SavedBall {
   id: string
@@ -206,7 +223,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   }
 
   const getShareUrl = () => {
-    const base = window.location.origin + window.location.pathname
+    const base = getBaseUrl()
     const params = new URLSearchParams()
     if (items.length > 0) params.set('items', items.join(','))
     if (ballName.trim()) params.set('name', ballName.trim())
@@ -218,11 +235,21 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   }
 
   const copyShareLink = async () => {
+    const url = getShareUrl()
     try {
-      await navigator.clipboard.writeText(getShareUrl())
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch { /* non-HTTPS or permission denied — ignore silently */ }
+      await navigator.clipboard.writeText(url)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = url
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (mode === 'play') {
@@ -280,6 +307,13 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
               </motion.div>
             </div>
           )}
+          <Controls
+            volume={volume}
+            onVolumeChange={setVolume}
+            ballSize={ballSize}
+            onBallSizeChange={setBallSize}
+            onReset={() => newBall('reset')}
+          />
         </div>
         {playMode === 'lottery' && (
           <div className="play-items-row">
@@ -288,13 +322,6 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
             ))}
           </div>
         )}
-        <Controls
-          volume={volume}
-          onVolumeChange={setVolume}
-          ballSize={ballSize}
-          onBallSizeChange={setBallSize}
-          onReset={() => newBall('reset')}
-        />
       </div>
     )
   }
@@ -302,7 +329,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   if (mode === 'board') {
     const boardBalls = [
       ...savedBalls.map(b => ({ ...b, author: undefined as string | undefined, mine: true })),
-      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false, imageUrl: undefined as string | undefined, shellColor: undefined as string | undefined, coreColor: undefined as string | undefined })),
+      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false, imageUrl: undefined as string | undefined, shellColor: b.shellColor ?? randomShellColor(b.id), coreColor: b.coreColor ?? randomCoreColor(b.id) })),
     ]
       .filter(b => boardTab === 'all' || (boardTab === 'mine' ? b.mine : !b.mine))
       .filter(b => {
@@ -352,8 +379,8 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
             </p>
           )}
           {boardBalls.map(ball => {
-            const sc = ball.shellColor ?? DEFAULT_SHELL_COLOR
-            const cc = ball.coreColor ?? DEFAULT_CORE_COLOR
+            const sc = ball.shellColor ?? randomShellColor(ball.id)
+            const cc = ball.coreColor ?? randomCoreColor(ball.id)
             return (
               <div key={ball.id} className="saved-card" onClick={() => loadBall(ball)}>
                 <div className="saved-card-preview">
