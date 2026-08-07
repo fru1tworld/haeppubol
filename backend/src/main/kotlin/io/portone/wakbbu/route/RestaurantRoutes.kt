@@ -146,7 +146,8 @@ fun Route.restaurantRoutes(repo: RestaurantRepository) {
                         call.respondError(HttpStatusCode.NotFound, "Restaurant not found")
                     UpdateRestaurantError.WrongPassword ->
                         call.respondError(HttpStatusCode.Forbidden, "Wrong password")
-                    else ->
+                    is UpdateRestaurantError.UnknownField,
+                    is UpdateRestaurantError.InvalidValue ->
                         call.respondError(HttpStatusCode.BadRequest, "Bad request")
                 }
             } else {
