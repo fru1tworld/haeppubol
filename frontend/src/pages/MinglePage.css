@@ -9,12 +9,27 @@
   padding: 32px 24px;
 }
 
+.mingle-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 24px;
+}
+
 .mingle-title {
   font-family: 'Gaegu', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: var(--po-gray-900);
-  margin-bottom: 24px;
+}
+
+.mingle-customize-panel {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 20px;
 }
 
 .team-input-area {
