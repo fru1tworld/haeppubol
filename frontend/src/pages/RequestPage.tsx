@@ -50,6 +50,17 @@ const DEFAULT_REQUESTS: WakRequest[] = [
     background: 'mono',
     createdAt: '2026-08-07T02:00:00.000Z',
   },
+  {
+    id: 'seed-andy-1',
+    title: '앤디 왁뿌볼',
+    author: 'sarah',
+    team: '',
+    message: '',
+    shellColor: '#A8D8EA',
+    coreColor: '#3B82F6',
+    background: 'sky',
+    createdAt: '2026-08-07T03:00:00.000Z',
+  },
 ]
 
 const loadRequests = (): WakRequest[] => {
