@@ -18,6 +18,8 @@ type BallState = 'alive' | 'respawning'
 
 interface BallProps {
   size?: number
+  layers?: number
+  pressSpeed?: number
   onChunk?: () => void
   onSmash?: () => void
 }
@@ -249,7 +251,7 @@ function ChunkFragments({ chunk, onComplete }: { chunk: Chunk; onComplete: (id: 
   )
 }
 
-export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
+export function Ball({ size = 1.0, layers = LAYERS.length, pressSpeed = PRESS_SPEED, onChunk, onSmash }: BallProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const [state, setState] = useState<BallState>('alive')
   const [generation, setGeneration] = useState(0)
@@ -267,7 +269,11 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
   const dragRef = useRef({ active: false, dragging: false, startX: 0, startY: 0, lastX: 0, lastY: 0 })
 
   const [layer, setLayer] = useState(0)
-  const layersData = useMemo(() => LAYERS.map(ls => buildBallData(size * ls)), [size, generation])
+  const layerScales = useMemo(
+    () => LAYERS.slice(0, Math.min(Math.max(layers, 1), LAYERS.length)),
+    [layers],
+  )
+  const layersData = useMemo(() => layerScales.map(ls => buildBallData(size * ls)), [size, generation, layerScales])
   const data = layersData[layer]
   const alive = useMemo(
     () => ({ mask: new Array<boolean>(data.faceCount).fill(true), left: data.faceCount }),
@@ -288,8 +294,8 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
   useEffect(() => () => geomInfo.geometry.dispose(), [geomInfo])
 
   const bumps = useMemo(
-    () => createBumps(data, geomInfo.faceMap, size * LAYERS[layer] * BUMP_RATIO),
-    [geomInfo, data, size, layer],
+    () => createBumps(data, geomInfo.faceMap, size * layerScales[layer] * BUMP_RATIO),
+    [geomInfo, data, size, layer, layerScales],
   )
 
   useEffect(() => () => {
@@ -403,7 +409,7 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
         const dot = THREE.MathUtils.clamp(data.dirs[f].dot(local), -1, 1)
         const ang = Math.acos(dot)
         if (ang < PRESS_RADIUS) {
-          depths[f] = Math.min(1, depths[f] + delta * PRESS_SPEED * (1 - ang / PRESS_RADIUS))
+          depths[f] = Math.min(1, depths[f] + delta * pressSpeed * (1 - ang / PRESS_RADIUS))
           pressedAny = true
         }
       }
@@ -420,7 +426,7 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
           const dot = THREE.MathUtils.clamp(data.dirs[f].dot(seed), -1, 1)
           const ang = Math.acos(dot)
           if (ang < PRESS_RADIUS) {
-            depths[f] = Math.min(1, depths[f] + delta * PRESS_SPEED * (1 - ang / PRESS_RADIUS))
+            depths[f] = Math.min(1, depths[f] + delta * pressSpeed * (1 - ang / PRESS_RADIUS))
           }
         }
       }
@@ -473,7 +479,7 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
 
       if (alive.left === 0) {
         holdingRef.current = false
-        if (layer < LAYERS.length - 1) {
+        if (layer < layerScales.length - 1) {
           setLayer(layer + 1)
           w.amp = 0.35
           w.t = 0
@@ -530,7 +536,7 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
       >
         <meshStandardMaterial vertexColors />
         <primitive object={bumps} />
-        {LAYERS.slice(layer + 1).map((ls, i) => (
+        {layerScales.slice(layer + 1).map((ls, i) => (
           <StaticShell
             key={`${generation}-${layer + 1 + i}`}
             data={layersData[layer + 1 + i]}

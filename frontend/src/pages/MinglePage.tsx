@@ -62,7 +62,7 @@ export const MinglePage = () => {
       </div>
 
       <div className="mingle-scene">
-        <BallScene onChunk={() => play('pop')} onSmash={() => { play('smash'); handleSmash() }} />
+        <BallScene layers={1} pressSpeed={4.5} onChunk={() => play('pop')} onSmash={() => { play('smash'); handleSmash() }} />
         {!canSmash && (
           <div className="scene-blocker">
             <p>팀을 2개 이상 추가하세요</p>

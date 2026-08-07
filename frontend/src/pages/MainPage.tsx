@@ -48,6 +48,8 @@ export const MainPage = () => {
       <div className="main-scene">
         <BallScene
           ballSize={ballSize / 100}
+          layers={1}
+          pressSpeed={4.5}
           onChunk={() => play('pop')}
           onSmash={handleSmash}
         />

@@ -7,6 +7,8 @@ import './BallScene.css'
 
 interface BallSceneProps {
   ballSize?: number
+  layers?: number
+  pressSpeed?: number
   onChunk?: () => void
   onSmash?: () => void
   background?: string
@@ -21,7 +23,7 @@ function CameraZoom({ distance }: { distance: number }) {
   return null
 }
 
-export function BallScene({ ballSize = 1.0, onChunk, onSmash, background }: BallSceneProps) {
+export function BallScene({ ballSize = 1.0, layers, pressSpeed, onChunk, onSmash, background }: BallSceneProps) {
   const [distance, setDistance] = useState(5)
   const theme = getBackgroundTheme(background)
 
@@ -40,7 +42,7 @@ export function BallScene({ ballSize = 1.0, onChunk, onSmash, background }: Ball
         <ambientLight intensity={1.6} />
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
         <Background theme={theme} />
-        <Ball size={ballSize} onChunk={onChunk} onSmash={onSmash} />
+        <Ball size={ballSize} layers={layers} pressSpeed={pressSpeed} onChunk={onChunk} onSmash={onSmash} />
       </Canvas>
     </div>
   )
