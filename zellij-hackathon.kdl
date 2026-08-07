@@ -1,0 +1,16 @@
+layout {
+    tab name="hackathon" {
+        pane split_direction="vertical" {
+            pane name="backend" {
+                command "./gradlew"
+                args "run" "--console=plain"
+                cwd "backend"
+            }
+            pane name="frontend" {
+                command "pnpm"
+                args "dev"
+                cwd "frontend"
+            }
+        }
+    }
+}
