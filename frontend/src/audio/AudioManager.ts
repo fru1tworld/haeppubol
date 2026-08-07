@@ -5,7 +5,6 @@ import type { CrackEvent, Rng } from '../three/waxTypes'
 import { createRubLoop, playCrackCluster } from './crackSounds'
 import type { CrackCondition, RubLoop } from './crackSounds'
 
-const PLAYABLE_SETS: PlayableSoundSetName[] = ['classic', 'slime', 'keycap', 'water', 'bubblewrap', 'slinky', 'squishy']
 
 interface AudioManager {
   play: (name: SoundName) => void
@@ -43,11 +42,8 @@ export const createAudioManager = (rng: Rng): AudioManager => {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume()
       }
-      const resolved = soundSet === 'random'
-        ? PLAYABLE_SETS[Math.floor(rng() * PLAYABLE_SETS.length)]
-        : soundSet
-      const pitch = 0.95 + rng() * 0.1
-      soundSets[resolved][name](audioCtx, gain, pitch)
+      const pitch = 0.95 + Math.random() * 0.1
+      soundSets[soundSet][name](audioCtx, gain, pitch)
     },
 
     playCracks(events: CrackEvent[], cond: CrackCondition) {

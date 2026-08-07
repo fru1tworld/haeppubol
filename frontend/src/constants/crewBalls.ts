@@ -24,6 +24,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     createdAt: '2026-08-03T03:00:00.000Z',
     shellColor: '#fbdcc2',
     coreColor: '#e0405c',
+    sound: 'slime',
   },
   {
     id: 'crew-code-review',
@@ -33,6 +34,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     createdAt: '2026-08-04T02:30:00.000Z',
     shellColor: '#cadcf7',
     coreColor: '#2f7fc4',
+    sound: 'keycap',
   },
   {
     id: 'crew-deploy-duty',
@@ -42,6 +44,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     createdAt: '2026-08-05T01:00:00.000Z',
     shellColor: '#c8ebdc',
     coreColor: '#4f9e5f',
+    sound: 'water',
   },
   {
     id: 'crew-mingle-group',
@@ -51,6 +54,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     createdAt: '2026-08-06T05:00:00.000Z',
     shellColor: '#ddcef3',
     coreColor: '#7c4dbd',
+    sound: 'bubblewrap',
   },
   {
     id: 'crew-standup-order',
@@ -60,6 +64,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     createdAt: '2026-08-07T00:30:00.000Z',
     shellColor: '#8f8a97',
     coreColor: '#f0993a',
+    sound: 'slinky',
   },
   {
     id: 'heal-brian',
