@@ -1,0 +1,15 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+
+# Backend (Gradle)
+backend/build/
+backend/.gradle/
+backend/*.db
+
+# Misc
+.DS_Store
+
+# Kotlin
+backend/.kotlin/
