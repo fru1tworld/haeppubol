@@ -94,6 +94,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
       if (core && isHexColor(core)) setCoreColor(core)
       setPlayMode('lottery')
       setMode('play')
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash)
     }
   }, [setSoundSet])
 
@@ -271,7 +272,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   if (mode === 'board') {
     const boardBalls = [
       ...savedBalls.map(b => ({ ...b, author: undefined as string | undefined, mine: true })),
-      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false })),
+      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false, imageUrl: undefined as string | undefined, shellColor: undefined as string | undefined, coreColor: undefined as string | undefined })),
     ]
       .filter(b => boardTab === 'all' || (boardTab === 'mine' ? b.mine : !b.mine))
       .filter(b => {
@@ -320,39 +321,55 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
               {searchQuery ? '검색 결과가 없습니다' : '저장된 왁뿌볼이 없습니다. 새로 만들어보세요!'}
             </p>
           )}
-          {boardBalls.map(ball => (
-            <div key={ball.id} className="saved-card" onClick={() => loadBall(ball)}>
-              <div className="saved-card-header">
-                <h3>{ball.name}</h3>
-                {ball.mine ? (
-                  <button
-                    className="btn-delete"
-                    onClick={e => { e.stopPropagation(); deleteBall(ball.id) }}
-                  >
-                    &times;
-                  </button>
-                ) : (
-                  <span className="author-badge">{ball.author}</span>
-                )}
+          {boardBalls.map(ball => {
+            const sc = ball.shellColor ?? DEFAULT_SHELL_COLOR
+            const cc = ball.coreColor ?? DEFAULT_CORE_COLOR
+            return (
+              <div key={ball.id} className="saved-card" onClick={() => loadBall(ball)}>
+                <div className="saved-card-preview">
+                  {ball.imageUrl ? (
+                    <img src={ball.imageUrl} alt="" className="saved-card-thumb" />
+                  ) : (
+                    <div
+                      className="saved-card-ball"
+                      style={{ background: `radial-gradient(circle at 35% 35%, ${sc}, ${cc} 80%)` }}
+                    />
+                  )}
+                </div>
+                <div className="saved-card-body">
+                  <div className="saved-card-header">
+                    <h3>{ball.name}</h3>
+                    {ball.mine ? (
+                      <button
+                        className="btn-delete"
+                        onClick={e => { e.stopPropagation(); deleteBall(ball.id) }}
+                      >
+                        &times;
+                      </button>
+                    ) : (
+                      <span className="author-badge">{ball.author}</span>
+                    )}
+                  </div>
+                  <div className="saved-items">
+                    {ball.items.slice(0, 5).map(item => (
+                      <span key={item} className="saved-item-chip">{item}</span>
+                    ))}
+                    {ball.items.length > 5 && (
+                      <span className="saved-item-chip more">+{ball.items.length - 5}</span>
+                    )}
+                  </div>
+                  <div className="saved-card-footer">
+                    {ball.mine && ball.sound && ball.sound !== 'classic' && (
+                      <span className="sound-badge">
+                        {SOUND_SET_LIST.find(s => s.name === ball.sound)?.label}
+                      </span>
+                    )}
+                    <p className="saved-date">{new Date(ball.createdAt).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                </div>
               </div>
-              <div className="saved-items">
-                {ball.items.slice(0, 5).map(item => (
-                  <span key={item} className="saved-item-chip">{item}</span>
-                ))}
-                {ball.items.length > 5 && (
-                  <span className="saved-item-chip more">+{ball.items.length - 5}</span>
-                )}
-              </div>
-              <div className="saved-card-footer">
-                {ball.mine && ball.sound && ball.sound !== 'classic' && (
-                  <span className="sound-badge">
-                    {SOUND_SET_LIST.find(s => s.name === ball.sound)?.label}
-                  </span>
-                )}
-                <p className="saved-date">{new Date(ball.createdAt).toLocaleDateString('ko-KR')}</p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     )

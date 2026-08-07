@@ -131,15 +131,45 @@
 .saved-card {
   border: 1px solid var(--po-gray-200);
   border-radius: 16px;
-  padding: 20px;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--po-white);
+  display: flex;
+  flex-direction: column;
 }
 
 .saved-card:hover {
   background: var(--po-gray-50);
   border-color: var(--po-gray-400);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.saved-card-preview {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--po-peach) 0%, #f8dcc8 100%);
+  overflow: hidden;
+}
+
+.saved-card-ball {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  box-shadow: inset -4px -6px 12px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.saved-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saved-card-body {
+  padding: 16px 20px 20px;
 }
 
 .saved-card-header {
