@@ -49,7 +49,7 @@ class RestaurantRepositoryTest : FreeSpec({
     )
 
     "create and findById" {
-        val created = repo.create(sampleRestaurant(id = "test1", name = "테스트식당"))
+        val created = repo.create(sampleRestaurant(id = "test1", name = "테스트식당"), "1234")
         created.id shouldBe "test1"
         created.name shouldBe "테스트식당"
         created.tags shouldBe listOf("혼밥", "가성비")
@@ -62,8 +62,8 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "findAll with category filter" {
-        repo.create(sampleRestaurant(name = "중식당", category = FoodCategory.chinese))
-        repo.create(sampleRestaurant(name = "일식당", category = FoodCategory.japanese))
+        repo.create(sampleRestaurant(name = "중식당", category = FoodCategory.chinese), "1234")
+        repo.create(sampleRestaurant(name = "일식당", category = FoodCategory.japanese), "1234")
 
         val chinese = repo.findAll(category = FoodCategory.chinese)
         chinese.map { it.name } shouldContain "중식당"
@@ -71,15 +71,15 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "findAll with mode filter" {
-        repo.create(sampleRestaurant(name = "배달식당", modes = listOf(DiningMode.delivery)))
-        repo.create(sampleRestaurant(name = "매장식당", modes = listOf(DiningMode.`dine-in`)))
+        repo.create(sampleRestaurant(name = "배달식당", modes = listOf(DiningMode.delivery)), "1234")
+        repo.create(sampleRestaurant(name = "매장식당", modes = listOf(DiningMode.`dine-in`)), "1234")
 
         val deliveryResults = repo.findAll(mode = DiningMode.delivery)
         deliveryResults.map { it.name } shouldContain "배달식당"
     }
 
     "findAll with search" {
-        repo.create(sampleRestaurant(name = "검색용식당"))
+        repo.create(sampleRestaurant(name = "검색용식당"), "1234")
 
         val results = repo.findAll(search = "검색용")
         results.map { it.name } shouldContain "검색용식당"
@@ -89,7 +89,7 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "findRandom returns matching mode" {
-        repo.create(sampleRestaurant(name = "랜덤식당", modes = listOf(DiningMode.`dine-in`)))
+        repo.create(sampleRestaurant(name = "랜덤식당", modes = listOf(DiningMode.`dine-in`)), "1234")
 
         val random = repo.findRandom(mode = DiningMode.`dine-in`)
         random.shouldNotBeNull()
@@ -97,8 +97,8 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "findRandom excludes closed restaurants" {
-        val closed = repo.create(sampleRestaurant(name = "폐업식당", closed = true, modes = listOf(DiningMode.delivery)))
-        repo.create(sampleRestaurant(name = "영업중식당", closed = false, modes = listOf(DiningMode.delivery)))
+        val closed = repo.create(sampleRestaurant(name = "폐업식당", closed = true, modes = listOf(DiningMode.delivery)), "1234")
+        repo.create(sampleRestaurant(name = "영업중식당", closed = false, modes = listOf(DiningMode.delivery)), "1234")
 
         repeat(5) {
             val random = repo.findRandom(mode = DiningMode.delivery)
@@ -109,9 +109,9 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "update partial fields" {
-        val created = repo.create(sampleRestaurant(name = "수정전"))
+        val created = repo.create(sampleRestaurant(name = "수정전"), "1234")
 
-        val updated = repo.update(created.id, mapOf("name" to "수정후", "note" to "특이사항")).getOrNull()
+        val updated = repo.update(created.id, mapOf("name" to "수정후", "note" to "특이사항"), "1234").getOrNull()
         updated.shouldNotBeNull()
         updated.name shouldBe "수정후"
         updated.note shouldBe "특이사항"
@@ -119,32 +119,48 @@ class RestaurantRepositoryTest : FreeSpec({
     }
 
     "update with unknown field returns UnknownField" {
-        val created = repo.create(sampleRestaurant())
+        val created = repo.create(sampleRestaurant(), "1234")
 
-        repo.update(created.id, mapOf("bogus" to "x")) shouldBe
+        repo.update(created.id, mapOf("bogus" to "x"), "1234") shouldBe
             UpdateRestaurantError.UnknownField("bogus").left()
     }
 
     "update with invalid enum value returns InvalidValue" {
-        val created = repo.create(sampleRestaurant())
+        val created = repo.create(sampleRestaurant(), "1234")
 
-        repo.update(created.id, mapOf("category" to "nope")) shouldBe
+        repo.update(created.id, mapOf("category" to "nope"), "1234") shouldBe
             UpdateRestaurantError.InvalidValue("category").left()
-        repo.update(created.id, mapOf("availableModes" to listOf("walk-in"))) shouldBe
+        repo.update(created.id, mapOf("availableModes" to listOf("walk-in")), "1234") shouldBe
             UpdateRestaurantError.InvalidValue("availableModes").left()
     }
 
     "update nonexistent id returns NotFound" {
-        repo.update("nonexistent-id", mapOf("name" to "x")) shouldBe
+        repo.update("nonexistent-id", mapOf("name" to "x"), "1234") shouldBe
             UpdateRestaurantError.NotFound.left()
     }
 
-    "delete" {
-        val created = repo.create(sampleRestaurant(name = "삭제대상"))
+    "update with wrong password returns WrongPassword" {
+        val created = repo.create(sampleRestaurant(), "1234")
 
-        repo.delete(created.id).shouldBeTrue()
+        repo.update(created.id, mapOf("name" to "x"), "wrong") shouldBe
+            UpdateRestaurantError.WrongPassword.left()
+    }
+
+    "delete with correct password" {
+        val created = repo.create(sampleRestaurant(name = "삭제대상"), "1234")
+
+        repo.delete(created.id, "1234").shouldBeNull()
         repo.findById(created.id).shouldBeNull()
+    }
 
-        repo.delete("nonexistent-id").shouldBeFalse()
+    "delete with wrong password returns WrongPassword" {
+        val created = repo.create(sampleRestaurant(name = "삭제대상"), "1234")
+
+        repo.delete(created.id, "wrong") shouldBe UpdateRestaurantError.WrongPassword
+        repo.findById(created.id).shouldNotBeNull()
+    }
+
+    "delete nonexistent id returns NotFound" {
+        repo.delete("nonexistent-id", "1234") shouldBe UpdateRestaurantError.NotFound
     }
 })

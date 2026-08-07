@@ -1,68 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+
 .home-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 48px 24px;
+  min-height: 100%;
+  background: var(--po-peach);
 }
 
 .home-hero {
-  text-align: center;
-  margin-bottom: 48px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 64px;
+  gap: 120px;
+  position: relative;
 }
 
-.home-hero-emoji {
-  font-size: 56px;
-  margin-bottom: 16px;
-}
-
-.home-hero h1 {
-  font-size: 32px;
+.home-title {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 96px;
   font-weight: 700;
-  margin-bottom: 8px;
+  color: var(--po-black);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.08);
+  text-align: center;
 }
 
-.home-hero p {
-  color: var(--po-gray-600);
-  font-size: 15px;
+/* Signs row */
+.home-signs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 48px;
 }
 
-.home-menu-grid {
+.home-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  padding: 0;
+}
+
+.home-sign:hover {
+  transform: translateY(-12px) scale(1.05);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+.home-sign:active {
+  transform: translateY(-4px) scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Sign board */
+.sign-board {
+  width: 170px;
+  height: 170px;
+  background: #FFFFFF;
+  border: 4px solid var(--po-gray-900);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.sign-board.diamond {
+  width: 135px;
+  height: 135px;
+  transform: rotate(45deg);
+  margin-bottom: 18px;
+  border-radius: 6px;
+}
+
+.sign-board.diamond .sign-svg {
+  transform: rotate(-45deg);
+}
+
+.sign-board.diamond .sign-bolt {
+  transform: rotate(-45deg);
+}
+
+/* Bolts */
+.sign-bolt {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--po-gray-900);
+  border-radius: 50%;
+}
+
+.sign-bolt.tl { top: 8px; left: 8px; }
+.sign-bolt.tr { top: 8px; right: 8px; }
+
+.sign-svg {
+  width: 88px;
+  height: 88px;
+}
+
+/* Pole */
+.sign-pole {
+  width: 8px;
+  height: 44px;
+  background: #aaa;
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
+}
+
+/* Name bar */
+.sign-name-bar {
+  min-width: 170px;
+  padding: 8px 18px;
+  background: var(--po-peach-dark);
+  border: 3px solid var(--po-gray-900);
+  border-radius: 6px;
+  margin-top: -2px;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sign-label {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  white-space: nowrap;
+}
+
+/* Crew section */
+.crew-section {
+  padding: 64px 24px 80px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.crew-section-title {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.crew-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
-.home-menu-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 24px;
-  border: 1px solid var(--po-gray-200);
-  border-radius: 16px;
-  background: var(--po-white);
+.crew-card {
+  background: #fff;
+  border: 3px solid var(--po-gray-900);
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: all 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-.home-menu-card:hover {
+.crew-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 3px 6px 0 rgba(0, 0, 0, 0.12);
+}
+
+.crew-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.crew-card-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.crew-author {
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: var(--po-peach-dark);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.crew-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crew-item-chip {
+  padding: 4px 12px;
+  border-radius: 100px;
   background: var(--po-peach);
-  border-color: var(--po-peach-dark);
-  transform: translateY(-2px);
-}
-
-.home-menu-emoji {
-  font-size: 32px;
-}
-
-.home-menu-card h3 {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--po-gray-900);
-}
-
-.home-menu-card p {
   font-size: 13px;
+}
+
+.crew-item-chip.more {
+  background: var(--po-gray-100);
   color: var(--po-gray-600);
+}
+
+@media (max-width: 768px) {
+  .home-title {
+    font-size: 44px;
+  }
+
+  .home-signs {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .sign-board {
+    width: 110px;
+    height: 110px;
+  }
+
+  .sign-board.diamond {
+    width: 90px;
+    height: 90px;
+  }
+
+  .sign-svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .sign-name-bar {
+    min-width: 110px;
+  }
+
+  .sign-label {
+    font-size: 16px;
+  }
 }

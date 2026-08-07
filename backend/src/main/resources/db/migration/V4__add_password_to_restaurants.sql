@@ -1,0 +1,1 @@
+ALTER TABLE restaurants ADD COLUMN password TEXT NOT NULL DEFAULT '';

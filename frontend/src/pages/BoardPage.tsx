@@ -18,8 +18,8 @@ const CATEGORY_GRADIENT: Record<FoodCategory, string> = {
 
 const MODE_LABEL: Record<DiningMode | 'all', string> = {
   all: '전체',
-  'dine-in': '직접방문',
-  delivery: '배달',
+  'dine-in': '매장 식사',
+  delivery: '배달 시키기',
 }
 
 export const BoardPage = () => {

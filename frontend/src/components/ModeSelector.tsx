@@ -2,8 +2,8 @@ import type { DiningMode } from '../types'
 import './ModeSelector.css'
 
 const MODES: readonly { key: DiningMode; label: string }[] = [
-  { key: 'dine-in', label: '직접방문' },
-  { key: 'delivery', label: '배달' },
+  { key: 'dine-in', label: '매장 식사' },
+  { key: 'delivery', label: '배달 시키기' },
 ]
 
 export const ModeSelector = ({

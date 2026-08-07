@@ -1,14 +1,16 @@
 .mode-selector {
   display: flex;
-  gap: 8px;
+  gap: 0;
+  width: 100%;
 }
 
 .mode-pill {
+  flex: 1;
   padding: 8px 20px;
-  border: 1px solid var(--wak-card-border);
+  border: 1px solid #e8b48a;
   border-radius: 100px;
   background: transparent;
-  color: var(--wak-text-muted);
+  color: var(--po-gray-600);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -17,13 +19,12 @@
 }
 
 .mode-pill:hover {
-  border-color: var(--wak-accent);
-  color: var(--wak-text);
+  border-color: var(--po-gray-900);
+  color: var(--po-gray-900);
 }
 
 .mode-pill.active {
-  background: var(--wak-accent);
-  border-color: var(--wak-accent);
-  color: var(--po-black);
-  box-shadow: 0 0 12px rgba(245, 198, 160, 0.4);
+  background: var(--po-gray-900);
+  border-color: var(--po-gray-900);
+  color: var(--po-peach);
 }

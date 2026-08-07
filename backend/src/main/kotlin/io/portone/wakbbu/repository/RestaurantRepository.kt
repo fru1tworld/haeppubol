@@ -30,6 +30,7 @@ private val TAGS = DSL.field("tags", String::class.java)
 private val IMAGE_URL = DSL.field("image_url", String::class.java)
 private val MAP_URL = DSL.field("map_url", String::class.java)
 private val DELIVERY_APPS = DSL.field("delivery_apps", String::class.java)
+private val PASSWORD = DSL.field("password", String::class.java)
 private val CREATED_AT = DSL.field("created_at", String::class.java)
 
 private val json = Json { ignoreUnknownKeys = true }
@@ -38,11 +39,12 @@ sealed interface UpdateRestaurantError {
     data class UnknownField(val name: String) : UpdateRestaurantError
     data class InvalidValue(val name: String) : UpdateRestaurantError
     data object NotFound : UpdateRestaurantError
+    data object WrongPassword : UpdateRestaurantError
 }
 
 class RestaurantRepository(private val dsl: DSLContext) {
 
-    fun create(restaurant: Restaurant): Restaurant {
+    fun create(restaurant: Restaurant, password: String): Restaurant {
         dsl.insertInto(RESTAURANTS)
             .set(ID, restaurant.id)
             .set(NAME, restaurant.name)
@@ -60,6 +62,7 @@ class RestaurantRepository(private val dsl: DSLContext) {
             .set(IMAGE_URL, restaurant.imageUrl)
             .set(MAP_URL, restaurant.mapUrl)
             .set(DELIVERY_APPS, json.encodeToString(restaurant.deliveryApps))
+            .set(PASSWORD, password)
             .execute()
         return findById(restaurant.id)!!
     }
@@ -97,8 +100,17 @@ class RestaurantRepository(private val dsl: DSLContext) {
             .fetchOne()
             ?.toRestaurant()
 
-    fun update(id: String, patch: Map<String, Any?>): Either<UpdateRestaurantError, Restaurant> = either {
-        if (patch.isEmpty()) return@either ensureNotNull(findById(id)) { UpdateRestaurantError.NotFound }
+    fun verifyPassword(id: String, password: String): UpdateRestaurantError? {
+        val stored = dsl.select(PASSWORD).from(RESTAURANTS).where(ID.eq(id)).fetchOne()
+            ?: return UpdateRestaurantError.NotFound
+        if (stored.get(PASSWORD) != password) return UpdateRestaurantError.WrongPassword
+        return null
+    }
+
+    fun update(id: String, patch: Map<String, Any?>, password: String): Either<UpdateRestaurantError, Restaurant> = either {
+        val pwError = verifyPassword(id, password)
+        if (pwError != null) raise(pwError)
+        if (patch.isEmpty()) return@either findById(id)!!
         val step = dsl.update(RESTAURANTS)
         var set = step.set(ID, ID) // no-op seed to get UpdateSetMoreStep
         patch.forEach { (key, value) ->
@@ -143,8 +155,12 @@ class RestaurantRepository(private val dsl: DSLContext) {
         findById(id)!!
     }
 
-    fun delete(id: String): Boolean =
-        dsl.deleteFrom(RESTAURANTS).where(ID.eq(id)).execute() > 0
+    fun delete(id: String, password: String): UpdateRestaurantError? {
+        val pwError = verifyPassword(id, password)
+        if (pwError != null) return pwError
+        dsl.deleteFrom(RESTAURANTS).where(ID.eq(id)).execute()
+        return null
+    }
 
     fun count(): Int =
         dsl.fetchCount(RESTAURANTS)

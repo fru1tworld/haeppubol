@@ -32,7 +32,7 @@ class ReviewRoutesTest : FreeSpec({
 
             val createResp = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"리뷰식당","category":"korean","availableModes":["dine-in"],"tags":[]}""")
+                setBody("""{"name":"리뷰식당","category":"korean","availableModes":["dine-in"],"tags":[],"password":"1234"}""")
             }
             val idRegex = """"id"\s*:\s*"([^"]+)"""".toRegex()
             val restaurantId = idRegex.find(createResp.bodyAsText())!!.groupValues[1]
@@ -65,7 +65,7 @@ class ReviewRoutesTest : FreeSpec({
 
             val createResp = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"리뷰식당","category":"korean","availableModes":["dine-in"],"tags":[]}""")
+                setBody("""{"name":"리뷰식당","category":"korean","availableModes":["dine-in"],"tags":[],"password":"1234"}""")
             }
             val idRegex = """"id"\s*:\s*"([^"]+)"""".toRegex()
             val restaurantId = idRegex.find(createResp.bodyAsText())!!.groupValues[1]

@@ -24,14 +24,14 @@ describe('SEONGSU_RESTAURANTS', () => {
     }
   })
 
-  it('직접방문 모드에서 폐업 제외 후보가 존재한다', () => {
+  it('매장 식사 모드에서 폐업 제외 후보가 존재한다', () => {
     const dineIn = SEONGSU_RESTAURANTS.filter(
       r => !r.closed && r.availableModes.includes('dine-in'),
     )
     expect(dineIn.length).toBeGreaterThan(0)
   })
 
-  it('배달 모드에서 폐업 제외 후보가 존재한다', () => {
+  it('배달 시키기 모드에서 폐업 제외 후보가 존재한다', () => {
     const delivery = SEONGSU_RESTAURANTS.filter(
       r => !r.closed && r.availableModes.includes('delivery'),
     )

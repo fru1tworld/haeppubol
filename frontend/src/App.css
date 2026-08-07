@@ -15,13 +15,13 @@
   --po-warning: #f59e0b;
   --po-danger: #ef4444;
 
-  --wak-bg: #1a1a2e;
-  --wak-bg-alt: #16213e;
+  --wak-bg: #3d2b1f;
+  --wak-bg-alt: #2e1f15;
   --wak-accent: #F5C6A0;
-  --wak-text: #e2e8f0;
-  --wak-text-muted: #94a3b8;
-  --wak-card-bg: rgba(255, 255, 255, 0.05);
-  --wak-card-border: rgba(255, 255, 255, 0.08);
+  --wak-text: #f5e6d8;
+  --wak-text-muted: #c4a689;
+  --wak-card-bg: rgba(245, 198, 160, 0.08);
+  --wak-card-border: rgba(245, 198, 160, 0.15);
 }
 
 * {
@@ -47,9 +47,34 @@ body {
 .app-header {
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 14px 24px;
-  background: var(--po-white);
-  border-bottom: 1px solid var(--po-gray-200);
+  background: var(--po-peach-dark);
+  border-bottom: 1px solid #e8b48a;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: left;
+}
+
+.sidebar-toggle:hover {
+  background: var(--po-gray-100);
+  color: var(--po-gray-900);
 }
 
 .app-logo {
@@ -58,11 +83,11 @@ body {
   gap: 8px;
   border: none;
   background: none;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
-  color: var(--po-black);
+  color: var(--po-gray-900);
   cursor: pointer;
-  font-family: inherit;
+  font-family: 'Gaegu', sans-serif;
   padding: 0;
 }
 
@@ -83,9 +108,20 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 16px 12px;
-  background: var(--po-gray-50);
-  border-right: 1px solid var(--po-gray-200);
+  background: #f8dcc8;
+  border-right: 1px solid var(--po-peach-dark);
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.2s ease, padding 0.2s ease;
+}
+
+.app-sidebar.collapsed {
+  width: 48px;
+  padding: 12px 4px;
+}
+
+.app-sidebar.collapsed .sidebar-toggle {
+  justify-content: center;
 }
 
 .app-sidebar button {
@@ -106,13 +142,13 @@ body {
 }
 
 .app-sidebar button:hover {
-  background: var(--po-gray-100);
+  background: var(--po-peach-dark);
   color: var(--po-gray-900);
 }
 
 .app-sidebar button.active {
-  background: var(--po-black);
-  color: var(--po-white);
+  background: var(--po-gray-900);
+  color: var(--po-peach);
 }
 
 .menu-emoji {
@@ -142,7 +178,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(17, 24, 39, 0.6);
+  background: rgba(61, 43, 31, 0.6);
   backdrop-filter: blur(2px);
   z-index: 10;
 }

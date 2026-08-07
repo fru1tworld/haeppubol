@@ -31,6 +31,18 @@ data class CreateRestaurantRequest(
     val imageUrl: String? = null,
     val mapUrl: String? = null,
     val deliveryApps: List<String> = emptyList(),
+    val password: String = "",
+)
+
+@Serializable
+data class PasswordRequest(
+    val password: String,
+)
+
+@Serializable
+data class UpdateRestaurantRequest(
+    val password: String,
+    val patch: Map<String, kotlinx.serialization.json.JsonElement> = emptyMap(),
 )
 
 fun Route.restaurantRoutes(repo: RestaurantRepository) {
@@ -73,6 +85,9 @@ fun Route.restaurantRoutes(repo: RestaurantRepository) {
 
         post {
             val req = call.receive<CreateRestaurantRequest>()
+            if (req.password.isBlank()) {
+                return@post call.respondError(HttpStatusCode.BadRequest, "password is required")
+            }
             val restaurant = Restaurant(
                 id = UUID.randomUUID().toString(),
                 name = req.name,
@@ -91,20 +106,20 @@ fun Route.restaurantRoutes(repo: RestaurantRepository) {
                 mapUrl = req.mapUrl,
                 deliveryApps = req.deliveryApps,
             )
-            call.respond(HttpStatusCode.Created, repo.create(restaurant))
+            call.respond(HttpStatusCode.Created, repo.create(restaurant, req.password))
         }
 
         put("/{id}") {
             val id = call.parameters["id"]!!
-            val patch = call.receive<Map<String, kotlinx.serialization.json.JsonElement>>()
-            val converted = patch.mapValues { (_, v) ->
+            val req = call.receive<UpdateRestaurantRequest>()
+            val converted = req.patch.mapValues { (_, v) ->
                 when (v) {
                     is JsonPrimitive -> v.content
                     is JsonArray -> v.map { (it as JsonPrimitive).content }
                     else -> v.toString()
                 }
             }
-            repo.update(id, converted).fold(
+            repo.update(id, converted, req.password).fold(
                 { error ->
                     when (error) {
                         is UpdateRestaurantError.UnknownField ->
@@ -113,6 +128,8 @@ fun Route.restaurantRoutes(repo: RestaurantRepository) {
                             call.respondError(HttpStatusCode.BadRequest, "invalid value for field: ${error.name}")
                         UpdateRestaurantError.NotFound ->
                             call.respondError(HttpStatusCode.NotFound, "Restaurant not found")
+                        UpdateRestaurantError.WrongPassword ->
+                            call.respondError(HttpStatusCode.Forbidden, "Wrong password")
                     }
                 },
                 { call.respond(it) },
@@ -121,8 +138,20 @@ fun Route.restaurantRoutes(repo: RestaurantRepository) {
 
         delete("/{id}") {
             val id = call.parameters["id"]!!
-            repo.delete(id)
-            call.respond(HttpStatusCode.NoContent)
+            val req = call.receive<PasswordRequest>()
+            val error = repo.delete(id, req.password)
+            if (error != null) {
+                when (error) {
+                    UpdateRestaurantError.NotFound ->
+                        call.respondError(HttpStatusCode.NotFound, "Restaurant not found")
+                    UpdateRestaurantError.WrongPassword ->
+                        call.respondError(HttpStatusCode.Forbidden, "Wrong password")
+                    else ->
+                        call.respondError(HttpStatusCode.BadRequest, "Bad request")
+                }
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
         }
     }
 }

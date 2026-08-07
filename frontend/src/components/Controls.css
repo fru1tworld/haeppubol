@@ -1,6 +1,6 @@
 .controls-left {
   position: fixed;
-  left: 16px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -9,15 +9,15 @@
   gap: 8px;
   z-index: 20;
   padding: 12px 8px;
-  background: var(--wak-card-bg);
+  background: rgba(245, 198, 160, 0.5);
   backdrop-filter: blur(10px);
-  border: 1px solid var(--wak-card-border);
+  border: 1px solid #e8b48a;
   border-radius: 16px;
 }
 
 .controls-label {
   font-size: 12px;
-  color: var(--wak-text-muted);
+  color: var(--po-gray-600);
   user-select: none;
 }
 
@@ -27,7 +27,7 @@
   width: 28px;
   height: 100px;
   appearance: slider-vertical;
-  accent-color: var(--wak-accent);
+  accent-color: var(--po-gray-900);
   cursor: pointer;
 }
 
@@ -78,10 +78,10 @@
   bottom: 24px;
   padding: 10px 24px;
   border-radius: 100px;
-  border: 1px solid var(--wak-card-border);
-  background: var(--wak-card-bg);
+  border: 1px solid #e8b48a;
+  background: rgba(245, 198, 160, 0.5);
   backdrop-filter: blur(10px);
-  color: var(--wak-text);
+  color: var(--po-gray-900);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -91,7 +91,7 @@
 }
 
 .controls-reset:hover {
-  background: var(--wak-accent);
+  background: var(--po-peach-dark);
   color: var(--po-black);
-  border-color: var(--wak-accent);
+  border-color: var(--po-peach-dark);
 }

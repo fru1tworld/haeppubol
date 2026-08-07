@@ -27,7 +27,7 @@ class RestaurantRoutesTest : FreeSpec({
             }
             val response = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"테스트식당","category":"korean","description":"맛있는 식당","address":"성수동","distanceFromStation":"5분","priceRange":"만원","availableModes":["dine-in"],"tags":["혼밥"]}""")
+                setBody("""{"name":"테스트식당","category":"korean","description":"맛있는 식당","address":"성수동","distanceFromStation":"5분","priceRange":"만원","availableModes":["dine-in"],"tags":["혼밥"],"password":"1234"}""")
             }
             response.status shouldBe HttpStatusCode.Created
             response.bodyAsText() shouldContain "테스트식당"
@@ -45,7 +45,7 @@ class RestaurantRoutesTest : FreeSpec({
             }
             client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"식당A","category":"korean","availableModes":["dine-in"],"tags":[]}""")
+                setBody("""{"name":"식당A","category":"korean","availableModes":["dine-in"],"tags":[],"password":"1234"}""")
             }
             val response = client.get("/api/restaurants")
             response.status shouldBe HttpStatusCode.OK
@@ -64,7 +64,7 @@ class RestaurantRoutesTest : FreeSpec({
             }
             client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"랜덤식당","category":"korean","availableModes":["dine-in"],"tags":[]}""")
+                setBody("""{"name":"랜덤식당","category":"korean","availableModes":["dine-in"],"tags":[],"password":"1234"}""")
             }
             val response = client.get("/api/restaurants/random?mode=dine-in")
             response.status shouldBe HttpStatusCode.OK
@@ -97,7 +97,7 @@ class RestaurantRoutesTest : FreeSpec({
             }
             val createResp = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"원래이름","category":"korean","availableModes":["dine-in"],"tags":[]}""")
+                setBody("""{"name":"원래이름","category":"korean","availableModes":["dine-in"],"tags":[],"password":"1234"}""")
             }
             val body = createResp.bodyAsText()
             val idRegex = """"id"\s*:\s*"([^"]+)"""".toRegex()
@@ -105,7 +105,7 @@ class RestaurantRoutesTest : FreeSpec({
 
             val updateResp = client.put("/api/restaurants/$id") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"바뀐이름"}""")
+                setBody("""{"password":"1234","patch":{"name":"바뀐이름"}}""")
             }
             updateResp.status shouldBe HttpStatusCode.OK
             updateResp.bodyAsText() shouldContain "바뀐이름"
@@ -123,13 +123,16 @@ class RestaurantRoutesTest : FreeSpec({
             }
             val createResp = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"삭제식당","category":"korean","availableModes":[],"tags":[]}""")
+                setBody("""{"name":"삭제식당","category":"korean","availableModes":[],"tags":[],"password":"1234"}""")
             }
             val body = createResp.bodyAsText()
             val idRegex = """"id"\s*:\s*"([^"]+)"""".toRegex()
             val id = idRegex.find(body)!!.groupValues[1]
 
-            val deleteResp = client.delete("/api/restaurants/$id")
+            val deleteResp = client.delete("/api/restaurants/$id") {
+                contentType(ContentType.Application.Json)
+                setBody("""{"password":"1234"}""")
+            }
             deleteResp.status shouldBe HttpStatusCode.NoContent
         }
     }
@@ -162,14 +165,14 @@ class RestaurantRoutesTest : FreeSpec({
             }
             val createResp = client.post("/api/restaurants") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"name":"패치식당","category":"korean","availableModes":[],"tags":[]}""")
+                setBody("""{"name":"패치식당","category":"korean","availableModes":[],"tags":[],"password":"1234"}""")
             }
             val idRegex = """"id"\s*:\s*"([^"]+)"""".toRegex()
             val id = idRegex.find(createResp.bodyAsText())!!.groupValues[1]
 
             val response = client.put("/api/restaurants/$id") {
                 contentType(ContentType.Application.Json)
-                setBody("""{"bogus":"x"}""")
+                setBody("""{"password":"1234","patch":{"bogus":"x"}}""")
             }
             response.status shouldBe HttpStatusCode.BadRequest
             response.bodyAsText() shouldContain "unknown field"

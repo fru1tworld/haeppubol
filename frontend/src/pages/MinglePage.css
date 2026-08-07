@@ -1,8 +1,8 @@
 .mingle-page {
   width: 100%;
   min-height: 100%;
-  background: var(--wak-bg);
-  color: var(--wak-text);
+  background: var(--po-peach);
+  color: var(--po-gray-900);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,9 +10,10 @@
 }
 
 .mingle-title {
+  font-family: 'Gaegu', sans-serif;
   font-size: 28px;
   font-weight: 700;
-  color: var(--wak-accent);
+  color: var(--po-gray-900);
   margin-bottom: 24px;
 }
 
@@ -31,24 +32,24 @@
   flex: 1;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid var(--wak-card-border);
-  background: var(--wak-card-bg);
-  color: var(--wak-text);
+  border: 1px solid #e8b48a;
+  background: var(--po-white);
+  color: var(--po-gray-900);
   font-size: 14px;
   font-family: inherit;
   outline: none;
 }
 
 .team-input:focus {
-  border-color: var(--wak-accent);
+  border-color: var(--po-gray-900);
 }
 
 .btn-add {
   padding: 12px 24px;
   border-radius: 12px;
   border: none;
-  background: var(--wak-accent);
-  color: var(--po-black);
+  background: var(--po-gray-900);
+  color: var(--po-peach);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -66,9 +67,9 @@
 .team-chip {
   padding: 6px 14px;
   border-radius: 100px;
-  background: var(--wak-card-bg);
-  border: 1px solid var(--wak-card-border);
-  color: var(--wak-text);
+  background: var(--po-white);
+  border: 1px solid #e8b48a;
+  color: var(--po-gray-900);
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -78,7 +79,7 @@
 .team-chip button {
   background: none;
   border: none;
-  color: var(--wak-text-muted);
+  color: var(--po-gray-400);
   cursor: pointer;
   font-size: 16px;
   padding: 0;
@@ -104,6 +105,7 @@
   max-width: 420px;
   width: 90%;
   text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
 
 .confetti-text {
@@ -140,6 +142,6 @@
 }
 
 .participant-chip.winner {
-  background: var(--po-peach);
+  background: var(--po-peach-dark);
   font-weight: 600;
 }

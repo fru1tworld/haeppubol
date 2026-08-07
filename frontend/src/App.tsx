@@ -2,18 +2,16 @@ import { useState, useEffect } from 'react'
 import { MainPage } from './pages/MainPage'
 import { MinglePage } from './pages/MinglePage'
 import { CustomPage } from './pages/CustomPage'
-import { BoardPage } from './pages/BoardPage'
-import { SmashPage } from './pages/SmashPage'
+import { RequestPage } from './pages/RequestPage'
 import { HomePage } from './pages/HomePage'
 
-export type Page = 'home' | 'custom' | 'play' | 'lunch' | 'mingle' | 'board'
+export type Page = 'home' | 'wakbbu' | 'lunch' | 'mingle' | 'request'
 
 export const MENUS: readonly { key: Page; label: string; description: string }[] = [
-  { key: 'play', label: '왁뿌볼', description: '공을 뿌셔서 스트레스 해소!' },
-  { key: 'custom', label: '왁뿌볼 게시판', description: '나만의 왁뿌볼을 만들고 공유하기' },
-  { key: 'lunch', label: '점메추', description: '오늘 점심 메뉴 추천받기' },
-  { key: 'mingle', label: '밍글 추첨', description: '밍글 조 랜덤 추첨' },
-  { key: 'board', label: '맛집 게시판', description: '성수 맛집 정보 모음' },
+  { key: 'wakbbu', label: '왁뿌볼', description: '왁뿌볼을 뿌셔서 스트레스 해소!' },
+  { key: 'lunch', label: '점메추 왁뿌볼', description: '오늘 점심 메뉴 추천받기' },
+  { key: 'mingle', label: '밍글 왁뿌볼', description: '밍글 조 랜덤 추첨' },
+  { key: 'request', label: '왁뿌볼 요청사항', description: '공유 링크를 만들어 요청하기' },
 ] as const
 
 const parseHash = (): Page => {
@@ -23,6 +21,7 @@ const parseHash = (): Page => {
 
 export const App = () => {
   const [page, setPage] = useState<Page>(parseHash)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const onHashChange = () => setPage(parseHash())
@@ -38,30 +37,37 @@ export const App = () => {
     <div className="app">
       <header className="app-header">
         <button className="app-logo" onClick={() => navigate('home')}>
-          이삭토스트
+          포트원 완구거리
         </button>
       </header>
 
       <div className="app-body">
-        <aside className="app-sidebar">
-          {MENUS.map(m => (
+        <aside className={`app-sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(o => !o)}
+            aria-label={sidebarOpen ? '메뉴 닫기' : '메뉴 열기'}
+          >
+            {sidebarOpen ? '✕' : '☰'}
+          </button>
+          {sidebarOpen && MENUS.map(m => (
             <button
               key={m.key}
               className={page === m.key ? 'active' : ''}
               onClick={() => navigate(m.key)}
+              title={m.label}
             >
-              {m.label}
+              <span className="sidebar-label">{m.label}</span>
             </button>
           ))}
         </aside>
 
         <main className="app-content">
           {page === 'home' && <HomePage onNavigate={navigate} />}
-          {page === 'custom' && <CustomPage />}
-          {page === 'play' && <SmashPage />}
+          {page === 'wakbbu' && <CustomPage />}
           {page === 'lunch' && <MainPage />}
           {page === 'mingle' && <MinglePage />}
-          {page === 'board' && <BoardPage />}
+          {page === 'request' && <RequestPage />}
         </main>
       </div>
     </div>
