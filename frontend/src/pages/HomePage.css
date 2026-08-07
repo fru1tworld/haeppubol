@@ -206,23 +206,37 @@
 }
 
 @media (max-width: 768px) {
+  .home-hero {
+    padding: 48px 16px 40px;
+    gap: 64px;
+  }
+
   .home-title {
     font-size: 44px;
   }
 
   .home-signs {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .home-sign {
+    width: 100%;
   }
 
   .sign-board {
-    width: 110px;
+    width: 100%;
+    max-width: 140px;
     height: 110px;
   }
 
   .sign-board.diamond {
     width: 90px;
     height: 90px;
+    max-width: none;
   }
 
   .sign-svg {
@@ -231,10 +245,24 @@
   }
 
   .sign-name-bar {
-    min-width: 110px;
+    min-width: 0;
+    width: 100%;
+    max-width: 160px;
+    text-align: center;
   }
 
   .sign-label {
     font-size: 16px;
+    white-space: normal;
+    word-break: keep-all;
+    line-height: 1.3;
+  }
+
+  .crew-section {
+    padding: 40px 16px 60px;
+  }
+
+  .crew-grid {
+    grid-template-columns: 1fr;
   }
 }
