@@ -1,7 +1,7 @@
 import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { pastelColor } from './pastel'
+import type { BackgroundTheme } from './backgrounds'
 
 const GRID = 20
 const DOT_SIZES = [2, 3, 4]
@@ -15,8 +15,9 @@ interface DotBucket {
   speeds: Float32Array
 }
 
-function buildBuckets(): DotBucket[] {
+function buildBuckets(theme: BackgroundTheme): DotBucket[] {
   const spacing = 1.2
+  const palette = theme.dotColors.map(hex => new THREE.Color(hex))
   const dots = Array.from({ length: GRID * GRID }, (_, k) => {
     const i = Math.floor(k / GRID)
     const j = k % GRID
@@ -39,25 +40,25 @@ function buildBuckets(): DotBucket[] {
       positions[i * 3 + 1] = d.y
       positions[i * 3 + 2] = -8
 
-      const c = pastelColor()
+      const c = palette[Math.floor(Math.random() * palette.length)]
       baseColors[i * 3] = c.r
       baseColors[i * 3 + 1] = c.g
       baseColors[i * 3 + 2] = c.b
 
       phases[i] = Math.random() * Math.PI * 2
-      speeds[i] = 0.5 + Math.random() * 0.3
+      speeds[i] = 0.3 + Math.random() * 0.25
     })
 
     return { size, positions, baseColors, colors: baseColors.slice(), phases, speeds }
   })
 }
 
-export function Background() {
+export function Background({ theme }: { theme: BackgroundTheme }) {
   const groupRef = useRef<THREE.Group>(null)
   const colorAttrRefs = useRef<(THREE.BufferAttribute | null)[]>([])
   const { pointer } = useThree()
 
-  const buckets = useMemo(buildBuckets, [])
+  const buckets = useMemo(() => buildBuckets(theme), [theme])
 
   useFrame((_, delta) => {
     if (!groupRef.current) return
@@ -73,7 +74,7 @@ export function Background() {
 
       for (let i = 0; i < bucket.phases.length; i++) {
         bucket.phases[i] += delta * bucket.speeds[i]
-        const twinkle = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(bucket.phases[i]))
+        const twinkle = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(bucket.phases[i]))
         bucket.colors[i * 3] = bucket.baseColors[i * 3] * twinkle
         bucket.colors[i * 3 + 1] = bucket.baseColors[i * 3 + 1] * twinkle
         bucket.colors[i * 3 + 2] = bucket.baseColors[i * 3 + 2] * twinkle
@@ -85,7 +86,7 @@ export function Background() {
   return (
     <group ref={groupRef}>
       {buckets.map((bucket, b) => (
-        <points key={bucket.size}>
+        <points key={`${theme.id}-${bucket.size}`}>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
@@ -101,7 +102,7 @@ export function Background() {
             size={bucket.size}
             vertexColors
             transparent
-            opacity={0.7}
+            opacity={bucket.size === 2 ? theme.dotOpacity * 0.7 : theme.dotOpacity}
             sizeAttenuation={false}
             depthWrite={false}
           />

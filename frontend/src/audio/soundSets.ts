@@ -1,7 +1,7 @@
 import type { SoundName, SoundPlayer } from './sounds'
 import { sounds as classic } from './sounds'
 
-export type SoundSetName = 'classic' | 'slime' | 'keycap' | 'water' | 'bubblewrap'
+export type SoundSetName = 'classic' | 'slime' | 'keycap' | 'water' | 'bubblewrap' | 'slinky' | 'squishy'
 
 export interface SoundSetMeta {
   name: SoundSetName
@@ -10,11 +10,13 @@ export interface SoundSetMeta {
 }
 
 export const SOUND_SET_LIST: SoundSetMeta[] = [
-  { name: 'classic', label: '왁뿌볼', emoji: '🔨' },
-  { name: 'slime', label: '슬라임', emoji: '🟢' },
-  { name: 'keycap', label: '키캡', emoji: '⌨️' },
-  { name: 'water', label: '물소리', emoji: '💧' },
-  { name: 'bubblewrap', label: '뽁뽁이', emoji: '🫧' },
+  { name: 'classic', label: '왁뿌볼', emoji: '' },
+  { name: 'slime', label: '슬라임', emoji: '' },
+  { name: 'keycap', label: '키캡', emoji: '' },
+  { name: 'water', label: '물소리', emoji: '' },
+  { name: 'bubblewrap', label: '뽁뽁이', emoji: '' },
+  { name: 'slinky', label: '슬랑이', emoji: '' },
+  { name: 'squishy', label: '말랑이', emoji: '' },
 ]
 
 const noiseBuffers = new WeakMap<AudioContext, AudioBuffer>()
@@ -110,49 +112,64 @@ const slimeReveal: SoundPlayer = (ctx, destination, pitch) => {
 
 const keystroke = (
   ctx: AudioContext, destination: AudioNode, when: number,
-  bodyHz: number, level: number,
+  tockHz: number, level: number,
 ): void => {
+  // 프레스 순간의 고역 '틱'
   const click = noiseSource(ctx)
   const hp = ctx.createBiquadFilter()
   hp.type = 'highpass'
-  hp.frequency.value = 2800
+  hp.frequency.value = 5000
   const clickGain = ctx.createGain()
-  clickGain.gain.setValueAtTime(level * 0.9, when)
-  clickGain.gain.exponentialRampToValueAtTime(0.001, when + 0.012)
+  clickGain.gain.setValueAtTime(level * 0.7, when)
+  clickGain.gain.exponentialRampToValueAtTime(0.001, when + 0.005)
   click.connect(hp).connect(clickGain).connect(destination)
   click.start(when)
-  click.stop(when + 0.012)
+  click.stop(when + 0.005)
 
-  const body = ctx.createOscillator()
-  body.type = 'triangle'
-  body.frequency.setValueAtTime(bodyHz, when)
-  body.frequency.exponentialRampToValueAtTime(bodyHz * 0.6, when + 0.05)
-  const bodyGain = ctx.createGain()
-  bodyGain.gain.setValueAtTime(level, when)
-  bodyGain.gain.exponentialRampToValueAtTime(0.001, when + 0.055)
-  body.connect(bodyGain).connect(destination)
-  body.start(when)
-  body.stop(when + 0.055)
+  // 바텀아웃 '톡' — 키캡 공명은 중고역의 짧은 밴드패스 노이즈
+  const tock = noiseSource(ctx)
+  const bp = ctx.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.Q.value = 6
+  bp.frequency.setValueAtTime(tockHz, when)
+  bp.frequency.exponentialRampToValueAtTime(tockHz * 0.75, when + 0.028)
+  const tockGain = ctx.createGain()
+  tockGain.gain.setValueAtTime(level, when + 0.002)
+  tockGain.gain.exponentialRampToValueAtTime(0.001, when + 0.03)
+  tock.connect(bp).connect(tockGain).connect(destination)
+  tock.start(when)
+  tock.stop(when + 0.03)
+
+  // 책상 울림 힌트만 남긴 아주 짧고 작은 저역
+  const thud = ctx.createOscillator()
+  thud.type = 'sine'
+  thud.frequency.setValueAtTime(140, when)
+  const thudGain = ctx.createGain()
+  thudGain.gain.setValueAtTime(level * 0.18, when)
+  thudGain.gain.exponentialRampToValueAtTime(0.001, when + 0.02)
+  thud.connect(thudGain).connect(destination)
+  thud.start(when)
+  thud.stop(when + 0.02)
 }
 
 const keycapPop: SoundPlayer = (ctx, destination, pitch) => {
-  keystroke(ctx, destination, ctx.currentTime, 190 * pitch, 0.4)
+  keystroke(ctx, destination, ctx.currentTime, 750 * pitch, 0.45)
 }
 
 const keycapSmash: SoundPlayer = (ctx, destination, pitch) => {
   const now = ctx.currentTime
-  const bodies = [210, 180, 240, 165, 225, 195]
-  bodies.forEach((hz, i) => {
-    keystroke(ctx, destination, now + i * 0.045, hz * pitch, 0.3)
+  const tocks = [820, 680, 900, 620, 860, 740]
+  tocks.forEach((hz, i) => {
+    keystroke(ctx, destination, now + i * 0.045, hz * pitch, 0.35)
   })
-  // 마지막 스페이스바 딥 thock
-  keystroke(ctx, destination, now + bodies.length * 0.045 + 0.03, 95 * pitch, 0.55)
+  // 마지막 스페이스바만 낮은 공명
+  keystroke(ctx, destination, now + tocks.length * 0.045 + 0.03, 380 * pitch, 0.55)
 }
 
 const keycapReveal: SoundPlayer = (ctx, destination, pitch) => {
   const now = ctx.currentTime
-  ;[180, 230, 300, 390].forEach((hz, i) => {
-    keystroke(ctx, destination, now + i * 0.07, hz * pitch, 0.35)
+  ;[650, 780, 920, 1100].forEach((hz, i) => {
+    keystroke(ctx, destination, now + i * 0.07, hz * pitch, 0.4)
   })
 }
 
@@ -262,10 +279,124 @@ const wrapReveal: SoundPlayer = (ctx, destination, pitch) => {
   })
 }
 
+// ---- 슬랑이 ASMR: 스프링 트왕(피치 워블 하강) + 금속성 울림 ----
+
+const boing = (
+  ctx: AudioContext, destination: AudioNode, when: number,
+  baseHz: number, duration: number, level: number,
+): void => {
+  const osc = ctx.createOscillator()
+  osc.type = 'triangle'
+  osc.frequency.setValueAtTime(baseHz, when)
+  osc.frequency.exponentialRampToValueAtTime(baseHz * 0.5, when + duration)
+
+  // 스프링이 튕기며 잦아드는 떨림
+  const wobble = ctx.createOscillator()
+  wobble.frequency.setValueAtTime(26, when)
+  wobble.frequency.exponentialRampToValueAtTime(7, when + duration)
+  const wobbleGain = ctx.createGain()
+  wobbleGain.gain.setValueAtTime(baseHz * 0.5, when)
+  wobbleGain.gain.exponentialRampToValueAtTime(baseHz * 0.04, when + duration)
+  wobble.connect(wobbleGain).connect(osc.frequency)
+
+  const lp = ctx.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.Q.value = 4
+  lp.frequency.setValueAtTime(baseHz * 7, when)
+  lp.frequency.exponentialRampToValueAtTime(baseHz * 2, when + duration)
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(level, when)
+  gain.gain.exponentialRampToValueAtTime(0.001, when + duration)
+
+  osc.connect(lp).connect(gain).connect(destination)
+  osc.start(when)
+  osc.stop(when + duration)
+  wobble.start(when)
+  wobble.stop(when + duration)
+}
+
+const slinkyPop: SoundPlayer = (ctx, destination, pitch) => {
+  boing(ctx, destination, ctx.currentTime, 340 * pitch, 0.16, 0.35)
+}
+
+const slinkySmash: SoundPlayer = (ctx, destination, pitch) => {
+  const now = ctx.currentTime
+  boing(ctx, destination, now, 260 * pitch, 0.42, 0.45)
+  // 튕겨 나간 스프링이 되튀는 잔 바운스
+  boing(ctx, destination, now + 0.16, 380 * pitch, 0.2, 0.25)
+  boing(ctx, destination, now + 0.3, 300 * pitch, 0.16, 0.18)
+}
+
+const slinkyReveal: SoundPlayer = (ctx, destination, pitch) => {
+  const now = ctx.currentTime
+  ;[240, 330, 450].forEach((hz, i) => {
+    boing(ctx, destination, now + i * 0.1, hz * pitch, 0.18, 0.3)
+  })
+}
+
+// ---- 말랑이 ASMR: 느린 어택의 먹먹한 스퀴즈 + 낮은 몸통 울림 ----
+
+const squeeze = (
+  ctx: AudioContext, destination: AudioNode, when: number,
+  duration: number, level: number, pitch: number,
+): void => {
+  const noise = noiseSource(ctx)
+  noise.playbackRate.value = pitch * 0.7
+
+  const lp = ctx.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.Q.value = 0.8
+  lp.frequency.setValueAtTime(650 * pitch, when)
+  lp.frequency.exponentialRampToValueAtTime(160 * pitch, when + duration)
+
+  // 손에 쥐어 눌리듯 천천히 차오르는 어택
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.0001, when)
+  gain.gain.exponentialRampToValueAtTime(level, when + duration * 0.35)
+  gain.gain.exponentialRampToValueAtTime(0.001, when + duration)
+
+  noise.connect(lp).connect(gain).connect(destination)
+  noise.start(when)
+  noise.stop(when + duration)
+
+  const body = ctx.createOscillator()
+  body.type = 'sine'
+  body.frequency.setValueAtTime(150 * pitch, when)
+  body.frequency.exponentialRampToValueAtTime(85 * pitch, when + duration)
+  const bodyGain = ctx.createGain()
+  bodyGain.gain.setValueAtTime(0.0001, when)
+  bodyGain.gain.exponentialRampToValueAtTime(level * 0.6, when + duration * 0.3)
+  bodyGain.gain.exponentialRampToValueAtTime(0.001, when + duration)
+  body.connect(bodyGain).connect(destination)
+  body.start(when)
+  body.stop(when + duration)
+}
+
+const squishyPop: SoundPlayer = (ctx, destination, pitch) => {
+  squeeze(ctx, destination, ctx.currentTime, 0.16, 0.4, pitch)
+}
+
+const squishySmash: SoundPlayer = (ctx, destination, pitch) => {
+  const now = ctx.currentTime
+  squeeze(ctx, destination, now, 0.45, 0.5, pitch)
+  // 눌렸다 되돌아오는 복원 숨소리
+  squeeze(ctx, destination, now + 0.3, 0.22, 0.25, pitch * 1.4)
+}
+
+const squishyReveal: SoundPlayer = (ctx, destination, pitch) => {
+  const now = ctx.currentTime
+  ;[1, 1.25, 1.6].forEach((mul, i) => {
+    squeeze(ctx, destination, now + i * 0.12, 0.15, 0.3, pitch * mul)
+  })
+}
+
 export const soundSets: Record<SoundSetName, Record<SoundName, SoundPlayer>> = {
   classic,
   slime: { ...classic, pop: slimePop, smash: slimeSmash, reveal: slimeReveal },
   keycap: { ...classic, pop: keycapPop, smash: keycapSmash, reveal: keycapReveal },
   water: { ...classic, pop: waterPop, smash: waterSmash, reveal: waterReveal },
   bubblewrap: { ...classic, pop: wrapPop, smash: wrapSmash, reveal: wrapReveal },
+  slinky: { ...classic, pop: slinkyPop, smash: slinkySmash, reveal: slinkyReveal },
+  squishy: { ...classic, pop: squishyPop, smash: squishySmash, reveal: squishyReveal },
 }

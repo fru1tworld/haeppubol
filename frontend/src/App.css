@@ -44,26 +44,57 @@ body {
   flex-direction: column;
 }
 
-.app-nav {
+.app-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 24px;
+  padding: 14px 24px;
   background: var(--po-white);
   border-bottom: 1px solid var(--po-gray-200);
 }
 
-.app-nav .logo {
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
   font-size: 18px;
   font-weight: 700;
   color: var(--po-black);
-  margin-right: auto;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
 }
 
-.app-nav button {
-  padding: 8px 20px;
-  border: 1px solid var(--po-gray-200);
-  border-radius: 100px;
+.app-logo-emoji {
+  font-size: 24px;
+}
+
+.app-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.app-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  background: var(--po-gray-50);
+  border-right: 1px solid var(--po-gray-200);
+  overflow-y: auto;
+}
+
+.app-sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
   background: transparent;
   color: var(--po-gray-600);
   font-size: 14px;
@@ -71,21 +102,26 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  text-align: left;
 }
 
-.app-nav button:hover {
-  background: var(--po-gray-50);
-  border-color: var(--po-gray-400);
+.app-sidebar button:hover {
+  background: var(--po-gray-100);
+  color: var(--po-gray-900);
 }
 
-.app-nav button.active {
+.app-sidebar button.active {
   background: var(--po-black);
-  border-color: var(--po-black);
   color: var(--po-white);
+}
+
+.menu-emoji {
+  font-size: 18px;
 }
 
 .app-content {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow-y: auto;
 }
@@ -106,12 +142,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(26, 26, 46, 0.7);
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(2px);
   z-index: 10;
 }
 
 .scene-blocker p {
-  color: var(--wak-text-muted);
+  color: var(--po-gray-200);
   font-size: 14px;
 }
 

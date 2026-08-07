@@ -5,12 +5,14 @@ import * as THREE from 'three'
 import { SmashEffect } from './SmashEffect'
 import { pastelColor } from './pastel'
 
-const PRESS_RADIUS = 0.7
-const PRESS_SPEED = 1.8
+const PRESS_RADIUS = 1.05
+const PRESS_SPEED = 2.8
 const RECOVER_SPEED = 2.5
-const SINK_SCALE = 0.55
-const CRUMPLE = 0.35
+const SINK_SCALE = 0.6
+const CRUMPLE = 0.4
 const FRAG_DURATION = 0.5
+const LAYERS = [1, 0.78, 0.55]
+const BUMP_RATIO = 0.14
 
 type BallState = 'alive' | 'respawning'
 
@@ -75,6 +77,53 @@ function buildVisibleGeometry(data: BallData, mask: boolean[]): { geometry: THRE
   geometry.setAttribute('color', new THREE.BufferAttribute(col, 3))
   geometry.computeVertexNormals()
   return { geometry, faceMap }
+}
+
+function createBumps(data: BallData, faceMap: number[], bumpRadius: number): THREE.InstancedMesh {
+  const inst = new THREE.InstancedMesh(
+    new THREE.SphereGeometry(bumpRadius, 10, 10),
+    new THREE.MeshStandardMaterial(),
+    Math.max(faceMap.length, 1),
+  )
+  inst.count = faceMap.length
+  const dummy = new THREE.Object3D()
+  const color = new THREE.Color()
+  faceMap.forEach((f, w) => {
+    dummy.position.copy(data.centroids[f])
+    dummy.scale.setScalar(1)
+    dummy.updateMatrix()
+    inst.setMatrixAt(w, dummy.matrix)
+    color.setRGB(data.colors[f * 9], data.colors[f * 9 + 1], data.colors[f * 9 + 2])
+    inst.setColorAt(w, color)
+  })
+  inst.instanceMatrix.needsUpdate = true
+  if (inst.instanceColor) inst.instanceColor.needsUpdate = true
+  return inst
+}
+
+function StaticShell({ data, radius }: { data: BallData; radius: number }) {
+  const built = useMemo(() => {
+    const mask = new Array<boolean>(data.faceCount).fill(true)
+    const { geometry, faceMap } = buildVisibleGeometry(data, mask)
+    const bumps = createBumps(data, faceMap, radius * BUMP_RATIO)
+    return { geometry, bumps }
+  }, [data, radius])
+
+  useEffect(() => () => {
+    built.geometry.dispose()
+    built.bumps.geometry.dispose()
+    ;(built.bumps.material as THREE.Material).dispose()
+    built.bumps.dispose()
+  }, [built])
+
+  return (
+    <group>
+      <mesh geometry={built.geometry}>
+        <meshStandardMaterial vertexColors />
+      </mesh>
+      <primitive object={built.bumps} />
+    </group>
+  )
 }
 
 interface Frag {
@@ -217,7 +266,9 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
   const chunkIdRef = useRef(0)
   const dragRef = useRef({ active: false, dragging: false, startX: 0, startY: 0, lastX: 0, lastY: 0 })
 
-  const data = useMemo(() => buildBallData(size), [size, generation])
+  const [layer, setLayer] = useState(0)
+  const layersData = useMemo(() => LAYERS.map(ls => buildBallData(size * ls)), [size, generation])
+  const data = layersData[layer]
   const alive = useMemo(
     () => ({ mask: new Array<boolean>(data.faceCount).fill(true), left: data.faceCount }),
     [data],
@@ -236,28 +287,10 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
   )
   useEffect(() => () => geomInfo.geometry.dispose(), [geomInfo])
 
-  const bumps = useMemo(() => {
-    const count = geomInfo.faceMap.length
-    const inst = new THREE.InstancedMesh(
-      new THREE.SphereGeometry(size * 0.14, 10, 10),
-      new THREE.MeshStandardMaterial(),
-      Math.max(count, 1),
-    )
-    inst.count = count
-    const dummy = new THREE.Object3D()
-    const color = new THREE.Color()
-    geomInfo.faceMap.forEach((f, w) => {
-      dummy.position.copy(data.centroids[f])
-      dummy.scale.setScalar(1)
-      dummy.updateMatrix()
-      inst.setMatrixAt(w, dummy.matrix)
-      color.setRGB(data.colors[f * 9], data.colors[f * 9 + 1], data.colors[f * 9 + 2])
-      inst.setColorAt(w, color)
-    })
-    inst.instanceMatrix.needsUpdate = true
-    if (inst.instanceColor) inst.instanceColor.needsUpdate = true
-    return inst
-  }, [geomInfo, data, size])
+  const bumps = useMemo(
+    () => createBumps(data, geomInfo.faceMap, size * LAYERS[layer] * BUMP_RATIO),
+    [geomInfo, data, size, layer],
+  )
 
   useEffect(() => () => {
     bumps.geometry.dispose()
@@ -430,7 +463,7 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
         },
       ])
       setVersion(v => v + 1)
-      w.amp = Math.min(w.amp + 0.18, 0.35)
+      w.amp = Math.min(w.amp + 0.28, 0.5)
       w.t = 0
 
       if (soundTimerRef.current >= 0.12) {
@@ -440,11 +473,18 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
 
       if (alive.left === 0) {
         holdingRef.current = false
-        setShowEffect(true)
-        onSmash?.()
-        respawnTimerRef.current = 0
-        setState('respawning')
-        setGeneration(g => g + 1)
+        if (layer < LAYERS.length - 1) {
+          setLayer(layer + 1)
+          w.amp = 0.35
+          w.t = 0
+        } else {
+          setShowEffect(true)
+          onSmash?.()
+          respawnTimerRef.current = 0
+          setState('respawning')
+          setLayer(0)
+          setGeneration(g => g + 1)
+        }
         return
       }
     }
@@ -488,10 +528,17 @@ export function Ball({ size = 1.0, onChunk, onSmash }: BallProps) {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
       >
-        <meshStandardMaterial vertexColors side={THREE.DoubleSide} />
+        <meshStandardMaterial vertexColors />
         <primitive object={bumps} />
+        {LAYERS.slice(layer + 1).map((ls, i) => (
+          <StaticShell
+            key={`${generation}-${layer + 1 + i}`}
+            data={layersData[layer + 1 + i]}
+            radius={size * ls}
+          />
+        ))}
         <mesh>
-          <icosahedronGeometry args={[size * 0.8, 1]} />
+          <icosahedronGeometry args={[size * 0.35, 1]} />
           <meshStandardMaterial
             color="#3a3a5e"
             emissive="#F5C6A0"
