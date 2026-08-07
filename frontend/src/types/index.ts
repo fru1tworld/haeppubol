@@ -46,11 +46,3 @@ export interface SmashResult {
   readonly smashedAt: number
 }
 
-export interface Review {
-  readonly id: string
-  readonly restaurantId: string
-  readonly nickname: string
-  readonly content: string
-  readonly rating: number
-  readonly createdAt: string
-}

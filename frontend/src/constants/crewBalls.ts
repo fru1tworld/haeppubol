@@ -1,4 +1,4 @@
-export interface CrewBall {
+interface CrewBall {
   readonly id: string
   readonly name: string
   readonly author: string

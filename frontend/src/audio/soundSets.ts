@@ -3,7 +3,7 @@ import { sounds as classic } from './sounds'
 
 export type SoundSetName = 'classic' | 'slime' | 'keycap' | 'water' | 'bubblewrap' | 'slinky' | 'squishy'
 
-export interface SoundSetMeta {
+interface SoundSetMeta {
   name: SoundSetName
   label: string
   emoji: string

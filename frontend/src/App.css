@@ -96,10 +96,6 @@ body {
   padding: 0;
 }
 
-.app-logo-emoji {
-  font-size: 24px;
-}
-
 .app-body {
   flex: 1;
   min-height: 0;
@@ -156,26 +152,12 @@ body {
   color: var(--po-peach);
 }
 
-.menu-emoji {
-  font-size: 18px;
-}
-
 .app-content {
   flex: 1;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-}
-
-.ball-scene-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--wak-text-muted);
-  font-size: 13px;
-  pointer-events: none;
 }
 
 .scene-blocker {

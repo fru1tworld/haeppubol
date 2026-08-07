@@ -129,8 +129,3 @@
   color: var(--po-gray-600);
   margin-left: auto;
 }
-
-.result-delivery-apps {
-  display: flex;
-  gap: 6px;
-}

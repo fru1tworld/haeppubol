@@ -5,7 +5,7 @@ import type { CrackEvent, Rng } from '../three/waxTypes'
 import { createRubLoop, playCrackCluster } from './crackSounds'
 import type { CrackCondition, RubLoop } from './crackSounds'
 
-export interface AudioManager {
+interface AudioManager {
   play: (name: SoundName) => void
   /** 한 압착의 파괴 이벤트들을 delayMs대로 흩어 재생 */
   playCracks: (events: CrackEvent[], cond: CrackCondition) => void

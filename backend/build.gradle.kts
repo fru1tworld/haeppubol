@@ -24,7 +24,6 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jooq)
-    implementation(libs.jooq.kotlin)
     implementation(libs.flyway.core)
     implementation(libs.sqlite.jdbc)
     implementation(libs.arrow.core)

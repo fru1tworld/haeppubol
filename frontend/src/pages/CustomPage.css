@@ -334,22 +334,6 @@
   margin-bottom: 24px;
 }
 
-.btn-share {
-  padding: 12px 28px;
-  border-radius: 100px;
-  border: 1px solid var(--po-gray-200);
-  background: transparent;
-  color: var(--po-gray-900);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.btn-share:hover {
-  background: var(--po-gray-50);
-}
-
 .sound-set-row {
   display: flex;
   align-items: center;
@@ -445,11 +429,4 @@
   border: 1px solid var(--wak-card-border);
   color: var(--wak-text);
   font-size: 13px;
-}
-
-.create-hint {
-  margin-top: 16px;
-  font-size: 13px;
-  color: var(--wak-text-muted);
-  text-align: center;
 }

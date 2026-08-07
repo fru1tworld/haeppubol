@@ -3,7 +3,6 @@ package io.portone.wakbbu.repository
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
 import io.portone.wakbbu.domain.DiningMode
 import io.portone.wakbbu.domain.FoodCategory
 import io.portone.wakbbu.domain.Restaurant
@@ -161,9 +160,6 @@ class RestaurantRepository(private val dsl: DSLContext) {
         dsl.deleteFrom(RESTAURANTS).where(ID.eq(id)).execute()
         return null
     }
-
-    fun count(): Int =
-        dsl.fetchCount(RESTAURANTS)
 }
 
 private fun Record.toRestaurant() = Restaurant(
