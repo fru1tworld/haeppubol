@@ -5,15 +5,16 @@ import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
 import { PlayButtons } from '../components/PlayButtons'
 import { api } from '../api/client'
+import { PICK_COUNT, pickSome } from '../constants/mingleRule'
 import './MinglePage.css'
 
 export const MinglePage = () => {
   const [teams, setTeams] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<string[] | null>(null)
   const [shareState, setShareState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [resetKey, setResetKey] = useState(0)
-  const [sealed, setSealed] = useState<string | null>(null)
+  const [sealed, setSealed] = useState<string[]>([])
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
@@ -25,8 +26,9 @@ export const MinglePage = () => {
       .catch(() => {})
   }, [])
 
+  // 공 안에 미리 넣어두는 당첨 팀들. 부술수록 이름이 비쳐 보인다
   useEffect(() => {
-    setSealed(teams.length ? teams[Math.floor(Math.random() * teams.length)] : null)
+    setSealed(pickSome(teams, PICK_COUNT))
   }, [teams, resetKey])
 
   const addTeam = () => {
@@ -49,18 +51,19 @@ export const MinglePage = () => {
   }
 
   const handleSmash = useCallback(() => {
-    if (teams.length === 0) return
+    const winners = sealed.length ? sealed : pickSome(teams, PICK_COUNT)
+    if (winners.length === 0) return
     setShareState('idle')
-    setResult(sealed ?? teams[Math.floor(Math.random() * teams.length)])
+    setResult(winners)
     play('reveal')
-  }, [teams, sealed, play])
+  }, [sealed, teams, play])
 
   const handleShare = async () => {
     if (!result || shareState === 'sending' || shareState === 'done') return
     setShareState('sending')
     try {
       const text = [
-        `[밍글 추첨 왁뿌볼] 당첨: ${result}`,
+        `[밍글 추첨 왁뿌볼] 선정: ${result.join(', ')}`,
         `참여: ${teams.join(', ')}`,
       ].join('\n')
       await navigator.clipboard.writeText(text)
@@ -84,6 +87,8 @@ export const MinglePage = () => {
       <div className="mingle-header-row">
         <h1 className="mingle-title">밍글 추첨 왁뿌볼</h1>
       </div>
+
+      <p className="mingle-rule">매달 {PICK_COUNT}팀을 뽑습니다.</p>
 
       <div className="team-input-area">
         <div className="team-input-row">
@@ -115,7 +120,7 @@ export const MinglePage = () => {
           autoSpin={spinOn}
           freezeKey={freezeKey}
           smashAt={SMASH_REVEAL_AT}
-          coreText={canSmash ? sealed ?? undefined : undefined}
+          coreText={canSmash && sealed.length ? sealed.join(' · ') : undefined}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}
@@ -134,14 +139,14 @@ export const MinglePage = () => {
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
               <div className="confetti-text">당첨</div>
-              <h2 className="winner-name">{result}</h2>
+              <h2 className="winner-name">{result.join(' · ')}</h2>
               <div className="participant-list">
                 <p className="participant-label">참여 팀</p>
                 <div className="participant-chips">
                   {teams.map(team => (
                     <span
                       key={team}
-                      className={`participant-chip ${team === result ? 'winner' : ''}`}
+                      className={`participant-chip ${result.includes(team) ? 'winner' : ''}`}
                     >
                       {team}
                     </span>

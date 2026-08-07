@@ -316,3 +316,13 @@
 .btn-share.error {
   background: #b3382c;
 }
+
+.mingle-rule {
+  margin: 0 auto 12px;
+  max-width: 620px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wak-text-muted);
+}
+
