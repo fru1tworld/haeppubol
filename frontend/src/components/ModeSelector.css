@@ -7,7 +7,7 @@
   flex: 1;
   padding: 12px 20px;
   border: none;
-  border-right: 1px solid #e8b48a;
+  border-right: 1px solid var(--glass-border);
   background: transparent;
   color: var(--po-gray-600);
   font-size: 14px;
@@ -24,10 +24,11 @@
 
 .mode-pill:hover {
   color: var(--po-gray-900);
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(245, 198, 160, 0.3);
 }
 
 .mode-pill.active {
-  background: var(--po-gray-900);
-  color: var(--po-peach);
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  font-weight: 600;
 }

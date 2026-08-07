@@ -52,9 +52,11 @@ export const ResultCard = ({
   }
 
   const { restaurant } = result
+  const shortAddress = restaurant.address.split(',')[0].trim()
+  const searchQuery = `${shortAddress} ${restaurant.name}`
   const mapLink =
     restaurant.mapUrl ??
-    `https://map.naver.com/v5/search/${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}`
+    `https://map.naver.com/v5/search/${encodeURIComponent(searchQuery)}`
 
   return (
     <motion.div

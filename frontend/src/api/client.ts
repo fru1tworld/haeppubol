@@ -2,10 +2,10 @@ import type { Restaurant, DiningMode } from '../types'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
 
-async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+async function fetchJson<T = void>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, init)
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-  if (res.status === 204) return undefined as T
+  if (res.status === 204) return undefined as unknown as T
   return res.json()
 }
 

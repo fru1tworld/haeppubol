@@ -5,15 +5,21 @@
   --po-white: #FFFFFF;
   --po-peach: #FDE8D8;
   --po-peach-dark: #F5C6A0;
+  --po-peach-deep: #e6a87a;
+  --po-peach-deeper: #d4915e;
   --po-gray-50: #F9FAFB;
   --po-gray-100: #F3F4F6;
   --po-gray-200: #E5E7EB;
   --po-gray-400: #9CA3AF;
   --po-gray-600: #4B5563;
-  --po-gray-900: #111827;
+  --po-gray-900: #1a1a1a;
   --po-success: #22c55e;
   --po-warning: #f59e0b;
   --po-danger: #ef4444;
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(245, 198, 160, 0.5);
+  --glass-blur: blur(16px);
 
   --wak-bg: #3d2b1f;
   --wak-bg-alt: #2e1f15;
@@ -22,6 +28,8 @@
   --wak-text-muted: #c4a689;
   --wak-card-bg: rgba(245, 198, 160, 0.08);
   --wak-card-border: rgba(245, 198, 160, 0.15);
+  --wak-glass-bg: rgba(245, 198, 160, 0.12);
+  --wak-glass-border: rgba(245, 198, 160, 0.2);
 }
 
 * {
@@ -59,8 +67,10 @@ body {
   align-items: center;
   gap: 12px;
   padding: 14px 24px;
-  background: var(--po-peach-dark);
-  border-bottom: 1px solid #e8b48a;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .sidebar-toggle {
@@ -83,7 +93,7 @@ body {
 }
 
 .sidebar-toggle:hover {
-  background: var(--po-gray-100);
+  background: rgba(245, 198, 160, 0.4);
   color: var(--po-gray-900);
 }
 
@@ -114,8 +124,10 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 16px 12px;
-  background: #f8dcc8;
-  border-right: 1px solid var(--po-peach-dark);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--glass-border);
   overflow-y: auto;
   overflow-x: hidden;
   transition: width 0.2s ease, padding 0.2s ease;
@@ -148,13 +160,14 @@ body {
 }
 
 .app-sidebar button:hover {
-  background: var(--po-peach-dark);
+  background: rgba(245, 198, 160, 0.5);
   color: var(--po-gray-900);
 }
 
 .app-sidebar button.active {
-  background: var(--po-gray-900);
-  color: var(--po-peach);
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  font-weight: 600;
 }
 
 .app-content {
@@ -172,7 +185,7 @@ body {
   align-items: center;
   justify-content: center;
   background: rgba(61, 43, 31, 0.6);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
   z-index: 10;
 }
 
@@ -206,15 +219,15 @@ body {
   padding: 12px 28px;
   border-radius: 100px;
   border: none;
-  background: var(--po-black);
+  background: var(--po-peach-deep);
   color: var(--po-white);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .btn-retry:hover {
-  opacity: 0.85;
+  background: var(--po-peach-deeper);
 }

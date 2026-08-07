@@ -34,9 +34,9 @@
 
 .btn-customize.active,
 .btn-customize:hover {
-  background: var(--po-gray-900);
+  background: #3d2b1f;
   color: var(--po-peach);
-  border-color: var(--po-gray-900);
+  border-color: #3d2b1f;
 }
 
 .customize-panel {
@@ -66,14 +66,14 @@
 }
 
 .customize-input:focus {
-  border-color: var(--po-gray-900);
+  border-color: #3d2b1f;
 }
 
 .btn-customize-add {
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
-  background: var(--po-gray-900);
+  background: #3d2b1f;
   color: var(--po-peach);
   font-size: 13px;
   font-weight: 500;

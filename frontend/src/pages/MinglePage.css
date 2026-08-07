@@ -34,6 +34,113 @@
   margin-bottom: 20px;
 }
 
+.mingle-page .customize-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.mingle-page .customize-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e8b48a;
+  background: var(--po-white);
+  color: var(--po-gray-900);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.mingle-page .customize-input:focus {
+  border-color: #3d2b1f;
+}
+
+.mingle-page .btn-customize-add {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: #3d2b1f;
+  color: var(--po-peach);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.mingle-page .btn-customize-reset {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e8b48a;
+  background: var(--po-white);
+  color: var(--po-gray-600);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.mingle-page .customize-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mingle-page .customize-chip {
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--po-white);
+  border: 1px solid #e8b48a;
+  color: var(--po-gray-900);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mingle-page .customize-chip button {
+  background: none;
+  border: none;
+  color: var(--po-gray-400);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0;
+  line-height: 1;
+}
+
+.mingle-page .customize-chip button:hover {
+  color: var(--po-danger);
+}
+
+.mingle-page .customize-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--po-gray-600);
+  margin-top: 8px;
+}
+
+.mingle-page .btn-customize {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #e8b48a;
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.mingle-page .btn-customize.active,
+.mingle-page .btn-customize:hover {
+  background: #3d2b1f;
+  color: var(--po-peach);
+  border-color: #3d2b1f;
+}
+
 .team-input-area {
   width: 100%;
   max-width: 480px;
@@ -58,14 +165,14 @@
 }
 
 .team-input:focus {
-  border-color: var(--po-gray-900);
+  border-color: #3d2b1f;
 }
 
 .btn-add {
   padding: 12px 24px;
   border-radius: 12px;
   border: none;
-  background: var(--po-gray-900);
+  background: #3d2b1f;
   color: var(--po-peach);
   font-size: 14px;
   font-weight: 500;

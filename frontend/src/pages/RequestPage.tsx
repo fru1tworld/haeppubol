@@ -7,6 +7,7 @@ import './RequestPage.css'
 interface WakRequest {
   id: string
   title: string
+  team: string
   items: string[]
   message: string
   createdAt: string
@@ -26,6 +27,7 @@ export const RequestPage = () => {
   const [requests, setRequests] = useState<WakRequest[]>(loadRequests)
   const [mode, setMode] = useState<'list' | 'create' | 'play'>('list')
   const [title, setTitle] = useState('')
+  const [team, setTeam] = useState('')
   const [message, setMessage] = useState('')
   const [items, setItems] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -37,13 +39,15 @@ export const RequestPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const reqTitle = params.get('req_title')
+    const reqTeam = params.get('req_team')
     const reqItems = params.get('req_items')
     const reqMsg = params.get('req_msg')
     if (reqTitle || reqItems) {
       const parsed: WakRequest = {
         id: `shared-${Date.now()}`,
         title: reqTitle || '왁뿌볼 요청',
-        items: reqItems ? reqItems.split(',').map(decodeURIComponent) : [],
+        team: reqTeam || '',
+        items: reqItems ? reqItems.split(',') : [],
         message: reqMsg || '',
         createdAt: new Date().toISOString(),
       }
@@ -80,21 +84,25 @@ export const RequestPage = () => {
     const base = window.location.origin + window.location.pathname
     const params = new URLSearchParams()
     if (req.title) params.set('req_title', req.title)
-    if (req.items.length > 0) params.set('req_items', req.items.map(encodeURIComponent).join(','))
+    if (req.team) params.set('req_team', req.team)
+    if (req.items.length > 0) params.set('req_items', req.items.join(','))
     if (req.message) params.set('req_msg', req.message)
     return `${base}?${params.toString()}#/request`
   }
 
   const copyLink = async (req: WakRequest) => {
-    await navigator.clipboard.writeText(getShareUrl(req))
-    setCopiedId(req.id)
-    setTimeout(() => setCopiedId(null), 2000)
+    try {
+      await navigator.clipboard.writeText(getShareUrl(req))
+      setCopiedId(req.id)
+      setTimeout(() => setCopiedId(null), 2000)
+    } catch { /* non-HTTPS or permission denied */ }
   }
 
   const saveRequest = () => {
     const req: WakRequest = {
       id: `req-${Date.now()}`,
       title: title.trim() || '왁뿌볼 요청',
+      team: team.trim(),
       items: [...items],
       message: message.trim(),
       createdAt: new Date().toISOString(),
@@ -115,6 +123,7 @@ export const RequestPage = () => {
   const resetForm = () => {
     setMode('list')
     setTitle('')
+    setTeam('')
     setMessage('')
     setItems([])
     setInputValue('')
@@ -136,6 +145,9 @@ export const RequestPage = () => {
             {copiedId === playingReq.id ? '복사됨!' : '링크 공유'}
           </button>
         </div>
+        {playingReq.team && (
+          <p className="play-req-team">요청팀: {playingReq.team}</p>
+        )}
         {playingReq.message && (
           <p className="play-req-message">{playingReq.message}</p>
         )}
@@ -189,7 +201,16 @@ export const RequestPage = () => {
           </div>
 
           <div className="request-form">
-            <label className="req-label">제목</label>
+            <label className="req-label">요청팀</label>
+            <input
+              type="text"
+              value={team}
+              onChange={e => setTeam(e.target.value)}
+              placeholder="예: 프론트엔드팀"
+              className="req-input"
+            />
+
+            <label className="req-label">요청사항</label>
             <input
               type="text"
               value={title}
@@ -261,7 +282,10 @@ export const RequestPage = () => {
         {requests.map(req => (
           <div key={req.id} className="request-card" onClick={() => playRequest(req)}>
             <div className="request-card-header">
-              <h3>{req.title}</h3>
+              <div>
+                <h3>{req.title}</h3>
+                {req.team && <span className="request-card-team">{req.team}</span>}
+              </div>
               <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
             </div>
             {req.items.length > 0 && (

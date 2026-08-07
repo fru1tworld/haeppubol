@@ -60,7 +60,12 @@ fun lunchMessage(share: LunchShare): JsonObject = buildJsonObject {
                     append("*${share.name}* · ${share.category}\n")
                     append("${share.address} · ${share.distanceFromStation}\n")
                     append(share.priceRange)
-                    share.mapUrl?.let { append("\n<${it}|지도 보기>") }
+                    val shortAddr = share.address.substringBefore(",").trim()
+                    val link = share.mapUrl ?: "https://map.naver.com/v5/search/${
+                        java.net.URLEncoder.encode("$shortAddr ${share.name}", "UTF-8")
+                    }"
+                    append("\n<${link}|네이버 지도>")
+
                 },
             ),
         )

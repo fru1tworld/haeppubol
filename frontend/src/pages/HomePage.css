@@ -28,7 +28,7 @@
 /* Signs row */
 .home-signs {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(5, auto);
   align-items: end;
   justify-content: space-evenly;
   gap: 32px;

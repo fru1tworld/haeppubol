@@ -15,6 +15,8 @@ import { createWaxBuffers, updateSoftMesh, updateWax } from './waxGeometry'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, waxPalette } from './ballColors'
 import { LABEL_ASPECT, makeLabelTexture } from './coreLabel'
 import type { CrackEvent, PhysicsSnapshot } from './waxTypes'
+import type { CrackCondition } from '../audio/crackSounds'
+export type { CrackCondition }
 
 const HOLD_PRESS_MS = 190
 const DRAG_START_PX = 9
@@ -25,25 +27,16 @@ const CLAY_RADIUS = 0.94
 const RUBBER_RADIUS = 1.03
 const SQUEEZE_DEPTH = 0.17
 const SQUASH_EPS = 0.0006
-/** integrity < 0.06 = 완파. 기본값은 이 지점에서 onSmash */
 const DEFAULT_SMASH_AT = 0.94
 
-// 속이 비치는 추첨 볼 (coreText). 부술수록 클레이가 맑아지고 글자가 떠오른다.
 const CORE_LABEL_W = 1.24
 const CLAY_OPACITY_FULL = 0.66
 const CLAY_OPACITY_SMASHED = 0.16
-/** 진행도 비율 t 중 글자가 보이기 시작/다 보이는 지점 */
 const LABEL_FADE_IN = 0.12
 const LABEL_FADE_FULL = 0.92
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
-/** 부드럽게 떠오르도록 */
 const smoothstep = (v: number) => v * v * (3 - 2 * v)
-
-export interface CrackCondition {
-  integrity: number
-  temp: number
-}
 
 export interface ForceSample {
   force: number
