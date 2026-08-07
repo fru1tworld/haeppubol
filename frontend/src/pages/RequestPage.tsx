@@ -335,7 +335,8 @@ export const RequestPage = () => {
                 style={{ background: `radial-gradient(circle at 35% 35%, ${req.shellColor || DEFAULT_SHELL}, ${req.coreColor || DEFAULT_CORE} 80%)` }}
               />
               <div className="preview-tags">
-                <span className="preview-tag">요청</span>
+                {req.author && <span className="preview-tag from">from {req.author}</span>}
+                {req.team && <span className="preview-tag to">to {req.team}</span>}
               </div>
             </div>
             <div className="request-card-body">

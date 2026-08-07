@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
+import { Controls, MAX_BALL_SIZE } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
 import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
 import { SOUND_SET_LIST } from '../audio/soundSets'
@@ -10,8 +11,6 @@ import { api } from '../api/client'
 import { PageTabs } from '../components/PageTabs'
 import { PICK_COUNT, pickSome } from '../constants/mingleRule'
 
-/** 밍글 볼은 화면을 시원하게 채운다 */
-const MINGLE_BALL_SIZE = 1.6
 import './MinglePage.css'
 
 type ActiveTab = 'list' | 'custom' | null
@@ -47,7 +46,8 @@ export const MinglePage = () => {
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
-  const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
+  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
+  const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
 
   useEffect(() => {
     api.mingleTeams.list()
@@ -187,7 +187,7 @@ export const MinglePage = () => {
 
       <div className="mingle-scene">
         <BallScene
-          ballSize={MINGLE_BALL_SIZE}
+          ballSize={ballSize / 100}
           resetKey={resetKey}
           autoSpin={spinOn}
           freezeKey={freezeKey}
@@ -246,6 +246,15 @@ export const MinglePage = () => {
             </motion.div>
           </div>
         )}
+        <Controls
+          volume={volume}
+          onVolumeChange={setVolume}
+          muted={muted}
+          onToggleMute={toggleMute}
+          ballSize={ballSize}
+          onBallSizeChange={setBallSize}
+          onReset={handleRetry}
+        />
         <PlayButtons
           frozen={frozen}
           spinOn={spinOn}
