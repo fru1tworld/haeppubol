@@ -11,6 +11,7 @@ import './BallScene.css'
 interface BallSceneProps {
   ballSize?: number
   background?: string
+  textureUrl?: string
   autoSpin?: boolean
   resetKey?: number
   freezeKey?: number
@@ -77,6 +78,7 @@ function EnvMap() {
 export function BallScene({
   ballSize = 1.0,
   background,
+  textureUrl,
   autoSpin = true,
   resetKey,
   freezeKey,
@@ -116,6 +118,7 @@ export function BallScene({
         <WaxBall
           size={ballSize}
           autoSpin={autoSpin}
+          textureUrl={textureUrl}
           resetKey={resetKey}
           freezeKey={freezeKey}
           onCracks={onCracks}

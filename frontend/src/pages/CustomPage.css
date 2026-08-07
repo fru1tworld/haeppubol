@@ -430,3 +430,15 @@
   color: var(--wak-text);
   font-size: 13px;
 }
+
+.photo-upload-chip {
+  cursor: pointer;
+}
+
+.photo-preview {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--wak-card-border);
+}

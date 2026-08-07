@@ -16,6 +16,7 @@ interface SavedBall {
   author?: string
   sound?: SoundSetName
   background?: string
+  imageUrl?: string
 }
 
 const isSoundSetName = (v: string): v is SoundSetName =>
@@ -47,10 +48,19 @@ export const CustomPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [savedBalls, setSavedBalls] = useState<SavedBall[]>(loadSavedBalls)
   const [background, setBackground] = useState(DEFAULT_BACKGROUND)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [mode, setMode] = useState<'board' | 'create' | 'play'>('board')
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setImageUrl(reader.result as string)
+    reader.readAsDataURL(file)
+  }
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBalls))
@@ -98,20 +108,23 @@ export const CustomPage = () => {
       createdAt: new Date().toISOString(),
       sound: soundSet,
       background,
+      imageUrl: imageUrl ?? undefined,
     }
     setSavedBalls(prev => [ball, ...prev])
     setMode('board')
     setItems([])
     setBallName('')
     setBackground(DEFAULT_BACKGROUND)
+    setImageUrl(null)
     setResult(null)
   }
 
-  const loadBall = (ball: { name: string; items: readonly string[]; sound?: SoundSetName; background?: string }) => {
+  const loadBall = (ball: { name: string; items: readonly string[]; sound?: SoundSetName; background?: string; imageUrl?: string }) => {
     setItems([...ball.items])
     setBallName(ball.name)
     setSoundSet(ball.sound ?? 'classic')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
+    setImageUrl(ball.imageUrl ?? null)
     setMode('play')
     setResult(null)
   }
@@ -151,6 +164,7 @@ export const CustomPage = () => {
         <div className="custom-scene">
           <BallScene
             background={background}
+            textureUrl={imageUrl ?? undefined}
             onCracks={playCracks}
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
@@ -279,7 +293,7 @@ export const CustomPage = () => {
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
-        <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setResult(null) }}>
+        <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setImageUrl(null); setResult(null) }}>
           &larr; 목록
         </button>
         <input
@@ -342,11 +356,25 @@ export const CustomPage = () => {
             </button>
           ))}
         </div>
+        <div className="sound-set-row">
+          <span className="sound-set-label">사진</span>
+          <label className="sound-set-chip photo-upload-chip">
+            {imageUrl ? '사진 변경' : '사진 추가'}
+            <input type="file" accept="image/*" onChange={handlePhotoUpload} hidden />
+          </label>
+          {imageUrl && (
+            <>
+              <img src={imageUrl} alt="preview" className="photo-preview" />
+              <button className="sound-set-chip" onClick={() => setImageUrl(null)}>삭제</button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="custom-scene">
         <BallScene
           background={background}
+          textureUrl={imageUrl ?? undefined}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}

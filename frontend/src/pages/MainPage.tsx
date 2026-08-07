@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { DiningMode, SmashResult } from '../types'
 import { SEONGSU_RESTAURANTS } from '../constants/restaurants'
+import { api } from '../api/client'
 import { BallScene } from '../three/BallScene'
 import { ModeSelector } from '../components/ModeSelector'
 import { Controls } from '../components/Controls'
@@ -16,12 +17,17 @@ export const MainPage = () => {
 
   const handleSmash = useCallback(() => {
     play('smash')
-    const candidates = SEONGSU_RESTAURANTS.filter(
-      r => !r.closed && r.availableModes.includes(mode),
-    )
-    const pick = candidates[Math.floor(Math.random() * candidates.length)]
-    setResult({ restaurant: pick, mode, smashedAt: Date.now() })
-    play('reveal')
+    api.restaurants.random(mode).then(pick => {
+      setResult({ restaurant: pick, mode, smashedAt: Date.now() })
+      play('reveal')
+    }).catch(() => {
+      const candidates = SEONGSU_RESTAURANTS.filter(
+        r => !r.closed && r.availableModes.includes(mode),
+      )
+      const pick = candidates[Math.floor(Math.random() * candidates.length)]
+      setResult({ restaurant: pick, mode, smashedAt: Date.now() })
+      play('reveal')
+    })
   }, [mode, play])
 
   const handleModeChange = (m: DiningMode) => {

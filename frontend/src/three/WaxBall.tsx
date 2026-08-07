@@ -37,13 +37,11 @@ export interface ForceSample {
 interface WaxBallProps {
   size?: number
   autoSpin?: boolean
-  /** 증가시키면 새 왁뿌볼 */
+  textureUrl?: string
   resetKey?: number
-  /** 증가시키면 냉동 */
   freezeKey?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
-  /** integrity < 0.06 진입 시 1회 */
   onSmash?: () => void
   onSnapshot?: (snap: PhysicsSnapshot, sample: ForceSample) => void
 }
@@ -53,6 +51,7 @@ type Mode = 'idle' | 'undecided' | 'rotate' | 'press'
 export function WaxBall({
   size = 1,
   autoSpin = true,
+  textureUrl,
   resetKey = 0,
   freezeKey = 0,
   onCracks,
@@ -75,11 +74,19 @@ export function WaxBall({
   }, [shell, waxBuffers])
   useEffect(() => () => waxBuffers.geometry.dispose(), [waxBuffers])
 
+  const clayTexture = useMemo(() => {
+    if (!textureUrl) return null
+    const tex = new THREE.TextureLoader().load(textureUrl)
+    tex.colorSpace = THREE.SRGBColorSpace
+    return tex
+  }, [textureUrl])
+  useEffect(() => () => { clayTexture?.dispose() }, [clayTexture])
+
   const clay = useMemo(() => {
     const geo = new THREE.SphereGeometry(1, 80, 54)
-    geo.deleteAttribute('uv')
+    if (!textureUrl) geo.deleteAttribute('uv')
     return { geo, base: (geo.attributes.position.array as Float32Array).slice() }
-  }, [])
+  }, [textureUrl])
   const rubber = useMemo(() => {
     const geo = new THREE.SphereGeometry(1, 52, 34)
     geo.deleteAttribute('uv')
@@ -285,7 +292,12 @@ export function WaxBall({
   return (
     <group ref={groupRef} scale={size}>
       <mesh geometry={clay.geo}>
-        <meshPhysicalMaterial color="#e0405c" roughness={0.66} clearcoat={0.3} clearcoatRoughness={0.6} />
+        <meshPhysicalMaterial
+          {...(clayTexture ? { map: clayTexture } : { color: '#e0405c' })}
+          roughness={0.66}
+          clearcoat={0.3}
+          clearcoatRoughness={0.6}
+        />
       </mesh>
       <mesh geometry={waxBuffers.geometry}>
         <meshPhysicalMaterial
