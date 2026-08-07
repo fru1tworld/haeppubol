@@ -1,0 +1,29 @@
+.mode-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-pill {
+  padding: 8px 20px;
+  border: 1px solid var(--wak-card-border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--wak-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.mode-pill:hover {
+  border-color: var(--wak-accent);
+  color: var(--wak-text);
+}
+
+.mode-pill.active {
+  background: var(--wak-accent);
+  border-color: var(--wak-accent);
+  color: var(--po-black);
+  box-shadow: 0 0 12px rgba(245, 198, 160, 0.4);
+}

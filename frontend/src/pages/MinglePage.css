@@ -1,0 +1,145 @@
+.mingle-page {
+  width: 100%;
+  min-height: 100%;
+  background: var(--wak-bg);
+  color: var(--wak-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px;
+}
+
+.mingle-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--wak-accent);
+  margin-bottom: 24px;
+}
+
+.team-input-area {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 24px;
+}
+
+.team-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.team-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--wak-card-border);
+  background: var(--wak-card-bg);
+  color: var(--wak-text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.team-input:focus {
+  border-color: var(--wak-accent);
+}
+
+.btn-add {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  background: var(--wak-accent);
+  color: var(--po-black);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.team-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.team-chip {
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--wak-card-bg);
+  border: 1px solid var(--wak-card-border);
+  color: var(--wak-text);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-chip button {
+  background: none;
+  border: none;
+  color: var(--wak-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
+
+.team-chip button:hover {
+  color: var(--po-danger);
+}
+
+.mingle-scene {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  height: 45vh;
+}
+
+.mingle-result-card {
+  background: var(--po-white);
+  color: var(--po-gray-900);
+  border-radius: 16px;
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+
+.confetti-text {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.winner-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--po-black);
+  margin-bottom: 24px;
+}
+
+.participant-label {
+  font-size: 13px;
+  color: var(--po-gray-400);
+  margin-bottom: 8px;
+}
+
+.participant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.participant-chip {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--po-gray-100);
+  font-size: 13px;
+}
+
+.participant-chip.winner {
+  background: var(--po-peach);
+  font-weight: 600;
+}

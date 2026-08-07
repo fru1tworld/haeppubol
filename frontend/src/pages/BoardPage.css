@@ -1,0 +1,235 @@
+.board-page {
+  width: 100%;
+  min-height: calc(100vh - 60px);
+  background: var(--po-white);
+  padding: 24px;
+  position: relative;
+}
+
+.board-filters {
+  margin-bottom: 24px;
+}
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+.category-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.category-tabs button {
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--po-gray-200);
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.category-tabs button.active {
+  background: var(--po-black);
+  border-color: var(--po-black);
+  color: var(--po-white);
+}
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.mode-tabs button {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--po-gray-200);
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.mode-tabs button.active {
+  background: var(--po-black);
+  border-color: var(--po-black);
+  color: var(--po-white);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--po-gray-200);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: var(--po-gray-900);
+}
+
+.search-input:focus {
+  border-color: var(--po-gray-400);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.restaurant-card {
+  border: 1px solid var(--po-gray-200);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--po-white);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restaurant-card:hover {
+  border-color: var(--po-gray-400);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.restaurant-card.closed {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.restaurant-card.highlighted {
+  border-color: var(--po-peach-dark);
+  box-shadow: 0 0 0 3px rgba(245, 198, 160, 0.4);
+  transform: scale(1.02);
+}
+
+.card-image {
+  height: 100px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closed-badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.card-title-row h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.category-badge {
+  padding: 2px 10px;
+  border-radius: 100px;
+  background: var(--po-peach);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--po-gray-600);
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-info {
+  font-size: 12px;
+  color: var(--po-gray-400);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.card-tag {
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--po-gray-50);
+  border: 1px solid var(--po-gray-200);
+  font-size: 11px;
+  color: var(--po-gray-600);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--po-gray-400);
+  padding-top: 8px;
+  border-top: 1px solid var(--po-gray-100);
+}
+
+.no-results {
+  text-align: center;
+  color: var(--po-gray-400);
+  padding: 48px 0;
+}
+
+.fab-random {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 24px;
+  border-radius: 100px;
+  border: none;
+  background: var(--po-peach-dark);
+  color: var(--po-black);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 16px rgba(245, 198, 160, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 50;
+}
+
+.fab-random:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(245, 198, 160, 0.5);
+}

@@ -1,0 +1,56 @@
+.controls-left {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+  padding: 12px 8px;
+  background: var(--wak-card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--wak-card-border);
+  border-radius: 16px;
+}
+
+.controls-label {
+  font-size: 12px;
+  color: var(--wak-text-muted);
+  user-select: none;
+}
+
+.controls-slider.vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 28px;
+  height: 100px;
+  appearance: slider-vertical;
+  accent-color: var(--wak-accent);
+  cursor: pointer;
+}
+
+.controls-reset {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  padding: 10px 24px;
+  border-radius: 100px;
+  border: 1px solid var(--wak-card-border);
+  background: var(--wak-card-bg);
+  backdrop-filter: blur(10px);
+  color: var(--wak-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 20;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.controls-reset:hover {
+  background: var(--wak-accent);
+  color: var(--po-black);
+  border-color: var(--wak-accent);
+}

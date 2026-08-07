@@ -1,0 +1,136 @@
+.result-card {
+  width: min(480px, calc(100vw - 48px));
+  background: var(--po-white);
+  border: 1px solid var(--po-gray-200);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  color: var(--po-gray-900);
+}
+
+.result-closed-banner {
+  background: var(--po-danger);
+  color: var(--po-white);
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.result-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+}
+
+.result-category {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--po-white);
+  white-space: nowrap;
+}
+
+.result-description {
+  font-size: 14px;
+  color: var(--po-gray-600);
+  margin-bottom: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--po-gray-600);
+  margin-bottom: 8px;
+}
+
+.result-detail {
+  font-size: 13px;
+  color: var(--po-gray-600);
+  margin-bottom: 4px;
+}
+
+.result-note {
+  color: var(--po-warning);
+  font-weight: 500;
+}
+
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.result-tag {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  background: var(--po-gray-100);
+  color: var(--po-gray-600);
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.result-btn {
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.result-btn:hover {
+  opacity: 0.85;
+}
+
+.result-btn.primary {
+  background: var(--po-peach-dark);
+  color: var(--po-black);
+}
+
+.result-btn.delivery {
+  background: var(--po-black);
+  color: var(--po-white);
+}
+
+.result-btn.retry {
+  background: transparent;
+  border: 1px solid var(--po-gray-200);
+  color: var(--po-gray-600);
+  margin-left: auto;
+}
+
+.result-delivery-apps {
+  display: flex;
+  gap: 6px;
+}
