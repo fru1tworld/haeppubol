@@ -7,6 +7,8 @@ export const MAX_BALL_SIZE = 170
 export const Controls = ({
   volume,
   onVolumeChange,
+  muted = false,
+  onToggleMute,
   ballSize,
   onBallSizeChange,
   onReset,
@@ -15,6 +17,8 @@ export const Controls = ({
 }: {
   volume: number
   onVolumeChange: (v: number) => void
+  muted?: boolean
+  onToggleMute?: () => void
   ballSize: number
   onBallSizeChange: (s: number) => void
   onReset: () => void
@@ -24,14 +28,21 @@ export const Controls = ({
 }) => (
   <>
     <div className="controls-left">
-      <span className="controls-label">음량</span>
+      <button
+        className={`controls-mute${muted ? ' muted' : ''}`}
+        onClick={onToggleMute}
+        title={muted ? '소리 켜기' : '소리 끄기'}
+      >
+        {muted ? '음소거' : '음량'}
+      </button>
       <input
         type="range"
         className="controls-slider vertical"
         min={0}
         max={100}
-        value={volume}
+        value={muted ? 0 : volume}
         onChange={e => onVolumeChange(Number(e.target.value))}
+        disabled={muted}
       />
       <span className="controls-label">크기</span>
       <input

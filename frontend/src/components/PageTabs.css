@@ -1,0 +1,35 @@
+.page-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.page-tab {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-left: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.page-tab:first-child {
+  border-left: none;
+}
+
+.page-tab.active,
+.page-tab:hover {
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  border-color: var(--po-peach-deep);
+}

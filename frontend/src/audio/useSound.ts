@@ -8,7 +8,8 @@ import type { CrackCondition } from './crackSounds'
 export const useSound = () => {
   const managerRef = useRef<ReturnType<typeof createAudioManager> | null>(null)
   const [volume, setVolumeState] = useState(70)
-  const [soundSet, setSoundSetState] = useState<SoundSetName>('classic')
+  const [muted, setMutedState] = useState(false)
+  const [soundSet, setSoundSetState] = useState<SoundSetName>('slime')
 
   const getManager = () => {
     if (!managerRef.current) {
@@ -39,5 +40,16 @@ export const useSound = () => {
     setSoundSetState(set)
   }, [])
 
-  return { play, playCracks, setRubbing, setVolume, volume, soundSet, setSoundSet }
+  const setMuted = useCallback((m: boolean) => {
+    getManager().setMuted(m)
+    setMutedState(m)
+  }, [])
+
+  const toggleMute = useCallback(() => {
+    const next = !getManager().isMuted()
+    getManager().setMuted(next)
+    setMutedState(next)
+  }, [])
+
+  return { play, playCracks, setRubbing, setVolume, volume, muted, setMuted, toggleMute, soundSet, setSoundSet }
 }

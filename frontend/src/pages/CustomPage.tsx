@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { api } from '../api/client'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
-import { CREW_BALLS } from '../constants/crewBalls'
 import { SOUND_SET_LIST } from '../audio/soundSets'
 import type { SoundSetName } from '../audio/soundSets'
 import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/backgrounds'
@@ -67,13 +67,12 @@ const BOARD_TABS: readonly { key: BoardTab; label: string }[] = [
   { key: 'crew', label: '크루' },
 ]
 
+type PageMode = 'create' | 'board'
+
 export const CustomPage = ({
-  initialMode = 'create',
-  crew = false,
+  mode: pageMode,
 }: {
-  initialMode?: 'board' | 'create'
-  /** 크루볼 페이지 — 구경만 하는 곳이라 만들기 버튼을 두지 않는다 */
-  crew?: boolean
+  mode: PageMode
 }) => {
   const [items, setItems] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -86,12 +85,11 @@ export const CustomPage = ({
   const [faceOpacity, setFaceOpacity] = useState(DEFAULT_FACE_OPACITY)
   const [shellColor, setShellColor] = useState(DEFAULT_SHELL_COLOR)
   const [coreColor, setCoreColor] = useState(DEFAULT_CORE_COLOR)
-  const [mode, setMode] = useState<'board' | 'create' | 'play'>(initialMode)
+  const [view, setView] = useState<'main' | 'play'>(pageMode === 'board' ? 'main' : 'main')
   const [playMode, setPlayMode] = useState<'lottery' | 'smash'>('lottery')
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const [resetKey, setResetKey] = useState(0)
-  // 공 안에 미리 넣어두는 당첨 아이템. 부술수록 이름이 비쳐 보인다
   const [sealed, setSealed] = useState<string | null>(null)
   const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
   const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
@@ -99,10 +97,10 @@ export const CustomPage = ({
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
   const [tagline, setTagline] = useState<string | null>(null)
-  const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
+  const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
 
   // 부수는 화면에선 상단 헤더를 접고 넓게 쓴다
-  useImmersive(mode === 'play')
+  useImmersive(view === 'play')
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -111,6 +109,25 @@ export const CustomPage = ({
     reader.onload = () => setImageUrl(reader.result as string)
     reader.readAsDataURL(file)
   }
+
+  const [crewBalls, setCrewBalls] = useState<SavedBall[]>([])
+
+  useEffect(() => {
+    api.crewBalls.list()
+      .then(balls => setCrewBalls(balls.map(b => ({
+        id: b.id,
+        name: b.name,
+        items: b.items,
+        createdAt: b.createdAt,
+        author: b.author,
+        sound: (b.sound && isSoundSetName(b.sound) ? b.sound : undefined),
+        background: b.background ?? undefined,
+        imageUrl: b.photo ?? undefined,
+        shellColor: b.shellColor ?? undefined,
+        coreColor: b.coreColor ?? undefined,
+      }))))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBalls))
@@ -132,7 +149,7 @@ export const CustomPage = ({
       if (shell && isHexColor(shell)) setShellColor(shell)
       if (core && isHexColor(core)) setCoreColor(core)
       setPlayMode('lottery')
-      setMode('play')
+      setView('play')
       window.history.replaceState(null, '', window.location.pathname + window.location.hash)
     }
   }, [setSoundSet])
@@ -163,7 +180,6 @@ export const CustomPage = ({
     play('reveal')
   }, [items, sealed, play, playMode])
 
-  // 부순 공으로는 다시 뽑을 수 없다 — 결과를 닫으면 새 공으로 갈아끼운다
   const newBall = (sound: 'click' | 'reset') => {
     setResult(null)
     setSlackState('idle')
@@ -175,12 +191,11 @@ export const CustomPage = ({
     if (!result || slackState === 'sending' || slackState === 'done') return
     setSlackState('sending')
     try {
-      const text = [
-        `[수제 왁뿌볼] ${ballName || '왁뿌볼'} → ${result}`,
-        `항목: ${items.join(', ')}`,
-      ].join('\n')
-      await navigator.clipboard.writeText(text)
-      window.open('slack://open', '_blank')
+      await api.share.custom({
+        ballName: ballName || '왁뿌볼',
+        result,
+        items,
+      })
       setSlackState('done')
     } catch {
       setSlackState('error')
@@ -194,7 +209,7 @@ export const CustomPage = ({
     setCoreColor(DEFAULT_CORE_COLOR)
   }
 
-  const saveBall = () => {
+  const saveBall = async () => {
     const name = ballName.trim() || `왁뿌볼 #${savedBalls.length + 1}`
     const ball: SavedBall = {
       id: `ball-${Date.now()}`,
@@ -209,12 +224,21 @@ export const CustomPage = ({
       faceOpacity,
     }
     setSavedBalls(prev => [ball, ...prev])
-    setMode('board')
+    api.crewBalls.create({
+      name,
+      author: 'me',
+      items: [...items],
+      shellColor,
+      coreColor,
+      background,
+      sound: soundSet,
+    }).catch(() => {})
     setItems([])
     setBallName('')
     resetColors()
     setImageUrl(null)
     setResult(null)
+    window.location.hash = '/crew'
   }
 
   const loadBall = (ball: {
@@ -232,7 +256,7 @@ export const CustomPage = ({
   }) => {
     setItems([...ball.items])
     setBallName(ball.name)
-    setSoundSet(ball.sound ?? 'classic')
+    setSoundSet(ball.sound ?? 'slime')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
     setImageUrl(ball.imageUrl ?? null)
     setFaceOpacity(ball.faceOpacity ?? DEFAULT_FACE_OPACITY)
@@ -242,7 +266,7 @@ export const CustomPage = ({
     setTagline(ball.tagline ?? null)
     setSpinOn(!!ball.healMode)
     setFrozen(false)
-    setMode('play')
+    setView('play')
     setResult(null)
   }
 
@@ -255,7 +279,7 @@ export const CustomPage = ({
     const params = new URLSearchParams()
     if (items.length > 0) params.set('items', items.join(','))
     if (ballName.trim()) params.set('name', ballName.trim())
-    if (soundSet !== 'classic') params.set('sound', soundSet)
+    if (soundSet !== 'slime') params.set('sound', soundSet)
     if (background !== DEFAULT_BACKGROUND) params.set('bg', background)
     if (shellColor !== DEFAULT_SHELL_COLOR) params.set('shell', shellColor)
     if (coreColor !== DEFAULT_CORE_COLOR) params.set('core', coreColor)
@@ -297,17 +321,33 @@ export const CustomPage = ({
     reader.readAsDataURL(file)
   }
 
-  if (mode === 'play') {
+  const backFromPlay = () => {
+    if (pageMode === 'create') {
+      setView('main')
+      setResult(null)
+      setTagline(null)
+      setSpinOn(false)
+      setFrozen(false)
+    } else {
+      setView('main')
+      setItems([])
+      setBallName('')
+      resetColors()
+      setResult(null)
+      setTagline(null)
+      setSpinOn(false)
+      setFrozen(false)
+    }
+  }
+
+  if (view === 'play') {
     const isHeal = playMode === 'smash' && items.length === 0
 
     return (
       <div className="custom-page dark">
         <div className="custom-create-header">
-          <button
-            className="btn-back"
-            onClick={() => { setMode('board'); setItems([]); setBallName(''); resetColors(); setResult(null); setTagline(null); setSpinOn(false); setFrozen(false) }}
-          >
-            &larr; 목록
+          <button className="btn-back" onClick={backFromPlay}>
+            &larr; {pageMode === 'create' ? '만들기' : '목록'}
           </button>
           <h2 className="play-title">{ballName || '왁뿌볼'}</h2>
           <div className="play-header-actions">
@@ -315,9 +355,11 @@ export const CustomPage = ({
               얼굴 사진
               <input type="file" accept="image/*" onChange={handleFaceUpload} hidden />
             </label>
-            <button className="btn-back" onClick={() => setMode('create')}>
-              편집
-            </button>
+            {pageMode === 'create' && (
+              <button className="btn-back" onClick={() => setView('main')}>
+                편집
+              </button>
+            )}
           </div>
         </div>
         {tagline && <p className="play-tagline">{tagline}</p>}
@@ -370,6 +412,8 @@ export const CustomPage = ({
           <Controls
             volume={volume}
             onVolumeChange={setVolume}
+            muted={muted}
+            onToggleMute={toggleMute}
             ballSize={ballSize}
             onBallSizeChange={setBallSize}
             onReset={() => newBall('reset')}
@@ -395,10 +439,10 @@ export const CustomPage = ({
     )
   }
 
-  if (mode === 'board') {
+  if (pageMode === 'board') {
     const boardBalls = [
       ...savedBalls.map(b => ({ ...b, author: undefined as string | undefined, mine: true })),
-      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], mine: false, imageUrl: (b.photo ?? undefined) as string | undefined, shellColor: b.shellColor ?? randomShellColor(b.id), coreColor: b.coreColor ?? randomCoreColor(b.id) })),
+      ...crewBalls.map(b => ({ ...b, mine: false, shellColor: b.shellColor ?? randomShellColor(b.id), coreColor: b.coreColor ?? randomCoreColor(b.id) })),
     ]
       .filter(b => boardTab === 'all' || (boardTab === 'mine' ? b.mine : !b.mine))
       .filter(b => {
@@ -414,12 +458,10 @@ export const CustomPage = ({
     return (
       <div className="custom-page">
         <div className="custom-header">
-          <h1>{crew ? '크루볼' : '왁뿌볼 게시판'}</h1>
-          {!crew && (
-            <button className="btn-new" onClick={() => setMode('create')}>
-              + 새 왁뿌볼 만들기
-            </button>
-          )}
+          <div>
+            <h1>크루볼 게시판</h1>
+            <p className="board-description">크루들이 만든 왁뿌볼을 구경하세요</p>
+          </div>
         </div>
 
         <div className="board-filter-row">
@@ -446,7 +488,7 @@ export const CustomPage = ({
         <div className="saved-grid">
           {boardBalls.length === 0 && (
             <p className="empty-text">
-              {searchQuery ? '검색 결과가 없습니다' : '저장된 왁뿌볼이 없습니다. 새로 만들어보세요!'}
+              {searchQuery ? '검색 결과가 없습니다' : '저장된 왁뿌볼이 없습니다. 수제 왁뿌볼 만들기에서 새로 만들어보세요!'}
             </p>
           )}
           {boardBalls.map(ball => {
@@ -463,6 +505,12 @@ export const CustomPage = ({
                       style={{ background: `radial-gradient(circle at 35% 35%, ${sc}, ${cc} 80%)` }}
                     />
                   )}
+                  <div className="preview-tags">
+                    <span className="preview-tag">{ball.items.length >= 2 ? '뽑기' : '일반'}</span>
+                    {ball.sound && ball.sound !== 'slime' && (
+                      <span className="preview-tag sound">{SOUND_SET_LIST.find(s => s.name === ball.sound)?.label}</span>
+                    )}
+                  </div>
                 </div>
                 <div className="saved-card-body">
                   <div className="saved-card-header">
@@ -491,11 +539,6 @@ export const CustomPage = ({
                     </div>
                   )}
                   <div className="saved-card-footer">
-                    {ball.mine && ball.sound && ball.sound !== 'classic' && (
-                      <span className="sound-badge">
-                        {SOUND_SET_LIST.find(s => s.name === ball.sound)?.label}
-                      </span>
-                    )}
                     <p className="saved-date">{new Date(ball.createdAt).toLocaleDateString('ko-KR')}</p>
                   </div>
                 </div>
@@ -507,15 +550,12 @@ export const CustomPage = ({
     )
   }
 
+  const [lotteryOpen, setLotteryOpen] = useState(items.length > 0)
+
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
-        <button
-          className="btn-back"
-          onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); resetColors(); setImageUrl(null); setResult(null) }}
-        >
-          &larr; 목록
-        </button>
+        <h2 className="play-title">수제 왁뿌볼 만들기</h2>
         <input
           type="text"
           value={ballName}
@@ -530,26 +570,47 @@ export const CustomPage = ({
       </div>
 
       <div className="item-input-area">
-        <div className="item-input-row">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addItem()}
-            placeholder="아이템 입력"
-            className="item-input"
-          />
-          <button className="btn-add" onClick={addItem}>추가</button>
+        <div className="ball-type-tags create-mode-tags">
+          <button
+            className={`ball-type-tag${items.length < 2 ? ' active' : ''}`}
+            onClick={() => { play('pop'); setLotteryOpen(false); setItems([]); setInputValue('') }}
+          >
+            일반
+          </button>
+          <button
+            className={`ball-type-tag${items.length >= 2 ? ' active' : ''}`}
+            onClick={() => { play('pop'); setLotteryOpen(true) }}
+          >
+            뽑기
+          </button>
+          {soundSet !== 'slime' && (
+            <span className="ball-type-tag active sound">{SOUND_SET_LIST.find(s => s.name === soundSet)?.label}</span>
+          )}
         </div>
-        {items.length > 0 && (
-          <div className="item-chips">
-            {items.map(item => (
-              <span key={item} className="item-chip">
-                {item}
-                <button onClick={() => removeItem(item)}>&times;</button>
-              </span>
-            ))}
-          </div>
+        {lotteryOpen && (
+          <>
+            <div className="item-input-row">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addItem()}
+                placeholder="뽑기 아이템 입력"
+                className="item-input"
+              />
+              <button className="btn-add" onClick={addItem}>추가</button>
+            </div>
+            {items.length > 0 && (
+              <div className="item-chips">
+                {items.map(item => (
+                  <span key={item} className="item-chip">
+                    {item}
+                    <button onClick={() => removeItem(item)}>&times;</button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </>
         )}
         <div className="sound-set-row">
           <span className="sound-set-label">배경</span>
@@ -599,10 +660,6 @@ export const CustomPage = ({
       </div>
 
       <div className="custom-scene">
-        <div className="ball-type-tags">
-          <span className={`ball-type-tag${items.length >= 2 ? ' active' : ''}`}>뽑기</span>
-          <span className={`ball-type-tag${items.length < 2 ? ' active' : ''}`}>일반</span>
-        </div>
         <BallScene
           background={background}
           faceUrl={imageUrl ?? undefined}
@@ -610,6 +667,9 @@ export const CustomPage = ({
           coreText={sealed ?? undefined}
           shellColor={shellColor}
           coreColor={coreColor}
+          ballSize={ballSize / 100}
+          autoSpin={spinOn}
+          freezeKey={freezeKey}
           resetKey={resetKey}
           smashAt={SMASH_REVEAL_AT}
           onCracks={playCracks}
@@ -635,6 +695,22 @@ export const CustomPage = ({
             </motion.div>
           </div>
         )}
+        <Controls
+          volume={volume}
+          onVolumeChange={setVolume}
+          muted={muted}
+          onToggleMute={toggleMute}
+          ballSize={ballSize}
+          onBallSizeChange={setBallSize}
+          onReset={() => newBall('reset')}
+        />
+        <PlayButtons
+          frozen={frozen}
+          spinOn={spinOn}
+          onFreeze={handleFreeze}
+          onToggleSpin={() => setSpinOn(v => !v)}
+          onNewBall={() => newBall('reset')}
+        />
       </div>
     </div>
   )

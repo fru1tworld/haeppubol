@@ -49,7 +49,7 @@ export function fracture(
   onDent: OnDent,
 ): CrackEvent[] {
   const f = Math.min(force, 1.4)
-  const rad = (0.45 + 0.66 * f) * (1 + (1 - temp) * 0.42)
+  const rad = (0.60 + 0.85 * f) * (1 + (1 - temp) * 0.42)
   const cosR = Math.cos(rad)
   const sizes: number[] = []
 

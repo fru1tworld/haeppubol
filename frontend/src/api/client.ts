@@ -30,6 +30,12 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       }),
+    remove: (id: string, password: string) =>
+      fetchJson<void>(`/api/restaurants/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      }),
   },
   smashLogs: {
     log: (restaurantId: string, mode: DiningMode) =>
@@ -60,6 +66,55 @@ export const api = {
       }).then(r => r.teams),
     remove: (name: string) =>
       fetchJson<void>(`/api/mingle-teams/${encodeURIComponent(name)}`, { method: 'DELETE' }),
+  },
+  crewBalls: {
+    list: () =>
+      fetchJson<Array<{
+        id: string
+        name: string
+        author: string
+        items: string[]
+        shellColor: string | null
+        coreColor: string | null
+        tagline: string | null
+        photo: string | null
+        background: string | null
+        sound: string | null
+        healMode: boolean
+        createdAt: string
+      }>>('/api/crew-balls'),
+    create: (data: {
+      name: string
+      author: string
+      items?: string[]
+      shellColor?: string
+      coreColor?: string
+      tagline?: string
+      photo?: string
+      background?: string
+      sound?: string
+      healMode?: boolean
+    }) =>
+      fetchJson<{
+        id: string
+        name: string
+        author: string
+        items: string[]
+        shellColor: string | null
+        coreColor: string | null
+        tagline: string | null
+        photo: string | null
+        background: string | null
+        sound: string | null
+        healMode: boolean
+        createdAt: string
+      }>('/api/crew-balls', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
+    remove: (id: string) =>
+      fetchJson<void>(`/api/crew-balls/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   },
   share: {
     lunch: (data: {

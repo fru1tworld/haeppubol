@@ -1,0 +1,73 @@
+.ball-customizer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.customizer-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.customizer-label {
+  font-size: 13px;
+  color: var(--po-gray-600);
+  margin-right: 2px;
+}
+
+.customizer-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.customizer-chip {
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--glass-border);
+  color: var(--po-gray-900);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.customizer-chip:hover {
+  transform: scale(1.05);
+}
+
+.customizer-chip.selected {
+  border-color: var(--po-peach-deep);
+  background: rgba(245, 198, 160, 0.25);
+}
+
+.customizer-chip.bg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+.customizer-chip .bg-chip-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.customizer-preview {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.customizer-preview-ball {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: inset -3px -4px 8px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+}

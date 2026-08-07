@@ -28,6 +28,12 @@
   font-weight: 700;
 }
 
+.board-description {
+  font-size: 14px;
+  color: var(--po-gray-600);
+  margin-top: 4px;
+}
+
 .btn-new {
   padding: 12px 24px;
   border-radius: 100px;
@@ -155,12 +161,34 @@
 }
 
 .saved-card-preview {
+  position: relative;
   height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--po-peach) 0%, #f8dcc8 100%);
   overflow: hidden;
+}
+
+.preview-tags {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.preview-tag {
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e8937a;
+  color: #fff;
+}
+
+.preview-tag.sound {
+  background: #d4a574;
 }
 
 .saved-card-ball {
@@ -375,26 +403,37 @@
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 100px;
-  padding: 3px;
+  gap: 5px;
+}
+
+.ball-type-tags.create-mode-tags {
+  position: static;
+  transform: none;
+  margin-bottom: 14px;
 }
 
 .ball-type-tag {
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: 100px;
   font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  background: #b8a090;
+  color: #fff;
+  opacity: 0.45;
   transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .ball-type-tag.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+  background: #e8937a;
+  opacity: 1;
+}
+
+.ball-type-tag.sound {
+  background: #d4a574;
+  opacity: 1;
 }
 
 .custom-result-card {

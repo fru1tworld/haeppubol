@@ -60,7 +60,7 @@
 
 .request-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
@@ -70,15 +70,56 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  padding: 20px;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .request-card:hover {
   background: rgba(255, 255, 255, 0.7);
   border-color: var(--po-peach-deep);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.request-card-preview {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--po-peach) 0%, #f8dcc8 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+.request-card-preview .saved-card-ball {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  box-shadow: inset -4px -6px 12px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.request-card-preview .preview-tags {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.request-card-preview .preview-tag {
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e8937a;
+  color: #fff;
+}
+
+.request-card-body {
+  padding: 16px 20px 20px;
 }
 
 .request-card-header {
@@ -360,13 +401,30 @@
   font-weight: 700;
 }
 
-.play-req-team {
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--wak-accent);
+.play-req-meta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
   padding: 0 16px 4px;
   flex-shrink: 0;
+}
+
+.play-req-from,
+.play-req-to {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 100px;
+}
+
+.play-req-from {
+  color: var(--wak-accent);
+  background: rgba(245, 198, 160, 0.15);
+}
+
+.play-req-to {
+  color: var(--wak-text-muted);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .play-req-message {
@@ -377,10 +435,29 @@
   flex-shrink: 0;
 }
 
-.request-card-team {
+.request-card-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.request-card-from,
+.request-card-to {
   font-size: 12px;
-  color: var(--po-gray-600);
   font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.request-card-from {
+  color: var(--po-gray-600);
+  background: rgba(245, 198, 160, 0.25);
+}
+
+.request-card-to {
+  color: var(--po-gray-600);
+  background: rgba(200, 200, 220, 0.25);
 }
 
 .request-scene {
@@ -412,7 +489,32 @@
 
 .request-result-card .result-sub {
   color: var(--po-gray-600);
+  margin-bottom: 16px;
+}
+
+.result-from-to {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
   margin-bottom: 24px;
+}
+
+.result-from-to .play-req-from,
+.result-from-to .play-req-to {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.result-from-to .play-req-from {
+  color: var(--po-gray-900);
+  background: rgba(245, 198, 160, 0.3);
+}
+
+.result-from-to .play-req-to {
+  color: var(--po-gray-600);
+  background: rgba(200, 200, 220, 0.25);
 }
 
 .play-req-items-row {

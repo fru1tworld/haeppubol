@@ -1,7 +1,7 @@
 import type { SoundName, SoundPlayer } from './sounds'
 import { sounds as classic } from './sounds'
 
-export type SoundSetName = 'classic' | 'slime' | 'keycap' | 'water' | 'bubblewrap' | 'slinky' | 'squishy'
+export type SoundSetName = 'classic' | 'slime' | 'keycap' | 'water' | 'bubblewrap' | 'squishy'
 
 interface SoundSetMeta {
   name: SoundSetName
@@ -10,12 +10,10 @@ interface SoundSetMeta {
 }
 
 export const SOUND_SET_LIST: SoundSetMeta[] = [
-  { name: 'classic', label: '왁뿌볼', emoji: '' },
   { name: 'slime', label: '슬라임', emoji: '' },
   { name: 'keycap', label: '키캡', emoji: '' },
   { name: 'water', label: '물소리', emoji: '' },
   { name: 'bubblewrap', label: '뽁뽁이', emoji: '' },
-  { name: 'slinky', label: '슬랑이', emoji: '' },
   { name: 'squishy', label: '말랑이', emoji: '' },
 ]
 
@@ -266,58 +264,6 @@ const wrapReveal: SoundPlayer = (ctx, destination, pitch) => {
   })
 }
 
-const boing = (
-  ctx: AudioContext, destination: AudioNode, when: number,
-  baseHz: number, duration: number, level: number,
-): void => {
-  const osc = ctx.createOscillator()
-  osc.type = 'triangle'
-  osc.frequency.setValueAtTime(baseHz, when)
-  osc.frequency.exponentialRampToValueAtTime(baseHz * 0.5, when + duration)
-
-  const wobble = ctx.createOscillator()
-  wobble.frequency.setValueAtTime(26, when)
-  wobble.frequency.exponentialRampToValueAtTime(7, when + duration)
-  const wobbleGain = ctx.createGain()
-  wobbleGain.gain.setValueAtTime(baseHz * 0.5, when)
-  wobbleGain.gain.exponentialRampToValueAtTime(baseHz * 0.04, when + duration)
-  wobble.connect(wobbleGain).connect(osc.frequency)
-
-  const lp = ctx.createBiquadFilter()
-  lp.type = 'lowpass'
-  lp.Q.value = 4
-  lp.frequency.setValueAtTime(baseHz * 7, when)
-  lp.frequency.exponentialRampToValueAtTime(baseHz * 2, when + duration)
-
-  const gain = ctx.createGain()
-  gain.gain.setValueAtTime(level, when)
-  gain.gain.exponentialRampToValueAtTime(0.001, when + duration)
-
-  osc.connect(lp).connect(gain).connect(destination)
-  osc.start(when)
-  osc.stop(when + duration)
-  wobble.start(when)
-  wobble.stop(when + duration)
-}
-
-const slinkyPop: SoundPlayer = (ctx, destination, pitch) => {
-  boing(ctx, destination, ctx.currentTime, 340 * pitch, 0.16, 0.35)
-}
-
-const slinkySmash: SoundPlayer = (ctx, destination, pitch) => {
-  const now = ctx.currentTime
-  boing(ctx, destination, now, 260 * pitch, 0.42, 0.45)
-  boing(ctx, destination, now + 0.16, 380 * pitch, 0.2, 0.25)
-  boing(ctx, destination, now + 0.3, 300 * pitch, 0.16, 0.18)
-}
-
-const slinkyReveal: SoundPlayer = (ctx, destination, pitch) => {
-  const now = ctx.currentTime
-  ;[240, 330, 450].forEach((hz, i) => {
-    boing(ctx, destination, now + i * 0.1, hz * pitch, 0.18, 0.3)
-  })
-}
-
 const squeeze = (
   ctx: AudioContext, destination: AudioNode, when: number,
   duration: number, level: number, pitch: number,
@@ -376,6 +322,5 @@ export const soundSets: Record<SoundSetName, Record<SoundName, SoundPlayer>> = {
   keycap: { ...classic, pop: keycapPop, smash: keycapSmash, reveal: keycapReveal },
   water: { ...classic, pop: waterPop, smash: waterSmash, reveal: waterReveal },
   bubblewrap: { ...classic, pop: wrapPop, smash: wrapSmash, reveal: wrapReveal },
-  slinky: { ...classic, pop: slinkyPop, smash: slinkySmash, reveal: slinkyReveal },
   squishy: { ...classic, pop: squishyPop, smash: squishySmash, reveal: squishyReveal },
 }

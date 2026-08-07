@@ -16,6 +16,28 @@
   border-radius: 16px;
 }
 
+.controls-mute {
+  font-size: 11px;
+  color: var(--po-gray-600);
+  user-select: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.controls-mute:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.controls-mute.muted {
+  color: var(--po-peach-deep);
+  font-weight: 600;
+}
+
 .controls-label {
   font-size: 12px;
   color: var(--po-gray-600);

@@ -8,6 +8,7 @@
   position: relative;
   user-select: none;
   -webkit-user-select: none;
+  overflow-y: auto;
 }
 
 .main-header {
@@ -20,18 +21,20 @@
 }
 
 .btn-customize {
-  padding: 12px 20px;
+  flex: 1;
+  padding: 14px 20px;
   border-radius: 0;
   border: none;
   border-left: 1px solid var(--glass-border);
   background: transparent;
   color: var(--po-gray-600);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
   transition: all 0.2s;
+  text-align: center;
 }
 
 .btn-customize.active,
@@ -149,6 +152,33 @@
   font-size: 12px;
   color: var(--po-gray-600);
   margin-top: 8px;
+}
+
+.btn-edit-toggle {
+  display: block;
+  margin: 10px auto 0;
+  padding: 8px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--po-gray-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-edit-toggle:hover {
+  background: rgba(245, 198, 160, 0.3);
+}
+
+.customizer-section {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .main-scene {

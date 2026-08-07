@@ -3,24 +3,62 @@ import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { useSound } from '../audio/useSound'
 import { PlayButtons } from '../components/PlayButtons'
+import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
+import { SHELL_COLORS, CORE_COLORS } from '../three/ballColors'
+import { getBackgroundTheme } from '../three/backgrounds'
 import { getBaseUrl } from '../constants/baseUrl'
 import './RequestPage.css'
+
+const DEFAULT_SHELL = SHELL_COLORS[0].hex
+const DEFAULT_CORE = CORE_COLORS[0].hex
 
 interface WakRequest {
   id: string
   title: string
+  author: string
   team: string
   message: string
+  shellColor: string
+  coreColor: string
+  background: string
   createdAt: string
 }
 
 const STORAGE_KEY = 'wakbbuball-requests'
 
+const DEFAULT_REQUESTS: WakRequest[] = [
+  {
+    id: 'seed-hr-1',
+    title: '화장실 비누 어디있나요?',
+    author: 'fritz',
+    team: 'HR팀',
+    message: '화장실 비누 보충 요청합니다',
+    shellColor: '#F5C6A0',
+    coreColor: '#D97B5A',
+    background: 'peach',
+    createdAt: '2026-08-06T09:00:00.000Z',
+  },
+  {
+    id: 'seed-infra-1',
+    title: 'Keycloak 비밀번호 초기화',
+    author: 'sarah',
+    team: 'Infra팀',
+    message: 'Keycloak 비밀번호 초기화 부탁드립니다',
+    shellColor: '#D1D5DB',
+    coreColor: '#374151',
+    background: 'mono',
+    createdAt: '2026-08-07T02:00:00.000Z',
+  },
+]
+
 const loadRequests = (): WakRequest[] => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return DEFAULT_REQUESTS
+    const parsed = JSON.parse(stored) as WakRequest[]
+    return parsed.length ? parsed : DEFAULT_REQUESTS
   } catch {
-    return []
+    return DEFAULT_REQUESTS
   }
 }
 
@@ -28,8 +66,14 @@ export const RequestPage = () => {
   const [requests, setRequests] = useState<WakRequest[]>(loadRequests)
   const [mode, setMode] = useState<'list' | 'create' | 'play'>('list')
   const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
   const [team, setTeam] = useState('')
   const [message, setMessage] = useState('')
+  const [customization, setCustomization] = useState<BallCustomization>({
+    shellColor: DEFAULT_SHELL,
+    coreColor: DEFAULT_CORE,
+    background: 'peach',
+  })
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [smashed, setSmashed] = useState(false)
   const [resetKey, setResetKey] = useState(0)
@@ -48,8 +92,12 @@ export const RequestPage = () => {
       const parsed: WakRequest = {
         id: `shared-${Date.now()}`,
         title: reqTitle || '왁뿌볼 요청',
+        author: '',
         team: reqTeam || '',
         message: reqMsg || '',
+        shellColor: DEFAULT_SHELL,
+        coreColor: DEFAULT_CORE,
+        background: 'peach',
         createdAt: new Date().toISOString(),
       }
       setPlayingReq(parsed)
@@ -88,8 +136,12 @@ export const RequestPage = () => {
     const req: WakRequest = {
       id: `req-${Date.now()}`,
       title: title.trim() || '왁뿌볼 요청',
+      author: author.trim(),
       team: team.trim(),
       message: message.trim(),
+      shellColor: customization.shellColor,
+      coreColor: customization.coreColor,
+      background: customization.background,
       createdAt: new Date().toISOString(),
     }
     setRequests(prev => [req, ...prev])
@@ -108,8 +160,10 @@ export const RequestPage = () => {
   const resetForm = () => {
     setMode('list')
     setTitle('')
+    setAuthor('')
     setTeam('')
     setMessage('')
+    setCustomization({ shellColor: DEFAULT_SHELL, coreColor: DEFAULT_CORE, background: 'peach' })
     setPlayingReq(null)
     setSmashed(false)
   }
@@ -123,17 +177,20 @@ export const RequestPage = () => {
       <div className="request-page play-mode">
         <div className="request-play-header">
           <button className="btn-back-req" onClick={resetForm}>&larr; 목록</button>
-          <h2 className="play-req-title">{playingReq.title}</h2>
+          <h2 className="play-req-title">왁뿌볼을 뿌셔서 확인하세요</h2>
           <button className="btn-copy-link" onClick={() => copyLink(playingReq)}>
             {copiedId === playingReq.id ? '복사됨!' : '링크 공유'}
           </button>
         </div>
-        {playingReq.team && (
-          <p className="play-req-team">요청팀: {playingReq.team}</p>
-        )}
+        <div className="play-req-meta">
+          {playingReq.author && <span className="play-req-from">from {playingReq.author}</span>}
+          {playingReq.team && <span className="play-req-to">to {playingReq.team}</span>}
+        </div>
         <div className="request-scene">
           <BallScene
             coreText={playingReq.message || playingReq.title}
+            shellColor={playingReq.shellColor}
+            coreColor={playingReq.coreColor}
             autoSpin={spinOn}
             freezeKey={freezeKey}
             resetKey={resetKey}
@@ -151,7 +208,12 @@ export const RequestPage = () => {
               >
                 <h2>{playingReq.title}</h2>
                 {playingReq.message && <p className="result-sub">{playingReq.message}</p>}
-                {playingReq.team && <p className="result-team">from {playingReq.team}</p>}
+                {(playingReq.author || playingReq.team) && (
+                  <div className="result-from-to">
+                    {playingReq.author && <span className="play-req-from">from {playingReq.author}</span>}
+                    {playingReq.team && <span className="play-req-to">to {playingReq.team}</span>}
+                  </div>
+                )}
                 <div className="result-actions">
                   <button className="btn-retry" onClick={() => { setSmashed(false); setResetKey(k => k + 1); play('click') }}>다시 뿌수기</button>
                   <button className="btn-copy-link" onClick={() => copyLink(playingReq)}>
@@ -183,12 +245,21 @@ export const RequestPage = () => {
           </div>
 
           <div className="request-form">
-            <label className="req-label">요청팀</label>
+            <label className="req-label">from (요청자)</label>
+            <input
+              type="text"
+              value={author}
+              onChange={e => setAuthor(e.target.value)}
+              placeholder="예: sarah"
+              className="req-input"
+            />
+
+            <label className="req-label">to (받는 곳)</label>
             <input
               type="text"
               value={team}
               onChange={e => setTeam(e.target.value)}
-              placeholder="예: 프론트엔드팀"
+              placeholder="예: Infra팀, HR팀"
               className="req-input"
             />
 
@@ -209,6 +280,9 @@ export const RequestPage = () => {
               className="req-textarea"
               rows={3}
             />
+
+            <label className="req-label">왁뿌볼 커스텀</label>
+            <BallCustomizer value={customization} onChange={setCustomization} />
 
             <button className="btn-save-req" onClick={saveRequest} disabled={!title.trim()}>
               저장하고 뿌수기
@@ -240,19 +314,32 @@ export const RequestPage = () => {
       <div className="request-list">
         {requests.map(req => (
           <div key={req.id} className="request-card" onClick={() => playRequest(req)}>
-            <div className="request-card-header">
-              <div>
-                <h3>{req.title}</h3>
-                {req.team && <span className="request-card-team">{req.team}</span>}
+            <div className="request-card-preview" style={{ background: getBackgroundTheme(req.background).gradient }}>
+              <div
+                className="saved-card-ball"
+                style={{ background: `radial-gradient(circle at 35% 35%, ${req.shellColor || DEFAULT_SHELL}, ${req.coreColor || DEFAULT_CORE} 80%)` }}
+              />
+              <div className="preview-tags">
+                <span className="preview-tag">요청</span>
               </div>
-              <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
             </div>
-            {req.message && <p className="request-card-msg">{req.message}</p>}
-            <div className="request-card-footer">
-              <span className="request-date">{new Date(req.createdAt).toLocaleDateString('ko-KR')}</span>
-              <button className="btn-copy-link" onClick={e => { e.stopPropagation(); copyLink(req) }}>
-                {copiedId === req.id ? '복사됨!' : '링크 공유'}
-              </button>
+            <div className="request-card-body">
+              <div className="request-card-header">
+                <div>
+                  <h3>{req.title}</h3>
+                  <div className="request-card-meta">
+                    {req.author && <span className="request-card-from">from {req.author}</span>}
+                    {req.team && <span className="request-card-to">to {req.team}</span>}
+                  </div>
+                </div>
+                <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
+              </div>
+              <div className="request-card-footer">
+                <span className="request-date">{new Date(req.createdAt).toLocaleDateString('ko-KR')}</span>
+                <button className="btn-copy-link" onClick={e => { e.stopPropagation(); copyLink(req) }}>
+                  {copiedId === req.id ? '복사됨!' : '링크 공유'}
+                </button>
+              </div>
             </div>
           </div>
         ))}

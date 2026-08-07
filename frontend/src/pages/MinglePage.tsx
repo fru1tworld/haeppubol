@@ -4,16 +4,42 @@ import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
 import { PlayButtons } from '../components/PlayButtons'
+import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
+import { SOUND_SET_LIST } from '../audio/soundSets'
 import { api } from '../api/client'
+import { PageTabs } from '../components/PageTabs'
 import { PICK_COUNT, pickSome } from '../constants/mingleRule'
 
 /** 밍글 볼은 화면을 시원하게 채운다 */
 const MINGLE_BALL_SIZE = 1.6
 import './MinglePage.css'
 
+type ActiveTab = 'list' | 'custom' | null
+
+const DEFAULT_TEAMS = ['시네마', '풋살', '볼링', 'N데이', '런닝']
+
+interface DrawHistory {
+  month: string
+  first: string
+  second: string
+}
+
+const PAST_DRAWS: DrawHistory[] = [
+  { month: '2026년 7월', first: '볼링', second: '풋살' },
+  { month: '2026년 6월', first: '랜덤런치', second: '(전사 참여)' },
+  { month: '2026년 5월', first: 'N데이', second: '피클볼' },
+]
+
 export const MinglePage = () => {
-  const [teams, setTeams] = useState<string[]>([])
+  const [teams, setTeams] = useState<string[]>(DEFAULT_TEAMS)
   const [inputValue, setInputValue] = useState('')
+  const [activeTab, setActiveTab] = useState<ActiveTab>(null)
+  const [editing, setEditing] = useState(false)
+  const [customization, setCustomization] = useState<BallCustomization>({
+    shellColor: '#F5C6A0',
+    coreColor: '#D97B5A',
+    background: 'peach',
+  })
   const [result, setResult] = useState<string[] | null>(null)
   const [shareState, setShareState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [resetKey, setResetKey] = useState(0)
@@ -21,7 +47,7 @@ export const MinglePage = () => {
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
-  const { play, playCracks, setRubbing } = useSound()
+  const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
 
   useEffect(() => {
     api.mingleTeams.list()
@@ -29,7 +55,6 @@ export const MinglePage = () => {
       .catch(() => {})
   }, [])
 
-  // 공 안에 미리 넣어두는 당첨 팀들. 부술수록 이름이 비쳐 보인다
   useEffect(() => {
     setSealed(pickSome(teams, PICK_COUNT))
   }, [teams, resetKey])
@@ -62,15 +87,10 @@ export const MinglePage = () => {
   }, [sealed, teams, play])
 
   const handleShare = async () => {
-    if (!result || shareState === 'sending' || shareState === 'done') return
+    if (!result?.length || shareState === 'sending' || shareState === 'done') return
     setShareState('sending')
     try {
-      const text = [
-        `[밍글 추첨 왁뿌볼] 선정: ${result.join(', ')}`,
-        `참여: ${teams.join(', ')}`,
-      ].join('\n')
-      await navigator.clipboard.writeText(text)
-      window.open('slack://open', '_blank')
+      await api.share.mingle({ winner: result.join(', '), teams })
       setShareState('done')
     } catch {
       setShareState('error')
@@ -83,39 +103,67 @@ export const MinglePage = () => {
     play('click')
   }
 
-  const canSmash = teams.length >= 2
+  const canSmash = teams.length >= PICK_COUNT
 
   return (
     <div className="mingle-page">
-      <div className="mingle-header-row">
-        <h1 className="mingle-title">밍글 추첨 왁뿌볼</h1>
-      </div>
+      <PageTabs tabs={[
+        { label: '리스트', active: activeTab === 'list', onClick: () => { setActiveTab(v => v === 'list' ? null : 'list'); setEditing(false) } },
+        { label: '왁뿌볼 커스텀하기', active: activeTab === 'custom', onClick: () => setActiveTab(v => v === 'custom' ? null : 'custom') },
+      ]} />
 
-      <p className="mingle-rule">매달 {PICK_COUNT}팀을 뽑습니다.</p>
-
-      <div className="team-input-area">
-        <div className="team-input-row">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
-            placeholder="팀 이름 입력"
-            className="team-input"
-          />
-          <button className="btn-add" onClick={addTeam}>추가</button>
-        </div>
-        {teams.length > 0 && (
-          <div className="team-chips">
+      {activeTab === 'list' && (
+        <div className="customize-panel">
+          <p className="mingle-rule">매달 {PICK_COUNT}팀을 뽑습니다.</p>
+          {editing && (
+            <div className="customize-input-row">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
+                placeholder="밍글 활동 입력 (예: 볼링, 풋살)"
+                className="customize-input"
+              />
+              <button className="btn-customize-add" onClick={addTeam}>추가</button>
+            </div>
+          )}
+          <div className="customize-chips">
             {teams.map(team => (
-              <span key={team} className="team-chip">
+              <span key={team} className="customize-chip">
                 {team}
-                <button onClick={() => removeTeam(team)}>&times;</button>
+                {editing && <button onClick={() => removeTeam(team)}>&times;</button>}
               </span>
             ))}
+            {teams.length === 0 && (
+              <span className="customize-hint">등록된 밍글 활동이 없습니다</span>
+            )}
           </div>
-        )}
-      </div>
+          <button className="btn-edit-toggle" onClick={() => setEditing(v => !v)}>
+            {editing ? '완료' : '편집'}
+          </button>
+        </div>
+      )}
+
+      {activeTab === 'custom' && (
+        <div className="customize-panel">
+          <div className="customizer-section">
+            <span className="customizer-label">사운드</span>
+            <div className="customizer-options">
+              {SOUND_SET_LIST.map(s => (
+                <button
+                  key={s.name}
+                  className={`customizer-chip${soundSet === s.name ? ' selected' : ''}`}
+                  onClick={() => { setSoundSet(s.name); play('pop') }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <BallCustomizer value={customization} onChange={setCustomization} />
+        </div>
+      )}
 
       <div className="mingle-scene">
         <BallScene
@@ -125,13 +173,16 @@ export const MinglePage = () => {
           freezeKey={freezeKey}
           smashAt={SMASH_REVEAL_AT}
           coreText={canSmash && sealed.length ? sealed.join(' · ') : undefined}
+          shellColor={customization.shellColor}
+          coreColor={customization.coreColor}
+          background={customization.background}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}
         />
         {!canSmash && (
           <div className="scene-blocker">
-            <p>팀을 2개 이상 추가하세요</p>
+            <p>밍글 활동을 {PICK_COUNT}개 이상 추가하세요</p>
           </div>
         )}
         {result && (
@@ -142,10 +193,17 @@ export const MinglePage = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
-              <div className="confetti-text">당첨</div>
-              <h2 className="winner-name">{result.join(' · ')}</h2>
+              <div className="confetti-text">이달의 밍글</div>
+              <div className="winner-row">
+                {result.map((name, i) => (
+                  <div key={name} className="winner-rank">
+                    <span className={`rank-badge ${i === 0 ? 'first' : 'second'}`}>{i + 1}등팀</span>
+                    <h2 className="winner-name">{name}</h2>
+                  </div>
+                ))}
+              </div>
               <div className="participant-list">
-                <p className="participant-label">참여 팀</p>
+                <p className="participant-label">후보 활동</p>
                 <div className="participant-chips">
                   {teams.map(team => (
                     <span
@@ -175,6 +233,21 @@ export const MinglePage = () => {
           onToggleSpin={() => setSpinOn(v => !v)}
           onNewBall={handleRetry}
         />
+      </div>
+
+      <div className="mingle-history">
+        <h3 className="history-title">지난 당첨 내역</h3>
+        <div className="history-list">
+          {PAST_DRAWS.map(draw => (
+            <div key={draw.month} className="history-row">
+              <span className="history-month">{draw.month}</span>
+              <div className="history-winners">
+                <span className="history-badge first">1등 {draw.first}</span>
+                <span className="history-badge second">2등 {draw.second}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
