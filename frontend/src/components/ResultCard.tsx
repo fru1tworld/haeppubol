@@ -54,7 +54,7 @@ export const ResultCard = ({
   const { restaurant, mode } = result
   const mapLink =
     restaurant.mapUrl ??
-    `https://map.kakao.com/?q=${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}`
+    `https://map.naver.com/v5/search/${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}`
 
   return (
     <motion.div
@@ -103,11 +103,9 @@ export const ResultCard = ({
       )}
 
       <div className="result-actions">
-        {mode === 'dine-in' && (
-          <a href={mapLink} target="_blank" rel="noopener noreferrer" className="result-btn primary">
-            지도 보기
-          </a>
-        )}
+        <a href={mapLink} target="_blank" rel="noopener noreferrer" className="result-btn primary">
+          네이버 지도
+        </a>
         {onShare && (
           <button
             className={`result-btn share ${shareState}`}
