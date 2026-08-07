@@ -81,6 +81,19 @@ const RequestIcon = () => (
   </svg>
 )
 
+const CrewBallIcon = () => (
+  <svg viewBox="0 0 80 80" fill="none" className="sign-svg">
+    <g stroke="#333" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="28" cy="32" r="16" strokeWidth="2.5" fill="#F5C6A0" />
+      <path d="M22 26 L25 30 L21 34" strokeWidth="1.5" fill="none" />
+      <circle cx="52" cy="36" r="14" strokeWidth="2.5" fill="#C6D8F5" />
+      <path d="M48 30 L50 34 L46 36" strokeWidth="1.5" fill="none" />
+      <circle cx="40" cy="54" r="12" strokeWidth="2.5" fill="#D8F5C6" />
+      <path d="M36 50 L38 53 L35 55" strokeWidth="1.5" fill="none" />
+    </g>
+  </svg>
+)
+
 const SIGNS: {
   key: Page
   label: string
@@ -88,6 +101,7 @@ const SIGNS: {
   shape: 'diamond' | 'rect'
 }[] = [
   { key: 'wakbbu', label: '수제 왁뿌볼', icon: <WakBallIcon />, shape: 'diamond' },
+  { key: 'crew', label: '크루볼', icon: <CrewBallIcon />, shape: 'rect' },
   { key: 'lunch', label: '점메추 왁뿌볼', icon: <ForkKnifeIcon />, shape: 'rect' },
   { key: 'mingle', label: '밍글 왁뿌볼', icon: <PeopleIcon />, shape: 'rect' },
   { key: 'request', label: '왁뿌볼 요청사항', icon: <RequestIcon />, shape: 'rect' },
@@ -134,7 +148,7 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
               className="crew-card"
               onClick={() => {
                 const params = new URLSearchParams()
-                params.set('items', ball.items.map(encodeURIComponent).join(','))
+                params.set('items', ball.items.join(','))
                 params.set('name', ball.name)
                 window.history.replaceState(null, '', `?${params.toString()}${window.location.hash}`)
                 onNavigate('wakbbu')

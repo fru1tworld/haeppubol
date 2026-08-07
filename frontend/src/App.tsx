@@ -5,10 +5,11 @@ import { CustomPage } from './pages/CustomPage'
 import { RequestPage } from './pages/RequestPage'
 import { HomePage } from './pages/HomePage'
 
-export type Page = 'home' | 'wakbbu' | 'lunch' | 'mingle' | 'request'
+export type Page = 'home' | 'wakbbu' | 'crew' | 'lunch' | 'mingle' | 'request'
 
 export const MENUS: readonly { key: Page; label: string; description: string }[] = [
-  { key: 'wakbbu', label: '수제 왁뿌볼', description: '왁뿌볼을 뿌셔서 스트레스 해소!' },
+  { key: 'wakbbu', label: '수제 왁뿌볼', description: '나만의 왁뿌볼 만들기' },
+  { key: 'crew', label: '크루볼', description: '크루들이 만든 왁뿌볼 구경하기' },
   { key: 'lunch', label: '점메추 왁뿌볼', description: '오늘 점심 메뉴 추천받기' },
   { key: 'mingle', label: '밍글 왁뿌볼', description: '밍글 조 랜덤 추첨' },
   { key: 'request', label: '왁뿌볼 요청사항', description: '공유 링크를 만들어 요청하기' },
@@ -64,7 +65,8 @@ export const App = () => {
 
         <main className="app-content">
           {page === 'home' && <HomePage onNavigate={navigate} />}
-          {page === 'wakbbu' && <CustomPage />}
+          {page === 'wakbbu' && <CustomPage key="wakbbu" />}
+          {page === 'crew' && <CustomPage key="crew" initialMode="board" />}
           {page === 'lunch' && <MainPage />}
           {page === 'mingle' && <MinglePage />}
           {page === 'request' && <RequestPage />}

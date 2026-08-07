@@ -46,7 +46,7 @@ const BOARD_TABS: readonly { key: BoardTab; label: string }[] = [
   { key: 'crew', label: '크루' },
 ]
 
-export const CustomPage = () => {
+export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' | 'create' }) => {
   const [items, setItems] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [ballName, setBallName] = useState('')
@@ -57,7 +57,8 @@ export const CustomPage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [shellColor, setShellColor] = useState(DEFAULT_SHELL_COLOR)
   const [coreColor, setCoreColor] = useState(DEFAULT_CORE_COLOR)
-  const [mode, setMode] = useState<'board' | 'create' | 'play'>('board')
+  const [mode, setMode] = useState<'board' | 'create' | 'play'>(initialMode)
+  const [playMode, setPlayMode] = useState<'lottery' | 'smash'>('lottery')
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const [resetKey, setResetKey] = useState(0)
@@ -85,12 +86,13 @@ export const CustomPage = () => {
     const shell = params.get('shell')
     const core = params.get('core')
     if (encoded) {
-      setItems(encoded.split(',').map(decodeURIComponent))
+      setItems(encoded.split(','))
       if (name) setBallName(name)
       if (sound && isSoundSetName(sound)) setSoundSet(sound)
       if (bg && isBackgroundId(bg)) setBackground(bg)
       if (shell && isHexColor(shell)) setShellColor(shell)
       if (core && isHexColor(core)) setCoreColor(core)
+      setPlayMode('lottery')
       setMode('play')
     }
   }, [setSoundSet])
@@ -108,10 +110,14 @@ export const CustomPage = () => {
   }
 
   const handleSmash = useCallback(() => {
+    if (playMode === 'smash') {
+      setResetKey(k => k + 1)
+      return
+    }
     if (items.length === 0) return
     setResult(items[Math.floor(Math.random() * items.length)])
     play('reveal')
-  }, [items, play])
+  }, [items, play, playMode])
 
   // 부순 공으로는 다시 뽑을 수 없다 — 결과를 닫으면 새 공으로 갈아끼운다
   const newBall = (sound: 'click' | 'reset') => {
@@ -156,6 +162,7 @@ export const CustomPage = () => {
     imageUrl?: string
     shellColor?: string
     coreColor?: string
+    mine?: boolean
   }) => {
     setItems([...ball.items])
     setBallName(ball.name)
@@ -164,6 +171,7 @@ export const CustomPage = () => {
     setImageUrl(ball.imageUrl ?? null)
     setShellColor(ball.shellColor ?? DEFAULT_SHELL_COLOR)
     setCoreColor(ball.coreColor ?? DEFAULT_CORE_COLOR)
+    setPlayMode(ball.mine === false ? 'smash' : 'lottery')
     setMode('play')
     setResult(null)
   }
@@ -175,7 +183,7 @@ export const CustomPage = () => {
   const getShareUrl = () => {
     const base = window.location.origin + window.location.pathname
     const params = new URLSearchParams()
-    if (items.length > 0) params.set('items', items.map(encodeURIComponent).join(','))
+    if (items.length > 0) params.set('items', items.join(','))
     if (ballName.trim()) params.set('name', ballName.trim())
     if (soundSet !== 'classic') params.set('sound', soundSet)
     if (background !== DEFAULT_BACKGROUND) params.set('bg', background)
@@ -185,9 +193,11 @@ export const CustomPage = () => {
   }
 
   const copyShareLink = async () => {
-    await navigator.clipboard.writeText(getShareUrl())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(getShareUrl())
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* non-HTTPS or permission denied — ignore silently */ }
   }
 
   if (mode === 'play') {
@@ -218,12 +228,12 @@ export const CustomPage = () => {
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
           />
-          {items.length < 2 && (
+          {playMode === 'lottery' && items.length < 2 && (
             <div className="scene-blocker">
               <p>아이템을 2개 이상 추가하세요</p>
             </div>
           )}
-          {result && (
+          {playMode === 'lottery' && result && (
             <div className="result-anchor">
               <motion.div
                 className="custom-result-card"
@@ -240,11 +250,13 @@ export const CustomPage = () => {
             </div>
           )}
         </div>
-        <div className="play-items-row">
-          {items.map(item => (
-            <span key={item} className="crew-item-chip">{item}</span>
-          ))}
-        </div>
+        {playMode === 'lottery' && (
+          <div className="play-items-row">
+            {items.map(item => (
+              <span key={item} className="crew-item-chip">{item}</span>
+            ))}
+          </div>
+        )}
         <Controls
           volume={volume}
           onVolumeChange={setVolume}
