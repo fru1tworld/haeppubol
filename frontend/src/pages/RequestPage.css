@@ -468,13 +468,13 @@
 }
 
 .request-card-from {
-  color: var(--po-gray-600);
-  background: rgba(245, 198, 160, 0.25);
+  color: #c2704f;
+  background: rgba(245, 198, 160, 0.35);
 }
 
 .request-card-to {
   color: var(--po-gray-600);
-  background: rgba(200, 200, 220, 0.25);
+  background: rgba(200, 200, 220, 0.3);
 }
 
 .request-scene {
