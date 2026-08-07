@@ -4,7 +4,7 @@ import type { DeformField, DeformState } from './waxTypes'
 // 구면 스칼라 변형장. 레퍼런스의 모듈 전역 DENTS/bulge/plasticTotal을
 // DeformState를 명시적으로 받는 순수 함수로 옮겼다 (sans-IO).
 
-const SQUEEZE_RAD = 0.95
+const SQUEEZE_RAD = 1.425
 
 // ── 해시 노이즈 (구겨짐용) ──────────────────────────────
 

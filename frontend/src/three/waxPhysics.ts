@@ -43,7 +43,7 @@ export function fracture(
   onDent: OnDent,
 ): CrackEvent[] {
   const f = Math.min(force, 1.4)
-  const rad = (0.3 + 0.44 * f) * (1 + (1 - temp) * 0.42)
+  const rad = (0.45 + 0.66 * f) * (1 + (1 - temp) * 0.42)
   const cosR = Math.cos(rad)
   const sizes: number[] = []
 
@@ -136,8 +136,8 @@ export function stepPhysics(
 
   let evts: CrackEvent[] = []
   if (pressing) {
-    state.force = Math.min(1.5, state.force + dt * 1.75)
-    if (state.force > state.threshold && nowMs - state.lastFractureMs > 45) {
+    state.force = Math.min(1.5, state.force + dt * 2.625)
+    if (state.force > state.threshold && nowMs - state.lastFractureMs > 30) {
       evts = fracture(shell, pressDir, state.force, state.temp, rng, onDent)
       if (evts.length) {
         state.cracks += evts.length

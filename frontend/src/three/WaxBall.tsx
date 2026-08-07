@@ -21,7 +21,7 @@ const SPIN_DAMP = 0.94
 const AUTO_SPIN = 0.16
 const CLAY_RADIUS = 0.94
 const RUBBER_RADIUS = 1.03
-const SQUEEZE_DEPTH = 0.115
+const SQUEEZE_DEPTH = 0.17
 const SQUASH_EPS = 0.0006
 
 export interface CrackCondition {
