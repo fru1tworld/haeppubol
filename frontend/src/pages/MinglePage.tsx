@@ -8,7 +8,7 @@ export const MinglePage = () => {
   const [teams, setTeams] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [result, setResult] = useState<string | null>(null)
-  const { play } = useSound()
+  const { play, playCracks, setRubbing } = useSound()
 
   const addTeam = () => {
     const trimmed = inputValue.trim()
@@ -62,7 +62,7 @@ export const MinglePage = () => {
       </div>
 
       <div className="mingle-scene">
-        <BallScene layers={1} pressSpeed={4.5} onChunk={() => play('pop')} onSmash={() => { play('smash'); handleSmash() }} />
+        <BallScene onCracks={playCracks} onRubbing={setRubbing} onSmash={() => { play('smash'); handleSmash() }} />
         {!canSmash && (
           <div className="scene-blocker">
             <p>팀을 2개 이상 추가하세요</p>

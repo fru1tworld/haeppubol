@@ -12,7 +12,7 @@ export const MainPage = () => {
   const [mode, setMode] = useState<DiningMode>('dine-in')
   const [result, setResult] = useState<SmashResult | null>(null)
   const [ballSize, setBallSize] = useState(100)
-  const { play, setVolume, volume } = useSound()
+  const { play, playCracks, setRubbing, setVolume, volume } = useSound()
 
   const handleSmash = useCallback(() => {
     play('smash')
@@ -48,9 +48,8 @@ export const MainPage = () => {
       <div className="main-scene">
         <BallScene
           ballSize={ballSize / 100}
-          layers={1}
-          pressSpeed={4.5}
-          onChunk={() => play('pop')}
+          onCracks={playCracks}
+          onRubbing={setRubbing}
           onSmash={handleSmash}
         />
         <div className="result-anchor">

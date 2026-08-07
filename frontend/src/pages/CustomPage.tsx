@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { BallScene } from '../three/BallScene'
 import { useSound } from '../audio/useSound'
 import { CREW_BALLS } from '../constants/crewBalls'
 import { SOUND_SET_LIST } from '../audio/soundSets'
@@ -47,7 +49,8 @@ export const CustomPage = () => {
   const [background, setBackground] = useState(DEFAULT_BACKGROUND)
   const [isCreating, setIsCreating] = useState(false)
   const [copied, setCopied] = useState(false)
-  const { play, soundSet, setSoundSet } = useSound()
+  const [result, setResult] = useState<string | null>(null)
+  const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBalls))
@@ -80,6 +83,12 @@ export const CustomPage = () => {
     setItems(prev => prev.filter(i => i !== item))
   }
 
+  const handleSmash = useCallback(() => {
+    if (items.length === 0) return
+    setResult(items[Math.floor(Math.random() * items.length)])
+    play('reveal')
+  }, [items, play])
+
   const saveBall = () => {
     const name = ballName.trim() || `왁뿌볼 #${savedBalls.length + 1}`
     const ball: SavedBall = {
@@ -95,6 +104,7 @@ export const CustomPage = () => {
     setItems([])
     setBallName('')
     setBackground(DEFAULT_BACKGROUND)
+    setResult(null)
   }
 
   const loadBall = (ball: { name: string; items: readonly string[]; sound?: SoundSetName; background?: string }) => {
@@ -103,6 +113,7 @@ export const CustomPage = () => {
     setSoundSet(ball.sound ?? 'classic')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
     setIsCreating(true)
+    setResult(null)
   }
 
   const deleteBall = (id: string) => {
@@ -218,7 +229,7 @@ export const CustomPage = () => {
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
-        <button className="btn-back" onClick={() => { setIsCreating(false); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND) }}>
+        <button className="btn-back" onClick={() => { setIsCreating(false); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setResult(null) }}>
           &larr; 목록
         </button>
         <input
@@ -281,6 +292,39 @@ export const CustomPage = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="custom-scene">
+        <BallScene
+          background={background}
+          onCracks={playCracks}
+          onRubbing={setRubbing}
+          onSmash={() => { play('smash'); handleSmash() }}
+        />
+        {items.length < 2 && (
+          <div className="scene-blocker">
+            <p>아이템을 2개 이상 추가하세요</p>
+          </div>
+        )}
+        {result && (
+          <div className="result-anchor">
+            <motion.div
+              className="custom-result-card"
+              initial={{ scale: 0.1, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            >
+              <h2>{result}</h2>
+              <p className="result-sub">왁뿌볼에서 뽑혔습니다!</p>
+              <div className="result-actions">
+                <button className="btn-retry" onClick={() => { setResult(null); play('click') }}>다시 뿌수기</button>
+                <button className="btn-share" onClick={copyShareLink}>
+                  {copied ? '복사됨!' : '공유 링크'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -6,12 +6,26 @@ export const Controls = ({
   ballSize,
   onBallSizeChange,
   onReset,
+  onFreeze,
+  frozen,
+  onToggleSpin,
+  spinOn,
+  onTogglePanel,
+  panelOn,
+  onNew,
 }: {
   volume: number
   onVolumeChange: (v: number) => void
   ballSize: number
   onBallSizeChange: (s: number) => void
   onReset: () => void
+  onFreeze?: () => void
+  frozen?: boolean
+  onToggleSpin?: () => void
+  spinOn?: boolean
+  onTogglePanel?: () => void
+  panelOn?: boolean
+  onNew?: () => void
 }) => (
   <>
     <div className="controls-left">
@@ -34,6 +48,39 @@ export const Controls = ({
         onChange={e => onBallSizeChange(Number(e.target.value))}
       />
     </div>
+    {(onFreeze || onToggleSpin || onTogglePanel || onNew) && (
+      <div className="controls-bottom">
+        {onFreeze && (
+          <button
+            className={`controls-button${frozen ? ' on' : ''}`}
+            onClick={onFreeze}
+          >
+            {frozen ? '-18°C 해동 중' : '냉동실에 넣기'}
+          </button>
+        )}
+        {onToggleSpin && (
+          <button
+            className={`controls-button${spinOn ? ' on' : ''}`}
+            onClick={onToggleSpin}
+          >
+            자동 회전
+          </button>
+        )}
+        {onTogglePanel && (
+          <button
+            className={`controls-button${panelOn ? ' on' : ''}`}
+            onClick={onTogglePanel}
+          >
+            물성 패널
+          </button>
+        )}
+        {onNew && (
+          <button className="controls-button" onClick={onNew}>
+            새 왁뿌볼
+          </button>
+        )}
+      </div>
+    )}
     <button className="controls-reset" onClick={onReset}>
       리셋
     </button>

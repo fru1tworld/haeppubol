@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
+import * as THREE from 'three'
 import { Background } from './Background'
-import { Ball } from './Ball'
+import { WaxBall } from './WaxBall'
+import type { CrackCondition, ForceSample } from './WaxBall'
 import { getBackgroundTheme } from './backgrounds'
+import type { CrackEvent, PhysicsSnapshot } from './waxTypes'
 import './BallScene.css'
 
 interface BallSceneProps {
   ballSize?: number
-  layers?: number
-  pressSpeed?: number
-  onChunk?: () => void
-  onSmash?: () => void
   background?: string
+  autoSpin?: boolean
+  resetKey?: number
+  freezeKey?: number
+  onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
+  onRubbing?: (force: number) => void
+  onSmash?: () => void
+  onSnapshot?: (snap: PhysicsSnapshot, sample: ForceSample) => void
 }
 
 function CameraZoom({ distance }: { distance: number }) {
@@ -23,12 +29,67 @@ function CameraZoom({ distance }: { distance: number }) {
   return null
 }
 
-export function BallScene({ ballSize = 1.0, layers, pressSpeed, onChunk, onSmash, background }: BallSceneProps) {
-  const [distance, setDistance] = useState(5)
+// 그라디언트 + 소프트박스 2개를 환경맵으로 (레퍼런스 348~365행)
+function envTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas')
+  c.width = 512
+  c.height = 256
+  const g = c.getContext('2d')!
+  const gr = g.createLinearGradient(0, 0, 0, 256)
+  gr.addColorStop(0, '#ffffff')
+  gr.addColorStop(0.35, '#c9d6ea')
+  gr.addColorStop(0.55, '#6b6480')
+  gr.addColorStop(1, '#141018')
+  g.fillStyle = gr
+  g.fillRect(0, 0, 512, 256)
+  g.globalCompositeOperation = 'lighter'
+  const boxes: Array<[number, number, number]> = [[120, 60, 90], [380, 95, 60]]
+  boxes.forEach(([x, y, r]) => {
+    const rg = g.createRadialGradient(x, y, 0, x, y, r)
+    rg.addColorStop(0, 'rgba(255,255,255,0.95)')
+    rg.addColorStop(1, 'rgba(255,255,255,0)')
+    g.fillStyle = rg
+    g.fillRect(0, 0, 512, 256)
+  })
+  const tex = new THREE.CanvasTexture(c)
+  tex.mapping = THREE.EquirectangularReflectionMapping
+  return tex
+}
+
+function EnvMap() {
+  const gl = useThree(s => s.gl)
+  const scene = useThree(s => s.scene)
+  useEffect(() => {
+    const tex = envTexture()
+    const pmrem = new THREE.PMREMGenerator(gl)
+    const rt = pmrem.fromEquirectangular(tex)
+    scene.environment = rt.texture
+    tex.dispose()
+    pmrem.dispose()
+    return () => {
+      scene.environment = null
+      rt.texture.dispose()
+    }
+  }, [gl, scene])
+  return null
+}
+
+export function BallScene({
+  ballSize = 1.0,
+  background,
+  autoSpin = true,
+  resetKey,
+  freezeKey,
+  onCracks,
+  onRubbing,
+  onSmash,
+  onSnapshot,
+}: BallSceneProps) {
+  const [distance, setDistance] = useState(4.55)
   const theme = getBackgroundTheme(background)
 
   const handleWheel = (e: React.WheelEvent) => {
-    setDistance(d => Math.min(9, Math.max(2.2, d + e.deltaY * 0.004)))
+    setDistance(d => Math.min(9, Math.max(2.6, d + e.deltaY * 0.004)))
   }
 
   return (
@@ -37,12 +98,31 @@ export function BallScene({ ballSize = 1.0, layers, pressSpeed, onChunk, onSmash
       style={{ background: theme.gradient }}
       onWheel={handleWheel}
     >
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+      <Canvas
+        camera={{ position: [0, 0, 4.55], fov: 38 }}
+        gl={{ antialias: true, alpha: true }}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.ACESFilmicToneMapping
+          gl.toneMappingExposure = 1.05
+        }}
+      >
         <CameraZoom distance={distance} />
-        <ambientLight intensity={1.6} />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} />
+        <EnvMap />
+        <hemisphereLight args={['#dfe8ff', '#2a1620', 0.55]} />
+        <directionalLight position={[-2.2, 2.6, 2.4]} intensity={2.0} color="#fff4e2" />
+        <directionalLight position={[2.6, -1.0, 1.6]} intensity={0.55} color="#9fb6ff" />
+        <directionalLight position={[0.6, 0.4, -3.0]} intensity={1.1} color="#ffd9c0" />
         <Background theme={theme} />
-        <Ball size={ballSize} layers={layers} pressSpeed={pressSpeed} onChunk={onChunk} onSmash={onSmash} />
+        <WaxBall
+          size={ballSize}
+          autoSpin={autoSpin}
+          resetKey={resetKey}
+          freezeKey={freezeKey}
+          onCracks={onCracks}
+          onRubbing={onRubbing}
+          onSmash={onSmash}
+          onSnapshot={onSnapshot}
+        />
       </Canvas>
     </div>
   )
