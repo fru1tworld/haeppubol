@@ -26,7 +26,7 @@ export const HEAL_BALLS: readonly HealBall[] = [
     shellColor: shell('cream'),
     coreColor: core('strawberry'),
     background: 'peach',
-    sound: 'classic',
+    sound: 'squishy',
     photo: '/brian_wakbbu.png',
   },
   {
@@ -36,7 +36,7 @@ export const HEAL_BALLS: readonly HealBall[] = [
     shellColor: shell('sky'),
     coreColor: core('ocean'),
     background: 'charcoal',
-    sound: 'classic',
+    sound: 'keycap',
     photo: '/dan_wakbbu.png',
   },
 ] as const
