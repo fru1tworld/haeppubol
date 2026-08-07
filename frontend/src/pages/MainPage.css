@@ -6,25 +6,23 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .main-header {
   display: flex;
-  justify-content: center;
-  padding: 16px 24px;
+  padding: 0;
   background: var(--po-peach-dark);
   border-bottom: 1px solid #e8b48a;
 }
 
-.main-header {
-  gap: 12px;
-}
-
 .btn-customize {
-  padding: 8px 16px;
-  border-radius: 100px;
-  border: 1px solid #e8b48a;
-  background: var(--po-white);
+  padding: 12px 20px;
+  border-radius: 0;
+  border: none;
+  border-left: 1px solid #e8b48a;
+  background: transparent;
   color: var(--po-gray-600);
   font-size: 13px;
   font-weight: 500;

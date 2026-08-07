@@ -30,6 +30,11 @@
   box-sizing: border-box;
 }
 
+input, textarea, [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 html {
   background: var(--po-peach);
 }

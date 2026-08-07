@@ -311,6 +311,8 @@
   padding: 0;
   background: var(--wak-bg);
   color: var(--wak-text);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .request-play-header {

@@ -51,7 +51,7 @@ export const ResultCard = ({
     }
   }
 
-  const { restaurant, mode } = result
+  const { restaurant } = result
   const mapLink =
     restaurant.mapUrl ??
     `https://map.naver.com/v5/search/${encodeURIComponent(restaurant.name + ' ' + restaurant.address)}`

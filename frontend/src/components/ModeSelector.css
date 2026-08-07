@@ -1,14 +1,13 @@
 .mode-selector {
   display: flex;
-  gap: 0;
-  width: 100%;
+  flex: 1;
 }
 
 .mode-pill {
   flex: 1;
-  padding: 8px 20px;
-  border: 1px solid #e8b48a;
-  border-radius: 100px;
+  padding: 12px 20px;
+  border: none;
+  border-right: 1px solid #e8b48a;
   background: transparent;
   color: var(--po-gray-600);
   font-size: 14px;
@@ -16,15 +15,19 @@
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
+  border-radius: 0;
+}
+
+.mode-pill:last-child {
+  border-right: none;
 }
 
 .mode-pill:hover {
-  border-color: var(--po-gray-900);
   color: var(--po-gray-900);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .mode-pill.active {
   background: var(--po-gray-900);
-  border-color: var(--po-gray-900);
   color: var(--po-peach);
 }
