@@ -172,7 +172,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
     setImageUrl(ball.imageUrl ?? null)
     setShellColor(ball.shellColor ?? DEFAULT_SHELL_COLOR)
     setCoreColor(ball.coreColor ?? DEFAULT_CORE_COLOR)
-    setPlayMode(ball.mine === false ? 'smash' : 'lottery')
+    setPlayMode(ball.items.length >= 2 ? 'lottery' : 'smash')
     setMode('play')
     setResult(null)
   }
@@ -224,7 +224,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
             coreColor={coreColor}
             ballSize={ballSize / 100}
             resetKey={resetKey}
-            smashAt={SMASH_REVEAL_AT}
+            smashAt={playMode === 'lottery' ? 0.35 : SMASH_REVEAL_AT}
             onCracks={playCracks}
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
@@ -246,6 +246,9 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
                 <p className="result-sub">{ballName}에서 뽑혔습니다!</p>
                 <div className="result-actions">
                   <button className="btn-retry" onClick={() => newBall('click')}>다시 뿌수기</button>
+                  <button className="btn-share" onClick={copyShareLink}>
+                    {copied ? '복사됨!' : '링크 복사'}
+                  </button>
                 </div>
               </motion.div>
             </div>

@@ -13,15 +13,17 @@
 .main-header {
   display: flex;
   padding: 0;
-  background: var(--po-peach-dark);
-  border-bottom: 1px solid #e8b48a;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .btn-customize {
   padding: 12px 20px;
   border-radius: 0;
   border: none;
-  border-left: 1px solid #e8b48a;
+  border-left: 1px solid var(--glass-border);
   background: transparent;
   color: var(--po-gray-600);
   font-size: 13px;
@@ -34,15 +36,17 @@
 
 .btn-customize.active,
 .btn-customize:hover {
-  background: #3d2b1f;
-  color: var(--po-peach);
-  border-color: #3d2b1f;
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  border-color: var(--po-peach-deep);
 }
 
 .customize-panel {
   padding: 12px 24px;
-  background: var(--po-peach-dark);
-  border-bottom: 1px solid #e8b48a;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
 
@@ -57,8 +61,8 @@
   flex: 1;
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #e8b48a;
-  background: var(--po-white);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.6);
   color: var(--po-gray-900);
   font-size: 14px;
   font-family: inherit;
@@ -66,32 +70,42 @@
 }
 
 .customize-input:focus {
-  border-color: #3d2b1f;
+  border-color: var(--po-peach-deep);
 }
 
 .btn-customize-add {
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
-  background: #3d2b1f;
-  color: var(--po-peach);
+  background: var(--po-peach-deep);
+  color: var(--po-white);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-customize-add:hover {
+  background: var(--po-peach-deeper);
 }
 
 .btn-customize-reset {
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid #e8b48a;
-  background: var(--po-white);
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--po-gray-600);
   font-size: 13px;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-customize-reset:hover {
+  background: rgba(245, 198, 160, 0.3);
 }
 
 .customize-chips {
@@ -107,8 +121,8 @@
 .customize-chip {
   padding: 5px 12px;
   border-radius: 100px;
-  background: var(--po-white);
-  border: 1px solid #e8b48a;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--glass-border);
   color: var(--po-gray-900);
   font-size: 12px;
   display: flex;

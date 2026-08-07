@@ -157,18 +157,21 @@
 }
 
 .crew-card {
-  background: #fff;
-  border: 3px solid var(--po-gray-900);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   padding: 20px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
 }
 
 .crew-card:hover {
   transform: translateY(-4px);
-  box-shadow: 3px 6px 0 rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--po-peach-deep);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .crew-card-header {
@@ -186,7 +189,7 @@
 .crew-author {
   padding: 3px 10px;
   border-radius: 100px;
-  background: var(--po-peach-dark);
+  background: rgba(245, 198, 160, 0.35);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -227,9 +230,9 @@
 
 .crew-pagination button {
   padding: 8px 18px;
-  border: 2px solid var(--po-gray-900);
+  border: 1px solid var(--glass-border);
   border-radius: 100px;
-  background: var(--po-white);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--po-gray-900);
   font-size: 14px;
   font-weight: 500;
@@ -239,8 +242,9 @@
 }
 
 .crew-pagination button:hover:not(:disabled) {
-  background: var(--po-gray-900);
+  background: var(--po-peach-deep);
   color: var(--po-white);
+  border-color: var(--po-peach-deep);
 }
 
 .crew-pagination button:disabled {

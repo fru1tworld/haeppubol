@@ -54,6 +54,7 @@ export const RequestPage = () => {
       setPlayingReq(parsed)
       setItems(parsed.items)
       setMode('play')
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash)
     }
   }, [])
 
