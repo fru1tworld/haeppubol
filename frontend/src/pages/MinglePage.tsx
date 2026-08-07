@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import { api } from '../api/client'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
@@ -71,7 +70,12 @@ export const MinglePage = () => {
     if (!result || shareState === 'sending' || shareState === 'done') return
     setShareState('sending')
     try {
-      await api.share.mingle({ winner: result, teams: [...teams] })
+      const text = [
+        `[밍글 추첨 왁뿌볼] 당첨: ${result}`,
+        `참여: ${teams.join(', ')}`,
+      ].join('\n')
+      await navigator.clipboard.writeText(text)
+      window.open('slack://open', '_blank')
       setShareState('done')
     } catch {
       setShareState('error')

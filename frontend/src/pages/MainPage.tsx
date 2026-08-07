@@ -89,15 +89,18 @@ export const MainPage = () => {
   const handleShare = useCallback(async () => {
     if (!result) return
     const r = result.restaurant
-    await api.share.lunch({
-      name: r.name,
-      category: FOOD_CATEGORY_LABEL[r.category],
-      mode: DINING_MODE_LABEL[result.mode],
-      address: r.address,
-      distanceFromStation: r.distanceFromStation,
-      priceRange: r.priceRange,
-      mapUrl: r.mapUrl,
-    })
+    const shortAddress = r.address.split(',')[0].trim()
+    const searchQuery = `${shortAddress} ${r.name}`
+    const mapUrl = r.mapUrl ?? `https://map.naver.com/v5/search/${encodeURIComponent(searchQuery)}`
+    const text = [
+      `[점메추 왁뿌볼] ${r.name}`,
+      `${FOOD_CATEGORY_LABEL[r.category]} · ${DINING_MODE_LABEL[result.mode]}`,
+      r.address && `${r.address} · ${r.distanceFromStation}`,
+      r.priceRange && `가격대: ${r.priceRange}`,
+      mapUrl,
+    ].filter(Boolean).join('\n')
+    await navigator.clipboard.writeText(text)
+    window.open('slack://open', '_blank')
   }, [result])
 
   const handleModeChange = (m: DiningMode) => {

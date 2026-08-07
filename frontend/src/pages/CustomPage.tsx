@@ -65,6 +65,7 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   // 공 안에 미리 넣어두는 당첨 아이템. 부술수록 이름이 비쳐 보인다
   const [sealed, setSealed] = useState<string | null>(null)
   const [ballSize, setBallSize] = useState(100)
+  const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,8 +130,25 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   // 부순 공으로는 다시 뽑을 수 없다 — 결과를 닫으면 새 공으로 갈아끼운다
   const newBall = (sound: 'click' | 'reset') => {
     setResult(null)
+    setSlackState('idle')
     setResetKey(k => k + 1)
     play(sound)
+  }
+
+  const shareToSlack = async () => {
+    if (!result || slackState === 'sending' || slackState === 'done') return
+    setSlackState('sending')
+    try {
+      const text = [
+        `[수제 왁뿌볼] ${ballName || '왁뿌볼'} → ${result}`,
+        `항목: ${items.join(', ')}`,
+      ].join('\n')
+      await navigator.clipboard.writeText(text)
+      window.open('slack://open', '_blank')
+      setSlackState('done')
+    } catch {
+      setSlackState('error')
+    }
   }
 
   const resetColors = () => {
@@ -248,6 +266,13 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
                 <p className="result-sub">{ballName}에서 뽑혔습니다!</p>
                 <div className="result-actions">
                   <button className="btn-retry" onClick={() => newBall('click')}>다시 뿌수기</button>
+                  <button
+                    className={`btn-slack ${slackState}`}
+                    onClick={shareToSlack}
+                    disabled={slackState === 'sending' || slackState === 'done'}
+                  >
+                    {slackState === 'idle' ? '슬랙 공유' : slackState === 'sending' ? '전송 중...' : slackState === 'done' ? '공유 완료' : '다시 시도'}
+                  </button>
                   <button className="btn-share" onClick={copyShareLink}>
                     {copied ? '복사됨!' : '링크 복사'}
                   </button>
