@@ -87,7 +87,7 @@ const SIGNS: {
   icon: React.ReactNode
   shape: 'diamond' | 'rect'
 }[] = [
-  { key: 'wakbbu', label: '왁뿌볼', icon: <WakBallIcon />, shape: 'diamond' },
+  { key: 'wakbbu', label: '수제 왁뿌볼', icon: <WakBallIcon />, shape: 'diamond' },
   { key: 'lunch', label: '점메추 왁뿌볼', icon: <ForkKnifeIcon />, shape: 'rect' },
   { key: 'mingle', label: '밍글 왁뿌볼', icon: <PeopleIcon />, shape: 'rect' },
   { key: 'request', label: '왁뿌볼 요청사항', icon: <RequestIcon />, shape: 'rect' },
