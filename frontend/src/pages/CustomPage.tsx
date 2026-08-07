@@ -62,6 +62,8 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const [resetKey, setResetKey] = useState(0)
+  // 공 안에 미리 넣어두는 당첨 아이템. 부술수록 이름이 비쳐 보인다
+  const [sealed, setSealed] = useState<string | null>(null)
   const [ballSize, setBallSize] = useState(100)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
 
@@ -110,15 +112,19 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
     setItems(prev => prev.filter(i => i !== item))
   }
 
+  useEffect(() => {
+    setSealed(items.length ? items[Math.floor(Math.random() * items.length)] : null)
+  }, [items, resetKey])
+
   const handleSmash = useCallback(() => {
     if (playMode === 'smash') {
       setResetKey(k => k + 1)
       return
     }
     if (items.length === 0) return
-    setResult(items[Math.floor(Math.random() * items.length)])
+    setResult(sealed ?? items[Math.floor(Math.random() * items.length)])
     play('reveal')
-  }, [items, play, playMode])
+  }, [items, sealed, play, playMode])
 
   // 부순 공으로는 다시 뽑을 수 없다 — 결과를 닫으면 새 공으로 갈아끼운다
   const newBall = (sound: 'click' | 'reset') => {
@@ -219,7 +225,8 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
         <div className="custom-scene">
           <BallScene
             background={background}
-            textureUrl={imageUrl ?? undefined}
+            faceUrl={imageUrl ?? undefined}
+            coreText={sealed ?? undefined}
             shellColor={shellColor}
             coreColor={coreColor}
             ballSize={ballSize / 100}
@@ -229,11 +236,6 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
           />
-          {playMode === 'lottery' && items.length < 2 && (
-            <div className="scene-blocker">
-              <p>아이템을 2개 이상 추가하세요</p>
-            </div>
-          )}
           {playMode === 'lottery' && result && (
             <div className="result-anchor">
               <motion.div
@@ -472,7 +474,8 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
       <div className="custom-scene">
         <BallScene
           background={background}
-          textureUrl={imageUrl ?? undefined}
+          faceUrl={imageUrl ?? undefined}
+          coreText={sealed ?? undefined}
           shellColor={shellColor}
           coreColor={coreColor}
           resetKey={resetKey}
@@ -481,11 +484,6 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}
         />
-        {items.length < 2 && (
-          <div className="scene-blocker">
-            <p>아이템을 2개 이상 추가하세요</p>
-          </div>
-        )}
         {result && (
           <div className="result-anchor">
             <motion.div

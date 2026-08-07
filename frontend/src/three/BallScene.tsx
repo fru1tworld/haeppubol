@@ -17,6 +17,7 @@ interface BallSceneProps {
   shellColor?: string
   coreColor?: string
   coreText?: string
+  faceUrl?: string
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
@@ -88,6 +89,7 @@ export function BallScene({
   shellColor,
   coreColor,
   coreText,
+  faceUrl,
   smashAt,
   onCracks,
   onRubbing,
@@ -130,6 +132,7 @@ export function BallScene({
           shellColor={shellColor}
           coreColor={coreColor}
           coreText={coreText}
+          faceUrl={faceUrl}
           smashAt={smashAt}
           onCracks={onCracks}
           onRubbing={onRubbing}

@@ -14,6 +14,7 @@ import { createPhysicsState, freeze, stepPhysics } from './waxPhysics'
 import { createWaxBuffers, updateSoftMesh, updateWax } from './waxGeometry'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, waxPalette } from './ballColors'
 import { LABEL_ASPECT, makeLabelTexture } from './coreLabel'
+import { createFaceUniforms, hookFace, makeFaceTexture } from './faceDecal'
 import type { CrackEvent, PhysicsSnapshot } from './waxTypes'
 import type { CrackCondition } from '../audio/crackSounds'
 export type { CrackCondition }
@@ -55,6 +56,8 @@ interface WaxBallProps {
   coreColor?: string
   /** 속에 비치는 당첨 결과. 주면 클레이가 반투명해지고 부술수록 글자가 떠오른다 */
   coreText?: string
+  /** 공 표면에 붙일 얼굴 사진(URL 또는 data URL). 깨지면 같이 조각난다 */
+  faceUrl?: string
   /** onSmash가 터지는 파괴 진행도(0~1). 0.8이면 80% 부수면 발화 */
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
@@ -75,6 +78,7 @@ export function WaxBall({
   shellColor = DEFAULT_SHELL_COLOR,
   coreColor = DEFAULT_CORE_COLOR,
   coreText,
+  faceUrl,
   smashAt = DEFAULT_SMASH_AT,
   onCracks,
   onRubbing,
@@ -139,6 +143,35 @@ export function WaxBall({
   const labelRef = useRef<THREE.Mesh>(null)
   const labelMatRef = useRef<THREE.MeshBasicMaterial>(null)
   const clayMatRef = useRef<THREE.MeshPhysicalMaterial>(null)
+
+  // 얼굴 데칼 — 겉면 왁스는 색 그대로 두고 안쪽 말랑이에만 반투명하게 얹는다.
+  // 클레이에 붙였으므로 눌리면 사진도 같이 구겨진다.
+  const face = useMemo(() => createFaceUniforms(), [])
+  const faceClayStrength = useMemo(() => ({ value: 0.72 }), [])
+
+  useEffect(() => {
+    if (!faceUrl) {
+      face.on.value = 0
+      return
+    }
+    if (clayMatRef.current) hookFace(clayMatRef.current, face, faceClayStrength, 1.9)
+
+    let live = true
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      if (!live) return
+      face.map.value?.dispose()
+      face.map.value = makeFaceTexture(img)
+      face.on.value = 1
+      // 볼 로컬 +Z에 고정한다. 로딩이 끝난 순간의 회전에 맞추면 붙는 면이 매번 달라진다
+      face.mat.value.identity()
+    }
+    img.src = faceUrl
+    return () => { live = false }
+  }, [faceUrl, face, faceClayStrength])
+
+  useEffect(() => () => { face.map.value?.dispose() }, [face])
 
   const modeRef = useRef<Mode>('idle')
   const downRef = useRef({ t: 0, x: 0, y: 0, lastX: 0, lastY: 0 })
