@@ -77,7 +77,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     tagline: '고민이 많은 날, 브라이언을 조물조물',
     photo: '/brian_wakbbu.png',
     background: 'peach',
-    sound: 'classic',
+    sound: 'squishy',
     healMode: true,
   },
   {
@@ -91,7 +91,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     tagline: '스트레스 받는 날, 프리츠를 조물조물',
     photo: '/fritz_wakbbu.png',
     background: 'peach',
-    sound: 'classic',
+    sound: 'slime',
     healMode: true,
   },
   {
@@ -105,7 +105,7 @@ export const CREW_BALLS: readonly CrewBall[] = [
     tagline: '배포 실패한 날, 댄을 뿌시며 힐링',
     photo: '/dan_wakbbu.png',
     background: 'charcoal',
-    sound: 'classic',
+    sound: 'keycap',
     healMode: true,
   },
 ]
