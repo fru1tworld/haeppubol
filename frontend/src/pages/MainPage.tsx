@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { DiningMode, Restaurant, SmashResult } from '../types'
+import type { DiningMode, FoodCategory, Restaurant, SmashResult } from '../types'
 import { FOOD_CATEGORY_LABEL } from '../types'
 import { api } from '../api/client'
 import { SEONGSU_RESTAURANTS } from '../constants/restaurants'
@@ -36,7 +36,14 @@ export const MainPage = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>(null)
   const [editing, setEditing] = useState(false)
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
-  const [newName, setNewName] = useState('')
+  const [newForm, setNewForm] = useState({
+    name: '',
+    category: 'etc' as FoodCategory,
+    description: '',
+    address: '',
+    distanceFromStation: '',
+    priceRange: '',
+  })
   const [customization, setCustomization] = useState<BallCustomization>({
     shellColor: '#F5C6A0',
     coreColor: '#D97B5A',
@@ -107,22 +114,21 @@ export const MainPage = () => {
   }
 
   const addRestaurant = async () => {
-    const trimmed = newName.trim()
-    if (!trimmed) return
+    if (!newForm.name.trim()) return
     try {
       const created = await api.restaurants.create({
-        name: trimmed,
-        category: 'etc',
-        description: '',
-        address: '',
-        distanceFromStation: '',
-        priceRange: '',
+        name: newForm.name.trim(),
+        category: newForm.category,
+        description: newForm.description.trim(),
+        address: newForm.address.trim(),
+        distanceFromStation: newForm.distanceFromStation.trim(),
+        priceRange: newForm.priceRange.trim(),
         availableModes: ['dine-in'],
         tags: [],
         password: 'fritz123',
       })
       setRestaurants(prev => [...prev, created])
-      setNewName('')
+      setNewForm({ name: '', category: 'etc', description: '', address: '', distanceFromStation: '', priceRange: '' })
     } catch {}
   }
 
@@ -146,34 +152,67 @@ export const MainPage = () => {
       ]} />
 
       {activeTab === 'list' && (
-        <div className="customize-panel">
+        <div className="list-panel">
+          <div className="list-panel-header">
+            <span className="list-count">{restaurants.length}개 음식점</span>
+            <button className="btn-edit-toggle" onClick={() => setEditing(v => !v)}>
+              {editing ? '완료' : '편집'}
+            </button>
+          </div>
+
           {editing && (
-            <div className="customize-input-row">
-              <input
-                type="text"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addRestaurant()}
-                placeholder="음식점 이름 입력"
-                className="customize-input"
-              />
-              <button className="btn-customize-add" onClick={addRestaurant}>추가</button>
+            <div className="add-form">
+              <div className="add-form-row">
+                <input value={newForm.name} onChange={e => setNewForm(f => ({ ...f, name: e.target.value }))} placeholder="이름 *" className="add-form-input name" />
+                <select value={newForm.category} onChange={e => setNewForm(f => ({ ...f, category: e.target.value as FoodCategory }))} className="add-form-select">
+                  {(Object.entries(FOOD_CATEGORY_LABEL) as [FoodCategory, string][]).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="add-form-row">
+                <input value={newForm.address} onChange={e => setNewForm(f => ({ ...f, address: e.target.value }))} placeholder="주소" className="add-form-input" />
+                <input value={newForm.distanceFromStation} onChange={e => setNewForm(f => ({ ...f, distanceFromStation: e.target.value }))} placeholder="거리 (예: 도보 5분)" className="add-form-input short" />
+              </div>
+              <div className="add-form-row">
+                <input value={newForm.priceRange} onChange={e => setNewForm(f => ({ ...f, priceRange: e.target.value }))} placeholder="가격대 (예: 1만원 이하)" className="add-form-input short" />
+                <input value={newForm.description} onChange={e => setNewForm(f => ({ ...f, description: e.target.value }))} placeholder="설명" className="add-form-input" />
+                <button className="btn-add-row" onClick={addRestaurant} disabled={!newForm.name.trim()}>추가</button>
+              </div>
             </div>
           )}
-          <div className="customize-chips">
-            {restaurants.map(r => (
-              <span key={r.id} className="customize-chip">
-                {r.name}
-                {editing && <button onClick={() => removeRestaurant(r)}>&times;</button>}
-              </span>
-            ))}
+
+          <div className="list-table-wrap">
+            <table className="list-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>분류</th>
+                  <th>주소</th>
+                  <th>거리</th>
+                  <th>가격대</th>
+                  {editing && <th></th>}
+                </tr>
+              </thead>
+              <tbody>
+                {restaurants.map(r => (
+                  <tr key={r.id} className={r.closed ? 'closed' : ''}>
+                    <td className="col-name">{r.name}</td>
+                    <td><span className={`cat-badge ${r.category}`}>{FOOD_CATEGORY_LABEL[r.category]}</span></td>
+                    <td className="col-addr">{r.address}</td>
+                    <td>{r.distanceFromStation}</td>
+                    <td>{r.priceRange}</td>
+                    {editing && (
+                      <td><button className="btn-row-delete" onClick={() => removeRestaurant(r)}>&times;</button></td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             {restaurants.length === 0 && (
-              <span className="customize-hint">등록된 음식점이 없습니다</span>
+              <p className="list-empty">등록된 음식점이 없습니다</p>
             )}
           </div>
-          <button className="btn-edit-toggle" onClick={() => setEditing(v => !v)}>
-            {editing ? '완료' : '편집'}
-          </button>
         </div>
       )}
 

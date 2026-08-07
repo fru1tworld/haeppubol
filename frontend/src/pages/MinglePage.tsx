@@ -113,35 +113,55 @@ export const MinglePage = () => {
       ]} />
 
       {activeTab === 'list' && (
-        <div className="customize-panel">
-          <p className="mingle-rule">매달 {PICK_COUNT}팀을 뽑습니다.</p>
+        <div className="list-panel">
+          <div className="list-panel-header">
+            <span className="list-count">{teams.length}개 활동 · 매달 {PICK_COUNT}팀 추첨</span>
+            <button className="btn-edit-toggle" onClick={() => setEditing(v => !v)}>
+              {editing ? '완료' : '편집'}
+            </button>
+          </div>
+
           {editing && (
-            <div className="customize-input-row">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
-                placeholder="밍글 활동 입력 (예: 볼링, 풋살)"
-                className="customize-input"
-              />
-              <button className="btn-customize-add" onClick={addTeam}>추가</button>
+            <div className="add-form">
+              <div className="add-form-row">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
+                  placeholder="밍글 활동 입력 (예: 볼링, 풋살)"
+                  className="add-form-input"
+                />
+                <button className="btn-add-row" onClick={addTeam} disabled={!inputValue.trim()}>추가</button>
+              </div>
             </div>
           )}
-          <div className="customize-chips">
-            {teams.map(team => (
-              <span key={team} className="customize-chip">
-                {team}
-                {editing && <button onClick={() => removeTeam(team)}>&times;</button>}
-              </span>
-            ))}
+
+          <div className="list-table-wrap">
+            <table className="list-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>활동명</th>
+                  {editing && <th></th>}
+                </tr>
+              </thead>
+              <tbody>
+                {teams.map((team, i) => (
+                  <tr key={team}>
+                    <td style={{ width: 40, color: 'var(--po-gray-400)' }}>{i + 1}</td>
+                    <td className="col-name">{team}</td>
+                    {editing && (
+                      <td><button className="btn-row-delete" onClick={() => removeTeam(team)}>&times;</button></td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             {teams.length === 0 && (
-              <span className="customize-hint">등록된 밍글 활동이 없습니다</span>
+              <p className="list-empty">등록된 밍글 활동이 없습니다</p>
             )}
           </div>
-          <button className="btn-edit-toggle" onClick={() => setEditing(v => !v)}>
-            {editing ? '완료' : '편집'}
-          </button>
         </div>
       )}
 

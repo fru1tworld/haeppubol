@@ -232,6 +232,7 @@ export const CustomPage = ({
       coreColor,
       background,
       sound: soundSet,
+      photo: imageUrl ?? undefined,
     }).catch(() => {})
     setItems([])
     setBallName('')

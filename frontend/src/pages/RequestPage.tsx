@@ -194,6 +194,7 @@ export const RequestPage = () => {
             autoSpin={spinOn}
             freezeKey={freezeKey}
             resetKey={resetKey}
+            smashAt={0.2}
             onCracks={playCracks}
             onRubbing={setRubbing}
             onSmash={handleSmash}
@@ -250,7 +251,7 @@ export const RequestPage = () => {
               type="text"
               value={author}
               onChange={e => setAuthor(e.target.value)}
-              placeholder="예: sarah"
+              placeholder="예: fritz"
               className="req-input"
             />
 
