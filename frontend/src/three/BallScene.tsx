@@ -16,6 +16,7 @@ interface BallSceneProps {
   freezeKey?: number
   shellColor?: string
   coreColor?: string
+  coreText?: string
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
@@ -86,6 +87,7 @@ export function BallScene({
   freezeKey,
   shellColor,
   coreColor,
+  coreText,
   smashAt,
   onCracks,
   onRubbing,
@@ -127,6 +129,7 @@ export function BallScene({
           freezeKey={freezeKey}
           shellColor={shellColor}
           coreColor={coreColor}
+          coreText={coreText}
           smashAt={smashAt}
           onCracks={onCracks}
           onRubbing={onRubbing}

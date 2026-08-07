@@ -26,6 +26,8 @@ export const MinglePage = () => {
   const [customizing, setCustomizing] = useState(false)
   const [customItems, setCustomItems] = useState<string[] | null>(loadCustomItems)
   const [customInput, setCustomInput] = useState('')
+  // 공 안에 미리 넣어두는 당첨 팀. 부술수록 이름이 비쳐 보인다
+  const [sealed, setSealed] = useState<string | null>(null)
   const { play, playCracks, setRubbing } = useSound()
 
   useEffect(() => {
@@ -42,6 +44,10 @@ export const MinglePage = () => {
     }
   }, [customItems])
 
+  useEffect(() => {
+    setSealed(teams.length ? teams[Math.floor(Math.random() * teams.length)] : null)
+  }, [teams, resetKey])
+
   const addTeam = () => {
     const trimmed = inputValue.trim()
     if (!trimmed || teams.includes(trimmed)) return
@@ -57,9 +63,9 @@ export const MinglePage = () => {
   const handleSmash = useCallback(() => {
     if (teams.length === 0) return
     setShareState('idle')
-    setResult(teams[Math.floor(Math.random() * teams.length)])
+    setResult(sealed ?? teams[Math.floor(Math.random() * teams.length)])
     play('reveal')
-  }, [teams, play])
+  }, [teams, sealed, play])
 
   const handleShare = async () => {
     if (!result || shareState === 'sending' || shareState === 'done') return
@@ -175,6 +181,7 @@ export const MinglePage = () => {
         <BallScene
           resetKey={resetKey}
           smashAt={SMASH_REVEAL_AT}
+          coreText={canSmash ? sealed ?? undefined : undefined}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}

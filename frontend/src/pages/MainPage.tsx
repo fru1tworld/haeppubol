@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { DiningMode, SmashResult } from '../types'
+import type { DiningMode, Restaurant, SmashResult } from '../types'
 import { DINING_MODE_LABEL, FOOD_CATEGORY_LABEL } from '../types'
 import { api } from '../api/client'
 import { SEONGSU_RESTAURANTS } from '../constants/restaurants'
@@ -22,6 +22,26 @@ const loadCustomItems = (): string[] | null => {
   }
 }
 
+const localPick = (mode: DiningMode): Restaurant => {
+  const candidates = SEONGSU_RESTAURANTS.filter(
+    r => !r.closed && r.availableModes.includes(mode),
+  )
+  return candidates[Math.floor(Math.random() * candidates.length)]
+}
+
+/** 커스텀 목록의 한 줄을 결과 카드가 아는 모양으로 감싼다 */
+const customPick = (name: string): Restaurant => ({
+  id: name,
+  name,
+  category: 'etc',
+  description: '',
+  address: '',
+  distanceFromStation: '',
+  priceRange: '',
+  availableModes: ['dine-in', 'delivery'],
+  tags: [],
+})
+
 export const MainPage = () => {
   const [mode, setMode] = useState<DiningMode>('dine-in')
   const [result, setResult] = useState<SmashResult | null>(null)
@@ -30,6 +50,8 @@ export const MainPage = () => {
   const [customizing, setCustomizing] = useState(false)
   const [customItems, setCustomItems] = useState<string[] | null>(loadCustomItems)
   const [inputValue, setInputValue] = useState('')
+  // 공 안에 미리 넣어두는 당첨 식당. 부술수록 이름이 비쳐 보인다
+  const [sealed, setSealed] = useState<Restaurant | null>(null)
   const { play, playCracks, setRubbing, setVolume, volume } = useSound()
 
   useEffect(() => {
@@ -40,32 +62,29 @@ export const MainPage = () => {
     }
   }, [customItems])
 
-  const handleSmash = useCallback(() => {
-    play('smash')
-
+  // 커스텀 목록이 있으면 거기서, 없으면 서버(실패 시 로컬 후보)에서 미리 뽑는다
+  useEffect(() => {
+    let live = true
+    setSealed(null)
     if (customItems && customItems.length > 0) {
-      const pick = customItems[Math.floor(Math.random() * customItems.length)]
-      setResult({
-        restaurant: { id: pick, name: pick, category: 'etc', description: '', address: '', distanceFromStation: '', priceRange: '', availableModes: ['dine-in', 'delivery'], tags: [] },
-        mode,
-        smashedAt: Date.now(),
-      })
-      play('reveal')
+      setSealed(customPick(customItems[Math.floor(Math.random() * customItems.length)]))
       return
     }
+    api.restaurants.random(mode)
+      .catch(() => localPick(mode))
+      .then(pick => { if (live) setSealed(pick) })
+    return () => { live = false }
+  }, [mode, resetKey, customItems])
 
-    api.restaurants.random(mode).then(pick => {
-      setResult({ restaurant: pick, mode, smashedAt: Date.now() })
-      play('reveal')
-    }).catch(() => {
-      const candidates = SEONGSU_RESTAURANTS.filter(
-        r => !r.closed && r.availableModes.includes(mode),
-      )
-      const pick = candidates[Math.floor(Math.random() * candidates.length)]
-      setResult({ restaurant: pick, mode, smashedAt: Date.now() })
-      play('reveal')
-    })
-  }, [mode, play, customItems])
+  const handleSmash = useCallback(() => {
+    play('smash')
+    const pick = sealed
+      ?? (customItems && customItems.length > 0
+        ? customPick(customItems[Math.floor(Math.random() * customItems.length)])
+        : localPick(mode))
+    setResult({ restaurant: pick, mode, smashedAt: Date.now() })
+    play('reveal')
+  }, [mode, play, sealed, customItems])
 
   const handleShare = useCallback(async () => {
     if (!result) return
@@ -168,6 +187,7 @@ export const MainPage = () => {
           ballSize={ballSize / 100}
           resetKey={resetKey}
           smashAt={SMASH_REVEAL_AT}
+          coreText={sealed?.name}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={handleSmash}

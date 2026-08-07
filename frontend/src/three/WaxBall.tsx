@@ -13,6 +13,7 @@ import {
 import { createPhysicsState, freeze, stepPhysics } from './waxPhysics'
 import { createWaxBuffers, updateSoftMesh, updateWax } from './waxGeometry'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, waxPalette } from './ballColors'
+import { LABEL_ASPECT, makeLabelTexture } from './coreLabel'
 import type { CrackEvent, PhysicsSnapshot } from './waxTypes'
 
 const HOLD_PRESS_MS = 190
@@ -26,6 +27,18 @@ const SQUEEZE_DEPTH = 0.17
 const SQUASH_EPS = 0.0006
 /** integrity < 0.06 = 완파. 기본값은 이 지점에서 onSmash */
 const DEFAULT_SMASH_AT = 0.94
+
+// 속이 비치는 추첨 볼 (coreText). 부술수록 클레이가 맑아지고 글자가 떠오른다.
+const CORE_LABEL_W = 1.24
+const CLAY_OPACITY_FULL = 0.66
+const CLAY_OPACITY_SMASHED = 0.16
+/** 진행도 비율 t 중 글자가 보이기 시작/다 보이는 지점 */
+const LABEL_FADE_IN = 0.12
+const LABEL_FADE_FULL = 0.92
+
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
+/** 부드럽게 떠오르도록 */
+const smoothstep = (v: number) => v * v * (3 - 2 * v)
 
 export interface CrackCondition {
   integrity: number
@@ -47,6 +60,8 @@ interface WaxBallProps {
   shellColor?: string
   /** 속(클레이) 색 */
   coreColor?: string
+  /** 속에 비치는 당첨 결과. 주면 클레이가 반투명해지고 부술수록 글자가 떠오른다 */
+  coreText?: string
   /** onSmash가 터지는 파괴 진행도(0~1). 0.8이면 80% 부수면 발화 */
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
@@ -66,6 +81,7 @@ export function WaxBall({
   freezeKey = 0,
   shellColor = DEFAULT_SHELL_COLOR,
   coreColor = DEFAULT_CORE_COLOR,
+  coreText,
   smashAt = DEFAULT_SMASH_AT,
   onCracks,
   onRubbing,
@@ -124,6 +140,12 @@ export function WaxBall({
   useEffect(() => {
     dirtyRef.current = true
   }, [palette])
+
+  const labelTexture = useMemo(() => (coreText ? makeLabelTexture(coreText) : null), [coreText])
+  useEffect(() => () => { labelTexture?.dispose() }, [labelTexture])
+  const labelRef = useRef<THREE.Mesh>(null)
+  const labelMatRef = useRef<THREE.MeshBasicMaterial>(null)
+  const clayMatRef = useRef<THREE.MeshPhysicalMaterial>(null)
 
   const modeRef = useRef<Mode>('idle')
   const downRef = useRef({ t: 0, x: 0, y: 0, lastX: 0, lastY: 0 })
@@ -286,6 +308,21 @@ export function WaxBall({
       }
     }
 
+    // 속 라벨: 카메라를 보게 세우고, 부술수록 맑아지며 떠오른다
+    if (labelRef.current && labelMatRef.current) {
+      const t = smoothstep(clamp01((1 - physics.integrity) / Math.max(0.05, smashAt)))
+      labelMatRef.current.opacity =
+        clamp01((t - LABEL_FADE_IN) / (LABEL_FADE_FULL - LABEL_FADE_IN))
+      if (clayMatRef.current) {
+        clayMatRef.current.opacity =
+          CLAY_OPACITY_FULL + (CLAY_OPACITY_SMASHED - CLAY_OPACITY_FULL) * t
+      }
+      labelRef.current.quaternion
+        .copy(group.quaternion)
+        .invert()
+        .multiply(camera.quaternion)
+    }
+
     onRubbing?.(pressing ? physics.force : 0)
 
     if (!smashedRef.current && 1 - physics.integrity >= smashAt) {
@@ -309,9 +346,28 @@ export function WaxBall({
 
   return (
     <group ref={groupRef} scale={size}>
-      <mesh geometry={clay.geo}>
+      {labelTexture && (
+        // 클레이 뒤에 그리면 반투명 클레이에 씻겨 안 읽힌다. 클레이 다음에 그리되
+        // 깊이 테스트는 살려서 성한 왁스 뒤에서는 가려지게 둔다 — 깨진 틈으로만 보인다.
+        <mesh ref={labelRef} renderOrder={2}>
+          <planeGeometry args={[CORE_LABEL_W, CORE_LABEL_W / LABEL_ASPECT]} />
+          <meshBasicMaterial
+            ref={labelMatRef}
+            map={labelTexture}
+            transparent
+            opacity={0}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+      <mesh geometry={clay.geo} renderOrder={labelTexture ? 1 : 0}>
         <meshPhysicalMaterial
+          ref={clayMatRef}
           {...(clayTexture ? { map: clayTexture } : { color: coreColor })}
+          {...(labelTexture
+            ? { transparent: true, opacity: CLAY_OPACITY_FULL, depthWrite: false }
+            : null)}
           roughness={0.66}
           clearcoat={0.3}
           clearcoatRoughness={0.6}
