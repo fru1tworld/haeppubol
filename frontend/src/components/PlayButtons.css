@@ -1,0 +1,42 @@
+.play-buttons {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 12px;
+  z-index: 20;
+}
+
+.play-button {
+  padding: 9px 17px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 198, 160, 0.4);
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--po-gray-900);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.play-button:hover {
+  background: var(--po-peach-dark);
+  border-color: var(--po-peach-dark);
+}
+
+.play-button:active {
+  transform: scale(0.96);
+}
+
+.play-button.on {
+  background: var(--po-black);
+  border-color: var(--po-black);
+  color: var(--po-white);
+}

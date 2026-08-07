@@ -1,0 +1,315 @@
+.mingle-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--po-peach);
+  color: var(--po-gray-900);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-y: auto;
+}
+
+.mingle-header {
+  display: flex;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.mingle-customize-panel {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 20px;
+}
+
+.mingle-page .customize-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.mingle-page .customize-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--po-gray-900);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.mingle-page .customize-input:focus {
+  border-color: var(--po-peach-deep);
+}
+
+.mingle-page .btn-customize-add {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.mingle-page .btn-customize-add:hover {
+  background: var(--po-peach-deeper);
+}
+
+.mingle-page .btn-customize-reset {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--po-gray-600);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.mingle-page .btn-customize-reset:hover {
+  background: rgba(245, 198, 160, 0.3);
+}
+
+.mingle-page .customize-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mingle-page .customize-chip {
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--glass-border);
+  color: var(--po-gray-900);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mingle-page .customize-chip button {
+  background: none;
+  border: none;
+  color: var(--po-gray-400);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0;
+  line-height: 1;
+}
+
+.mingle-page .customize-chip button:hover {
+  color: var(--po-danger);
+}
+
+.mingle-page .customize-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--po-gray-600);
+  margin-top: 8px;
+}
+
+
+
+.mingle-rule {
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--po-gray-600);
+  margin-bottom: 8px;
+}
+
+.mingle-scene {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 340px;
+}
+
+.mingle-result-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 198, 160, 0.4);
+  color: var(--po-gray-900);
+  border-radius: 16px;
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.confetti-text {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.winner-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  margin-bottom: 24px;
+}
+
+.participant-label {
+  font-size: 13px;
+  color: var(--po-gray-400);
+  margin-bottom: 8px;
+}
+
+.participant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.participant-chip {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--po-gray-100);
+  font-size: 13px;
+}
+
+.participant-chip.winner {
+  background: var(--po-peach-dark);
+  font-weight: 600;
+}
+
+.btn-share {
+  background: #4a154b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.btn-share:hover:not(:disabled) {
+  background: #611f69;
+}
+
+.btn-share:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.btn-share.done {
+  background: #2e7d4f;
+}
+
+.btn-share.error {
+  background: #b3382c;
+}
+
+.winner-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.winner-rank {
+  text-align: center;
+}
+
+.rank-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.rank-badge.first {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #fff;
+}
+
+.rank-badge.second {
+  background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+  color: #fff;
+}
+
+.winner-rank .winner-name {
+  font-size: 24px;
+  margin-bottom: 0;
+}
+
+.mingle-history {
+  padding: 16px 24px 24px;
+  flex-shrink: 0;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  margin-bottom: 12px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+
+.history-month {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--po-gray-600);
+  min-width: 80px;
+}
+
+.history-winners {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-badge {
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.history-badge.first {
+  background: rgba(255, 215, 0, 0.2);
+  color: #b8860b;
+}
+
+.history-badge.second {
+  background: rgba(192, 192, 192, 0.3);
+  color: #666;
+}

@@ -1,0 +1,247 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+:root {
+  --po-black: #000000;
+  --po-white: #FFFFFF;
+  --po-peach: #FDE8D8;
+  --po-peach-dark: #F5C6A0;
+  --po-peach-deep: #e6a87a;
+  --po-peach-deeper: #d4915e;
+  --po-gray-50: #F9FAFB;
+  --po-gray-100: #F3F4F6;
+  --po-gray-200: #E5E7EB;
+  --po-gray-400: #9CA3AF;
+  --po-gray-600: #4B5563;
+  --po-gray-900: #1a1a1a;
+  --po-success: #22c55e;
+  --po-warning: #f59e0b;
+  --po-danger: #ef4444;
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(245, 198, 160, 0.5);
+  --glass-blur: blur(16px);
+
+  --wak-bg: #3d2b1f;
+  --wak-bg-alt: #2e1f15;
+  --wak-accent: #F5C6A0;
+  --wak-text: #f5e6d8;
+  --wak-text-muted: #c4a689;
+  --wak-card-bg: rgba(245, 198, 160, 0.08);
+  --wak-card-border: rgba(245, 198, 160, 0.15);
+  --wak-glass-bg: rgba(245, 198, 160, 0.12);
+  --wak-glass-border: rgba(245, 198, 160, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+input, textarea, [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+html {
+  background: var(--po-peach);
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--po-peach);
+  color: var(--po-gray-900);
+  min-height: 100vh;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: left;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(245, 198, 160, 0.4);
+  color: var(--po-gray-900);
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  cursor: pointer;
+  font-family: 'Gaegu', sans-serif;
+  padding: 0;
+}
+
+.app-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.app-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--glass-border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.2s ease, padding 0.2s ease;
+}
+
+.app-sidebar.collapsed {
+  width: 48px;
+  padding: 12px 4px;
+}
+
+.app-sidebar.collapsed .sidebar-toggle {
+  justify-content: center;
+}
+
+.app-sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--po-gray-600);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: left;
+}
+
+.app-sidebar button:hover {
+  background: rgba(245, 198, 160, 0.5);
+  color: var(--po-gray-900);
+}
+
+.app-sidebar button.active {
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  font-weight: 600;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.scene-blocker {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(61, 43, 31, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.scene-blocker p {
+  color: var(--po-gray-200);
+  font-size: 14px;
+}
+
+.result-anchor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.result-anchor > * {
+  pointer-events: auto;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn-retry {
+  padding: 12px 28px;
+  border-radius: 100px;
+  border: none;
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-retry:hover {
+  background: var(--po-peach-deeper);
+}
+
+/* 볼을 부수는 동안 — 사이드바만 남기고 위 헤더를 접어 화면을 넓게 쓴다 */
+body.immersive .app-header {
+  display: none;
+}
+
+body.immersive .app-sidebar {
+  background: transparent;
+  border-right: none;
+}
+
+body.immersive .app-content {
+  overflow: hidden;
+}

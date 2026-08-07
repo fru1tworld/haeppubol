@@ -1,0 +1,79 @@
+.controls-left {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 198, 160, 0.4);
+  border-radius: 16px;
+}
+
+.controls-mute {
+  font-size: 11px;
+  color: var(--po-gray-600);
+  user-select: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.controls-mute:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.controls-mute.muted {
+  color: var(--po-peach-deep);
+  font-weight: 600;
+}
+
+.controls-label {
+  font-size: 12px;
+  color: var(--po-gray-600);
+  user-select: none;
+}
+
+.controls-slider.vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 28px;
+  height: 100px;
+  appearance: slider-vertical;
+  accent-color: var(--po-peach-deep);
+  cursor: pointer;
+}
+
+.controls-reset {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  padding: 10px 24px;
+  border-radius: 100px;
+  border: 1px solid rgba(245, 198, 160, 0.4);
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--po-gray-900);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 20;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.controls-reset:hover {
+  background: var(--po-peach-dark);
+  border-color: var(--po-peach-dark);
+}

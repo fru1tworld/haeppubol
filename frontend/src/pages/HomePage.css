@@ -1,0 +1,305 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap');
+
+.home-page {
+  min-height: 100%;
+  background: var(--po-peach);
+}
+
+.home-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 64px;
+  gap: 120px;
+  position: relative;
+}
+
+.home-title {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 96px;
+  font-weight: 700;
+  color: var(--po-black);
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+/* Signs row */
+.home-signs {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  align-items: end;
+  justify-content: space-evenly;
+  gap: 32px;
+  width: 100%;
+  max-width: 1100px;
+  padding: 0 16px;
+}
+
+.home-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  padding: 0;
+}
+
+.home-sign:hover {
+  transform: translateY(-12px) scale(1.05);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+.home-sign:active {
+  transform: translateY(-4px) scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Sign board */
+.sign-board {
+  width: 170px;
+  height: 170px;
+  background: #FFFFFF;
+  border: 4px solid var(--po-gray-900);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.sign-board.diamond {
+  width: 135px;
+  height: 135px;
+  transform: rotate(45deg);
+  margin-bottom: 18px;
+  border-radius: 6px;
+}
+
+.sign-board.diamond .sign-svg {
+  transform: rotate(-45deg);
+}
+
+.sign-board.diamond .sign-bolt {
+  transform: rotate(-45deg);
+}
+
+/* Bolts */
+.sign-bolt {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--po-gray-900);
+  border-radius: 50%;
+}
+
+.sign-bolt.tl { top: 8px; left: 8px; }
+.sign-bolt.tr { top: 8px; right: 8px; }
+
+.sign-svg {
+  width: 88px;
+  height: 88px;
+}
+
+/* Pole */
+.sign-pole {
+  width: 8px;
+  height: 44px;
+  background: #aaa;
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
+}
+
+/* Name bar */
+.sign-name-bar {
+  min-width: 170px;
+  padding: 8px 18px;
+  background: var(--po-peach-dark);
+  border: 3px solid var(--po-gray-900);
+  border-radius: 6px;
+  margin-top: -2px;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sign-label {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  white-space: nowrap;
+}
+
+/* Crew section */
+.crew-section {
+  padding: 64px 24px 80px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.crew-section-title {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--po-gray-900);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.crew-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.crew-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.crew-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.7);
+  border-color: var(--po-peach-deep);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.crew-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.crew-card-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.crew-author {
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(245, 198, 160, 0.35);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.crew-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crew-item-chip {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--po-peach);
+  font-size: 13px;
+}
+
+.crew-item-chip.more {
+  background: var(--po-gray-100);
+  color: var(--po-gray-600);
+}
+
+.crew-date {
+  font-size: 12px;
+  color: var(--po-gray-400);
+  margin-top: 10px;
+}
+
+.crew-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--po-gray-600);
+}
+
+.crew-pagination button {
+  padding: 8px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--po-gray-900);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.crew-pagination button:hover:not(:disabled) {
+  background: var(--po-peach-deep);
+  color: var(--po-white);
+  border-color: var(--po-peach-deep);
+}
+
+.crew-pagination button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 48px 16px 40px;
+    gap: 64px;
+  }
+
+  .home-title {
+    font-size: 44px;
+  }
+
+  .home-signs {
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
+    gap: 24px 32px;
+  }
+
+  .sign-board {
+    width: 110px;
+    height: 110px;
+  }
+
+  .sign-board.diamond {
+    width: 90px;
+    height: 90px;
+  }
+
+  .sign-svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .sign-name-bar {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .sign-label {
+    font-size: 14px;
+    white-space: normal;
+    word-break: keep-all;
+    line-height: 1.3;
+  }
+
+  .crew-section {
+    padding: 40px 16px 60px;
+  }
+
+  .crew-grid {
+    grid-template-columns: 1fr;
+  }
+}
