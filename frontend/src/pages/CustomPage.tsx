@@ -47,7 +47,7 @@ export const CustomPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [savedBalls, setSavedBalls] = useState<SavedBall[]>(loadSavedBalls)
   const [background, setBackground] = useState(DEFAULT_BACKGROUND)
-  const [isCreating, setIsCreating] = useState(false)
+  const [mode, setMode] = useState<'board' | 'create' | 'play'>('board')
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
@@ -67,7 +67,7 @@ export const CustomPage = () => {
       if (name) setBallName(name)
       if (sound && isSoundSetName(sound)) setSoundSet(sound)
       if (bg && isBackgroundId(bg)) setBackground(bg)
-      setIsCreating(true)
+      setMode('play')
     }
   }, [setSoundSet])
 
@@ -100,7 +100,7 @@ export const CustomPage = () => {
       background,
     }
     setSavedBalls(prev => [ball, ...prev])
-    setIsCreating(false)
+    setMode('board')
     setItems([])
     setBallName('')
     setBackground(DEFAULT_BACKGROUND)
@@ -112,7 +112,7 @@ export const CustomPage = () => {
     setBallName(ball.name)
     setSoundSet(ball.sound ?? 'classic')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
-    setIsCreating(true)
+    setMode('play')
     setResult(null)
   }
 
@@ -136,7 +136,57 @@ export const CustomPage = () => {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (!isCreating) {
+  if (mode === 'play') {
+    return (
+      <div className="custom-page dark">
+        <div className="custom-create-header">
+          <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setResult(null) }}>
+            &larr; 목록
+          </button>
+          <h2 className="play-title">{ballName || '왁뿌볼'}</h2>
+          <button className="btn-back" onClick={() => setMode('create')}>
+            편집
+          </button>
+        </div>
+        <div className="custom-scene">
+          <BallScene
+            background={background}
+            onCracks={playCracks}
+            onRubbing={setRubbing}
+            onSmash={() => { play('smash'); handleSmash() }}
+          />
+          {items.length < 2 && (
+            <div className="scene-blocker">
+              <p>아이템을 2개 이상 추가하세요</p>
+            </div>
+          )}
+          {result && (
+            <div className="result-anchor">
+              <motion.div
+                className="custom-result-card"
+                initial={{ scale: 0.1, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+              >
+                <h2>{result}</h2>
+                <p className="result-sub">{ballName}에서 뽑혔습니다!</p>
+                <div className="result-actions">
+                  <button className="btn-retry" onClick={() => { setResult(null); play('click') }}>다시 뿌수기</button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </div>
+        <div className="play-items-row">
+          {items.map(item => (
+            <span key={item} className="crew-item-chip">{item}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (mode === 'board') {
     const boardBalls = [
       ...savedBalls.map(b => ({ ...b, author: undefined as string | undefined, mine: true })),
       ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false })),
@@ -156,7 +206,7 @@ export const CustomPage = () => {
       <div className="custom-page">
         <div className="custom-header">
           <h1>왁뿌볼 게시판</h1>
-          <button className="btn-new" onClick={() => setIsCreating(true)}>
+          <button className="btn-new" onClick={() => setMode('create')}>
             + 새 왁뿌볼 만들기
           </button>
         </div>
@@ -229,7 +279,7 @@ export const CustomPage = () => {
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
-        <button className="btn-back" onClick={() => { setIsCreating(false); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setResult(null) }}>
+        <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setResult(null) }}>
           &larr; 목록
         </button>
         <input

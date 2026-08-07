@@ -35,8 +35,6 @@ const noiseSource = (ctx: AudioContext): AudioBufferSourceNode => {
   return source
 }
 
-// ---- 슬라임 ASMR: 젖은 스퀄치(필터 스윕 노이즈) + 꾸르륵 블립 ----
-
 const squish = (
   ctx: AudioContext, destination: AudioNode, when: number,
   duration: number, fromHz: number, toHz: number, level: number, pitch: number,
@@ -50,7 +48,6 @@ const squish = (
   filter.frequency.setValueAtTime(fromHz * pitch, when)
   filter.frequency.exponentialRampToValueAtTime(toHz * pitch, when + duration)
 
-  // 필터 컷오프를 흔들어 '젖은' 질감을 냄
   const lfo = ctx.createOscillator()
   lfo.frequency.value = 28
   const lfoGain = ctx.createGain()
@@ -108,13 +105,10 @@ const slimeReveal: SoundPlayer = (ctx, destination, pitch) => {
   })
 }
 
-// ---- 키캡 ASMR: 초단타 클릭 트랜지언트 + 저역 통(thock) 바디 ----
-
 const keystroke = (
   ctx: AudioContext, destination: AudioNode, when: number,
   tockHz: number, level: number,
 ): void => {
-  // 프레스 순간의 고역 '틱'
   const click = noiseSource(ctx)
   const hp = ctx.createBiquadFilter()
   hp.type = 'highpass'
@@ -126,7 +120,6 @@ const keystroke = (
   click.start(when)
   click.stop(when + 0.005)
 
-  // 바텀아웃 '톡' — 키캡 공명은 중고역의 짧은 밴드패스 노이즈
   const tock = noiseSource(ctx)
   const bp = ctx.createBiquadFilter()
   bp.type = 'bandpass'
@@ -140,7 +133,6 @@ const keystroke = (
   tock.start(when)
   tock.stop(when + 0.03)
 
-  // 책상 울림 힌트만 남긴 아주 짧고 작은 저역
   const thud = ctx.createOscillator()
   thud.type = 'sine'
   thud.frequency.setValueAtTime(140, when)
@@ -162,7 +154,6 @@ const keycapSmash: SoundPlayer = (ctx, destination, pitch) => {
   tocks.forEach((hz, i) => {
     keystroke(ctx, destination, now + i * 0.045, hz * pitch, 0.35)
   })
-  // 마지막 스페이스바만 낮은 공명
   keystroke(ctx, destination, now + tocks.length * 0.045 + 0.03, 380 * pitch, 0.55)
 }
 
@@ -172,8 +163,6 @@ const keycapReveal: SoundPlayer = (ctx, destination, pitch) => {
     keystroke(ctx, destination, now + i * 0.07, hz * pitch, 0.4)
   })
 }
-
-// ---- 물소리 ASMR: 주파수가 위로 휘는 물방울(bloop) + 로우패스 스플래시 ----
 
 const droplet = (
   ctx: AudioContext, destination: AudioNode, when: number,
@@ -230,8 +219,6 @@ const waterReveal: SoundPlayer = (ctx, destination, pitch) => {
   })
 }
 
-// ---- 뽁뽁이 ASMR: 고역 스냅 + 짧은 피치 드롭 ----
-
 const bubblePop = (
   ctx: AudioContext, destination: AudioNode, when: number,
   centerHz: number, level: number,
@@ -279,8 +266,6 @@ const wrapReveal: SoundPlayer = (ctx, destination, pitch) => {
   })
 }
 
-// ---- 슬랑이 ASMR: 스프링 트왕(피치 워블 하강) + 금속성 울림 ----
-
 const boing = (
   ctx: AudioContext, destination: AudioNode, when: number,
   baseHz: number, duration: number, level: number,
@@ -290,7 +275,6 @@ const boing = (
   osc.frequency.setValueAtTime(baseHz, when)
   osc.frequency.exponentialRampToValueAtTime(baseHz * 0.5, when + duration)
 
-  // 스프링이 튕기며 잦아드는 떨림
   const wobble = ctx.createOscillator()
   wobble.frequency.setValueAtTime(26, when)
   wobble.frequency.exponentialRampToValueAtTime(7, when + duration)
@@ -323,7 +307,6 @@ const slinkyPop: SoundPlayer = (ctx, destination, pitch) => {
 const slinkySmash: SoundPlayer = (ctx, destination, pitch) => {
   const now = ctx.currentTime
   boing(ctx, destination, now, 260 * pitch, 0.42, 0.45)
-  // 튕겨 나간 스프링이 되튀는 잔 바운스
   boing(ctx, destination, now + 0.16, 380 * pitch, 0.2, 0.25)
   boing(ctx, destination, now + 0.3, 300 * pitch, 0.16, 0.18)
 }
@@ -334,8 +317,6 @@ const slinkyReveal: SoundPlayer = (ctx, destination, pitch) => {
     boing(ctx, destination, now + i * 0.1, hz * pitch, 0.18, 0.3)
   })
 }
-
-// ---- 말랑이 ASMR: 느린 어택의 먹먹한 스퀴즈 + 낮은 몸통 울림 ----
 
 const squeeze = (
   ctx: AudioContext, destination: AudioNode, when: number,
@@ -350,7 +331,6 @@ const squeeze = (
   lp.frequency.setValueAtTime(650 * pitch, when)
   lp.frequency.exponentialRampToValueAtTime(160 * pitch, when + duration)
 
-  // 손에 쥐어 눌리듯 천천히 차오르는 어택
   const gain = ctx.createGain()
   gain.gain.setValueAtTime(0.0001, when)
   gain.gain.exponentialRampToValueAtTime(level, when + duration * 0.35)
@@ -380,7 +360,6 @@ const squishyPop: SoundPlayer = (ctx, destination, pitch) => {
 const squishySmash: SoundPlayer = (ctx, destination, pitch) => {
   const now = ctx.currentTime
   squeeze(ctx, destination, now, 0.45, 0.5, pitch)
-  // 눌렸다 되돌아오는 복원 숨소리
   squeeze(ctx, destination, now + 0.3, 0.22, 0.25, pitch * 1.4)
 }
 

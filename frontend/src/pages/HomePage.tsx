@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react'
 import type { Page } from '../App'
 import { CREW_BALLS } from '../constants/crewBalls'
 import './HomePage.css'
@@ -5,6 +6,8 @@ import './HomePage.css'
 interface HomePageProps {
   onNavigate: (page: Page) => void
 }
+
+const PAGE_SIZE = 10
 
 const ForkKnifeIcon = () => (
   <svg viewBox="0 0 80 80" fill="none" className="sign-svg">
@@ -90,59 +93,77 @@ const SIGNS: {
   { key: 'request', label: '왁뿌볼 요청사항', icon: <RequestIcon />, shape: 'rect' },
 ]
 
-export const HomePage = ({ onNavigate }: HomePageProps) => (
-  <div className="home-page">
-    <div className="home-hero">
-      <h1 className="home-title">포트원 완구거리</h1>
+export const HomePage = ({ onNavigate }: HomePageProps) => {
+  const [crewPage, setCrewPage] = useState(0)
 
-      <div className="home-signs">
-        {SIGNS.map(s => (
-          <button key={s.key} className="home-sign" onClick={() => onNavigate(s.key)}>
-            <div className={`sign-board ${s.shape}`}>
-              <div className="sign-bolt tl" />
-              <div className="sign-bolt tr" />
-              {s.icon}
-            </div>
-            <div className="sign-pole" />
-            <div className="sign-name-bar">
-              <span className="sign-label">{s.label}</span>
-            </div>
-          </button>
-        ))}
+  const sorted = useMemo(
+    () => [...CREW_BALLS].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [],
+  )
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
+  const paged = sorted.slice(crewPage * PAGE_SIZE, (crewPage + 1) * PAGE_SIZE)
+
+  return (
+    <div className="home-page">
+      <div className="home-hero">
+        <h1 className="home-title">포트원 완구거리</h1>
+
+        <div className="home-signs">
+          {SIGNS.map(s => (
+            <button key={s.key} className="home-sign" onClick={() => onNavigate(s.key)}>
+              <div className={`sign-board ${s.shape}`}>
+                <div className="sign-bolt tl" />
+                <div className="sign-bolt tr" />
+                {s.icon}
+              </div>
+              <div className="sign-pole" />
+              <div className="sign-name-bar">
+                <span className="sign-label">{s.label}</span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
-    </div>
-
-    <section className="crew-section">
-      <h2 className="crew-section-title">크루들의 왁뿌볼</h2>
-      <div className="crew-grid">
-        {CREW_BALLS.map(ball => (
-          <div
-            key={ball.id}
-            className="crew-card"
-            onClick={() => {
-              const params = new URLSearchParams()
-              params.set('items', ball.items.map(encodeURIComponent).join(','))
-              params.set('name', ball.name)
-              window.history.replaceState(null, '', `?${params.toString()}${window.location.hash}`)
-              onNavigate('wakbbu')
-            }}
-          >
-            <div className="crew-card-header">
-              <h3>{ball.name}</h3>
-              <span className="crew-author">{ball.author}</span>
+      <section className="crew-section">
+        <h2 className="crew-section-title">크루들의 왁뿌볼</h2>
+        <div className="crew-grid">
+          {paged.map(ball => (
+            <div
+              key={ball.id}
+              className="crew-card"
+              onClick={() => {
+                const params = new URLSearchParams()
+                params.set('items', ball.items.map(encodeURIComponent).join(','))
+                params.set('name', ball.name)
+                window.history.replaceState(null, '', `?${params.toString()}${window.location.hash}`)
+                onNavigate('wakbbu')
+              }}
+            >
+              <div className="crew-card-header">
+                <h3>{ball.name}</h3>
+                <span className="crew-author">{ball.author}</span>
+              </div>
+              <div className="crew-items">
+                {ball.items.slice(0, 5).map(item => (
+                  <span key={item} className="crew-item-chip">{item}</span>
+                ))}
+                {ball.items.length > 5 && (
+                  <span className="crew-item-chip more">+{ball.items.length - 5}</span>
+                )}
+              </div>
+              <p className="crew-date">{new Date(ball.createdAt).toLocaleDateString('ko-KR')}</p>
             </div>
-            <div className="crew-items">
-              {ball.items.slice(0, 5).map(item => (
-                <span key={item} className="crew-item-chip">{item}</span>
-              ))}
-              {ball.items.length > 5 && (
-                <span className="crew-item-chip more">+{ball.items.length - 5}</span>
-              )}
-            </div>
+          ))}
+        </div>
+        {totalPages > 1 && (
+          <div className="crew-pagination">
+            <button disabled={crewPage === 0} onClick={() => setCrewPage(p => p - 1)}>&larr; 이전</button>
+            <span>{crewPage + 1} / {totalPages}</span>
+            <button disabled={crewPage >= totalPages - 1} onClick={() => setCrewPage(p => p + 1)}>다음 &rarr;</button>
           </div>
-        ))}
-      </div>
-    </section>
-  </div>
-)
+        )}
+      </section>
+    </div>
+  )
+}

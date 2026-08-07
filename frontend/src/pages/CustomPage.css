@@ -258,6 +258,24 @@
   border-color: var(--wak-accent);
 }
 
+.btn-add {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--wak-accent);
+  background: var(--wak-accent);
+  color: var(--po-gray-900);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.btn-add:hover {
+  opacity: 0.85;
+}
+
 .item-chips {
   display: flex;
   flex-wrap: wrap;
@@ -401,6 +419,32 @@
 
 .btn-share-header:hover {
   border-color: var(--wak-accent);
+}
+
+.play-title {
+  font-family: 'Gaegu', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--wak-text);
+  flex: 1;
+  text-align: center;
+}
+
+.play-items-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 16px 24px;
+}
+
+.play-items-row .crew-item-chip {
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--wak-card-bg);
+  border: 1px solid var(--wak-card-border);
+  color: var(--wak-text);
+  font-size: 13px;
 }
 
 .create-hint {
