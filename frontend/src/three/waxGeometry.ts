@@ -203,6 +203,8 @@ export function updateWax(
     const nv = c.nv
     const s1 = g.c1 < 0.002 ? 1 : 1 - g.c1 * 0.035
     const s2 = (c.c2 < 0.002 ? 1 : 1 - c.c2 * 0.075) * (1 - c.wear * 0.34)
+    /** 아직 아무 일도 없는 판. 이웃과 딱 맞물려 있어 단면이 드러날 자리가 없다 */
+    const intact = g.c1 < 0.002 && c.c2 < 0.002 && c.wear < 0.002
     _rigid = Math.min(1, c.c2)
     _th = TH * (1 - c.wear * 0.55)
 
@@ -263,7 +265,9 @@ export function updateWax(
       pushTri(_vo[P], _vo[Q], _vo[Cn], _no[P], _no[Q], _no[Cn], _tint)
       // 안쪽면
       pushTri(_vi[Cn], _vi[B], _vi[A], _ni[Cn], _ni[B], _ni[A], _tint)
-      // 옆면(깨진 단면) — 어둡게
+      // 옆면(깨진 단면) — 어둡게. 멀쩡한 판은 이웃 판의 옆면과 맞붙어 있어서
+      // 그려봐야 표면에 검은 실선만 남는다. 금이 간 뒤부터 드러낸다.
+      if (intact) continue
       const sn = _sn
         .crossVectors(_sA.subVectors(_vo[B], _vo[A]), _sB.subVectors(_vi[A], _vo[A]))
         .normalize()

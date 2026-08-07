@@ -24,6 +24,7 @@ const DRAG_START_PX = 9
 const ROTATE_K = 0.0062
 const SPIN_DAMP = 0.94
 const AUTO_SPIN = 0.16
+const WAX_RADIUS = 1.0
 const CLAY_RADIUS = 0.94
 const RUBBER_RADIUS = 1.03
 const SQUEEZE_DEPTH = 0.17
@@ -118,10 +119,18 @@ export function WaxBall({
     geo.deleteAttribute('uv')
     return { geo, base: (geo.attributes.position.array as Float32Array).slice() }
   }, [])
+  // 금 가기 전의 표면. 판을 하나씩 이어 붙이면 아무리 딱 맞물려도 이음매가
+  // 비쳐서, 성한 동안은 이음매 없는 구 하나로 그린다.
+  const pristine = useMemo(() => {
+    const geo = new THREE.SphereGeometry(1, 96, 64)
+    geo.deleteAttribute('uv')
+    return { geo, base: (geo.attributes.position.array as Float32Array).slice() }
+  }, [])
   useEffect(() => () => {
     clay.geo.dispose()
     rubber.geo.dispose()
-  }, [clay, rubber])
+    pristine.geo.dispose()
+  }, [clay, rubber, pristine])
 
   useEffect(() => {
     if (freezeKey > 0) freeze(physics)
@@ -143,6 +152,8 @@ export function WaxBall({
   const labelRef = useRef<THREE.Mesh>(null)
   const labelMatRef = useRef<THREE.MeshBasicMaterial>(null)
   const clayMatRef = useRef<THREE.MeshPhysicalMaterial>(null)
+  const pristineRef = useRef<THREE.Mesh>(null)
+  const shardRef = useRef<THREE.Mesh>(null)
 
   // 얼굴 데칼 — 겉면 왁스는 색 그대로 두고 안쪽 말랑이에만 반투명하게 얹는다.
   // 클레이에 붙였으므로 눌리면 사진도 같이 구겨진다.
@@ -309,10 +320,19 @@ export function WaxBall({
       }
     }
 
+    // 첫 금이 가기 전까지는 이음매 없는 구를, 그 뒤로는 조각 메시를 보여준다
+    const unbroken = physics.cracks === 0
+    if (pristineRef.current) pristineRef.current.visible = unbroken
+    if (shardRef.current) shardRef.current.visible = !unbroken
+
     const squashMoved = Math.abs(physics.squash - prevSquashRef.current) > SQUASH_EPS
     if (cracked || anim || squashMoved || dirtyRef.current) {
       prevSquashRef.current = physics.squash
-      updateWax(shell, field, waxBuffers, palette)
+      if (unbroken) {
+        updateSoftMesh(pristine.geo, pristine.base, d => deformSmooth(deform, d), WAX_RADIUS)
+      } else {
+        updateWax(shell, field, waxBuffers, palette)
+      }
       updateSoftMesh(clay.geo, clay.base, d => deformClay(deform, d), CLAY_RADIUS)
       updateSoftMesh(rubber.geo, rubber.base, d => deformSmooth(deform, d), RUBBER_RADIUS)
       dirtyRef.current = false
@@ -399,7 +419,15 @@ export function WaxBall({
           clearcoatRoughness={0.6}
         />
       </mesh>
-      <mesh geometry={waxBuffers.geometry}>
+      <mesh ref={pristineRef} geometry={pristine.geo}>
+        <meshPhysicalMaterial
+          color={shellColor}
+          roughness={0.42}
+          clearcoat={0.55}
+          clearcoatRoughness={0.35}
+        />
+      </mesh>
+      <mesh ref={shardRef} geometry={waxBuffers.geometry} visible={false}>
         <meshPhysicalMaterial
           vertexColors
           roughness={0.42}

@@ -66,8 +66,7 @@ export const App = () => {
         <main className="app-content">
           {page === 'home' && <HomePage onNavigate={navigate} />}
           {page === 'wakbbu' && <CustomPage key="wakbbu" />}
-          {page === 'crew' && <CustomPage key="crew" initialMode="board" />}
-
+          {page === 'crew' && <CustomPage key="crew" initialMode="board" crew />}
           {page === 'lunch' && <MainPage />}
           {page === 'mingle' && <MinglePage />}
           {page === 'request' && <RequestPage />}
