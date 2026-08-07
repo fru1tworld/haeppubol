@@ -24,6 +24,12 @@ data class MingleShare(
     val teams: List<String>,
 )
 
+data class CustomShare(
+    val ballName: String,
+    val result: String,
+    val items: List<String>,
+)
+
 private fun header(text: String): JsonObject = buildJsonObject {
     put("type", "header")
     putJsonObject("text") {
@@ -79,5 +85,14 @@ fun mingleMessage(share: MingleShare): JsonObject = buildJsonObject {
         add(header("밍글 조 추첨 결과"))
         add(markdownSection("당첨: *${share.winner}*"))
         add(context("참여 팀: ${share.teams.joinToString(", ")} · 왁뿌볼 밍글 추첨"))
+    })
+}
+
+fun customMessage(share: CustomShare): JsonObject = buildJsonObject {
+    put("text", "${share.ballName} 뽑기 결과: ${share.result}")
+    put("blocks", buildJsonArray {
+        add(header("${share.ballName} 뽑기 결과"))
+        add(markdownSection("*${share.result}*"))
+        add(context("후보: ${share.items.joinToString(", ")} · 왁뿌볼 뽑기"))
     })
 }

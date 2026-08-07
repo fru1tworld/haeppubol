@@ -14,9 +14,11 @@ import io.ktor.server.routing.*
 import io.portone.wakbbu.config.createDataSource
 import io.portone.wakbbu.config.createDslContext
 import io.portone.wakbbu.config.runMigration
+import io.portone.wakbbu.repository.MingleTeamRepository
 import io.portone.wakbbu.repository.RestaurantRepository
 import io.portone.wakbbu.repository.ReviewRepository
 import io.portone.wakbbu.repository.SmashLogRepository
+import io.portone.wakbbu.route.mingleTeamRoutes
 import io.portone.wakbbu.route.restaurantRoutes
 import io.portone.wakbbu.route.reviewRoutes
 import io.portone.wakbbu.route.shareRoutes
@@ -37,6 +39,7 @@ fun main() {
             restaurantRoutes(RestaurantRepository(dsl))
             reviewRoutes(ReviewRepository(dsl))
             smashLogRoutes(SmashLogRepository(dsl))
+            mingleTeamRoutes(MingleTeamRepository(dsl))
             val slackToken = System.getenv("SLACK_BOT_TOKEN")
             val slackChannel = System.getenv("SLACK_CHANNEL")
             shareRoutes(if (slackToken != null && slackChannel != null) SlackClient(slackToken, slackChannel) else null)

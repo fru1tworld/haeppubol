@@ -6,7 +6,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.portone.wakbbu.slack.LunchShare
 import io.portone.wakbbu.slack.MingleShare
+import io.portone.wakbbu.slack.CustomShare
 import io.portone.wakbbu.slack.SlackClient
+import io.portone.wakbbu.slack.customMessage
 import io.portone.wakbbu.slack.lunchMessage
 import io.portone.wakbbu.slack.mingleMessage
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,13 @@ data class LunchShareRequest(
 data class MingleShareRequest(
     val winner: String,
     val teams: List<String>,
+)
+
+@Serializable
+data class CustomShareRequest(
+    val ballName: String,
+    val result: String,
+    val items: List<String>,
 )
 
 fun Route.shareRoutes(webhook: SlackClient?) {
@@ -71,6 +80,31 @@ fun Route.shareRoutes(webhook: SlackClient?) {
             }
             val ok = withContext(Dispatchers.IO) {
                 webhook.send(mingleMessage(MingleShare(winner = req.winner, teams = req.teams)))
+            }
+            if (!ok) {
+                return@post call.respondError(HttpStatusCode.BadGateway, "slack webhook rejected the message")
+            }
+            call.respond(HttpStatusCode.NoContent)
+        }
+
+        post("/custom") {
+            if (webhook == null) {
+                return@post call.respondError(HttpStatusCode.ServiceUnavailable, "SLACK_WEBHOOK_URL is not configured")
+            }
+            val req = call.receive<CustomShareRequest>()
+            if (req.result.isBlank()) {
+                return@post call.respondError(HttpStatusCode.BadRequest, "result must not be blank")
+            }
+            val ok = withContext(Dispatchers.IO) {
+                webhook.send(
+                    customMessage(
+                        CustomShare(
+                            ballName = req.ballName,
+                            result = req.result,
+                            items = req.items,
+                        ),
+                    ),
+                )
             }
             if (!ok) {
                 return@post call.respondError(HttpStatusCode.BadGateway, "slack webhook rejected the message")

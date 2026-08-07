@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { useSound } from '../audio/useSound'
+import { PlayButtons } from '../components/PlayButtons'
 import { getBaseUrl } from '../constants/baseUrl'
 import './RequestPage.css'
 
@@ -9,7 +10,6 @@ interface WakRequest {
   id: string
   title: string
   team: string
-  items: string[]
   message: string
   createdAt: string
 }
@@ -30,10 +30,12 @@ export const RequestPage = () => {
   const [title, setTitle] = useState('')
   const [team, setTeam] = useState('')
   const [message, setMessage] = useState('')
-  const [items, setItems] = useState<string[]>([])
-  const [inputValue, setInputValue] = useState('')
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [result, setResult] = useState<string | null>(null)
+  const [smashed, setSmashed] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+  const [spinOn, setSpinOn] = useState(false)
+  const [frozen, setFrozen] = useState(false)
+  const [freezeKey, setFreezeKey] = useState(0)
   const [playingReq, setPlayingReq] = useState<WakRequest | null>(null)
   const { play, playCracks, setRubbing } = useSound()
 
@@ -41,19 +43,16 @@ export const RequestPage = () => {
     const params = new URLSearchParams(window.location.search)
     const reqTitle = params.get('req_title')
     const reqTeam = params.get('req_team')
-    const reqItems = params.get('req_items')
     const reqMsg = params.get('req_msg')
-    if (reqTitle || reqItems) {
+    if (reqTitle) {
       const parsed: WakRequest = {
         id: `shared-${Date.now()}`,
         title: reqTitle || '왁뿌볼 요청',
         team: reqTeam || '',
-        items: reqItems ? reqItems.split(',') : [],
         message: reqMsg || '',
         createdAt: new Date().toISOString(),
       }
       setPlayingReq(parsed)
-      setItems(parsed.items)
       setMode('play')
       window.history.replaceState(null, '', window.location.pathname + window.location.hash)
     }
@@ -63,31 +62,16 @@ export const RequestPage = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(requests))
   }, [requests])
 
-  const addItem = () => {
-    const trimmed = inputValue.trim()
-    if (!trimmed || items.includes(trimmed)) return
-    setItems(prev => [...prev, trimmed])
-    setInputValue('')
-    play('pop')
-  }
-
-  const removeItem = (item: string) => {
-    setItems(prev => prev.filter(i => i !== item))
-  }
-
   const handleSmash = useCallback(() => {
-    const pool = playingReq?.items ?? items
-    if (pool.length === 0) return
-    setResult(pool[Math.floor(Math.random() * pool.length)])
-    play('reveal')
-  }, [items, playingReq, play])
+    play('smash')
+    setSmashed(true)
+  }, [play])
 
   const getShareUrl = (req: WakRequest) => {
     const base = getBaseUrl()
     const params = new URLSearchParams()
     if (req.title) params.set('req_title', req.title)
     if (req.team) params.set('req_team', req.team)
-    if (req.items.length > 0) params.set('req_items', req.items.join(','))
     if (req.message) params.set('req_msg', req.message)
     return `${base}?${params.toString()}#/request`
   }
@@ -105,21 +89,20 @@ export const RequestPage = () => {
       id: `req-${Date.now()}`,
       title: title.trim() || '왁뿌볼 요청',
       team: team.trim(),
-      items: [...items],
       message: message.trim(),
       createdAt: new Date().toISOString(),
     }
     setRequests(prev => [req, ...prev])
     setPlayingReq(req)
     setMode('play')
-    setResult(null)
+    setSmashed(false)
   }
 
   const playRequest = (req: WakRequest) => {
     setPlayingReq(req)
-    setItems([...req.items])
     setMode('play')
-    setResult(null)
+    setSmashed(false)
+    setResetKey(k => k + 1)
   }
 
   const resetForm = () => {
@@ -127,10 +110,8 @@ export const RequestPage = () => {
     setTitle('')
     setTeam('')
     setMessage('')
-    setItems([])
-    setInputValue('')
     setPlayingReq(null)
-    setResult(null)
+    setSmashed(false)
   }
 
   const deleteRequest = (id: string) => {
@@ -150,21 +131,17 @@ export const RequestPage = () => {
         {playingReq.team && (
           <p className="play-req-team">요청팀: {playingReq.team}</p>
         )}
-        {playingReq.message && (
-          <p className="play-req-message">{playingReq.message}</p>
-        )}
         <div className="request-scene">
           <BallScene
+            coreText={playingReq.message || playingReq.title}
+            autoSpin={spinOn}
+            freezeKey={freezeKey}
+            resetKey={resetKey}
             onCracks={playCracks}
             onRubbing={setRubbing}
-            onSmash={() => { play('smash'); handleSmash() }}
+            onSmash={handleSmash}
           />
-          {playingReq.items.length < 2 && (
-            <div className="scene-blocker">
-              <p>항목이 2개 이상 필요합니다</p>
-            </div>
-          )}
-          {result && (
+          {smashed && (
             <div className="result-anchor">
               <motion.div
                 className="request-result-card"
@@ -172,10 +149,11 @@ export const RequestPage = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
               >
-                <h2>{result}</h2>
-                <p className="result-sub">{playingReq.title}에서 뽑혔습니다!</p>
+                <h2>{playingReq.title}</h2>
+                {playingReq.message && <p className="result-sub">{playingReq.message}</p>}
+                {playingReq.team && <p className="result-team">from {playingReq.team}</p>}
                 <div className="result-actions">
-                  <button className="btn-retry" onClick={() => { setResult(null); play('click') }}>다시 뿌수기</button>
+                  <button className="btn-retry" onClick={() => { setSmashed(false); setResetKey(k => k + 1); play('click') }}>다시 뿌수기</button>
                   <button className="btn-copy-link" onClick={() => copyLink(playingReq)}>
                     {copiedId === playingReq.id ? '복사됨!' : '링크 공유'}
                   </button>
@@ -183,11 +161,13 @@ export const RequestPage = () => {
               </motion.div>
             </div>
           )}
-        </div>
-        <div className="play-req-items-row">
-          {playingReq.items.map(item => (
-            <span key={item} className="req-item-badge">{item}</span>
-          ))}
+          <PlayButtons
+            frozen={frozen}
+            spinOn={spinOn}
+            onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+            onToggleSpin={() => setSpinOn(v => !v)}
+            onNewBall={() => { setSmashed(false); setResetKey(k => k + 1); play('reset') }}
+          />
         </div>
       </div>
     )
@@ -221,29 +201,6 @@ export const RequestPage = () => {
               className="req-input"
             />
 
-            <label className="req-label">요청 항목</label>
-            <div className="req-item-row">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addItem()}
-                placeholder="항목 입력 후 추가"
-                className="req-input"
-              />
-              <button className="btn-add-req" onClick={addItem}>추가</button>
-            </div>
-            {items.length > 0 && (
-              <div className="req-chips">
-                {items.map(item => (
-                  <span key={item} className="req-chip">
-                    {item}
-                    <button onClick={() => removeItem(item)}>&times;</button>
-                  </span>
-                ))}
-              </div>
-            )}
-
             <label className="req-label">메시지 (선택)</label>
             <textarea
               value={message}
@@ -253,7 +210,7 @@ export const RequestPage = () => {
               rows={3}
             />
 
-            <button className="btn-save-req" onClick={saveRequest} disabled={items.length < 2}>
+            <button className="btn-save-req" onClick={saveRequest} disabled={!title.trim()}>
               저장하고 뿌수기
             </button>
           </div>
@@ -290,13 +247,6 @@ export const RequestPage = () => {
               </div>
               <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
             </div>
-            {req.items.length > 0 && (
-              <div className="request-card-items">
-                {req.items.map(item => (
-                  <span key={item} className="req-item-badge">{item}</span>
-                ))}
-              </div>
-            )}
             {req.message && <p className="request-card-msg">{req.message}</p>}
             <div className="request-card-footer">
               <span className="request-date">{new Date(req.createdAt).toLocaleDateString('ko-KR')}</span>

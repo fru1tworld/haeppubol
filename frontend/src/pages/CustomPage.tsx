@@ -9,6 +9,7 @@ import type { SoundSetName } from '../audio/soundSets'
 import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/backgrounds'
 import { BallColorPicker } from '../components/BallColorPicker'
 import { Controls } from '../components/Controls'
+import { PlayButtons } from '../components/PlayButtons'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
 import { getBaseUrl } from '../constants/baseUrl'
 import './CustomPage.css'
@@ -90,6 +91,10 @@ export const CustomPage = ({
   const [sealed, setSealed] = useState<string | null>(null)
   const [ballSize, setBallSize] = useState(100)
   const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+  const [spinOn, setSpinOn] = useState(false)
+  const [frozen, setFrozen] = useState(false)
+  const [freezeKey, setFreezeKey] = useState(0)
+  const [tagline, setTagline] = useState<string | null>(null)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -212,6 +217,8 @@ export const CustomPage = ({
     shellColor?: string
     coreColor?: string
     mine?: boolean
+    tagline?: string
+    healMode?: boolean
   }) => {
     setItems([...ball.items])
     setBallName(ball.name)
@@ -221,6 +228,9 @@ export const CustomPage = ({
     setShellColor(ball.shellColor ?? DEFAULT_SHELL_COLOR)
     setCoreColor(ball.coreColor ?? DEFAULT_CORE_COLOR)
     setPlayMode(ball.items.length >= 2 ? 'lottery' : 'smash')
+    setTagline(ball.tagline ?? null)
+    setSpinOn(!!ball.healMode)
+    setFrozen(false)
     setMode('play')
     setResult(null)
   }
@@ -259,21 +269,47 @@ export const CustomPage = ({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleFreeze = () => {
+    setFreezeKey(k => k + 1)
+    setFrozen(true)
+    setTimeout(() => setFrozen(false), 90_000)
+  }
+
+  const handleFaceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setImageUrl(reader.result as string)
+      setResetKey(k => k + 1)
+    }
+    reader.readAsDataURL(file)
+  }
+
   if (mode === 'play') {
+    const isHeal = playMode === 'smash' && items.length === 0
+
     return (
       <div className="custom-page dark">
         <div className="custom-create-header">
           <button
             className="btn-back"
-            onClick={() => { setMode('board'); setItems([]); setBallName(''); resetColors(); setResult(null) }}
+            onClick={() => { setMode('board'); setItems([]); setBallName(''); resetColors(); setResult(null); setTagline(null); setSpinOn(false); setFrozen(false) }}
           >
             &larr; 목록
           </button>
           <h2 className="play-title">{ballName || '왁뿌볼'}</h2>
-          <button className="btn-back" onClick={() => setMode('create')}>
-            편집
-          </button>
+          <div className="play-header-actions">
+            <label className="btn-back play-face-btn">
+              얼굴 사진
+              <input type="file" accept="image/*" onChange={handleFaceUpload} hidden />
+            </label>
+            <button className="btn-back" onClick={() => setMode('create')}>
+              편집
+            </button>
+          </div>
         </div>
+        {tagline && <p className="play-tagline">{tagline}</p>}
         <div className="custom-scene">
           <BallScene
             background={background}
@@ -282,12 +318,17 @@ export const CustomPage = ({
             shellColor={shellColor}
             coreColor={coreColor}
             ballSize={ballSize / 100}
+            autoSpin={spinOn}
+            freezeKey={freezeKey}
             resetKey={resetKey}
             smashAt={playMode === 'lottery' ? 0.35 : SMASH_REVEAL_AT}
             onCracks={playCracks}
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
           />
+          {isHeal && (
+            <p className="play-hint">드래그해서 돌리고, 꾹 눌러서 뿌수세요</p>
+          )}
           {playMode === 'lottery' && result && (
             <div className="result-anchor">
               <motion.div
@@ -321,6 +362,13 @@ export const CustomPage = ({
             onBallSizeChange={setBallSize}
             onReset={() => newBall('reset')}
           />
+          <PlayButtons
+            frozen={frozen}
+            spinOn={spinOn}
+            onFreeze={handleFreeze}
+            onToggleSpin={() => setSpinOn(v => !v)}
+            onNewBall={() => newBall('reset')}
+          />
         </div>
         {playMode === 'lottery' && (
           <div className="play-items-row">
@@ -336,7 +384,7 @@ export const CustomPage = ({
   if (mode === 'board') {
     const boardBalls = [
       ...savedBalls.map(b => ({ ...b, author: undefined as string | undefined, mine: true })),
-      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], sound: undefined, mine: false, imageUrl: undefined as string | undefined, shellColor: b.shellColor ?? randomShellColor(b.id), coreColor: b.coreColor ?? randomCoreColor(b.id) })),
+      ...CREW_BALLS.map(b => ({ ...b, items: [...b.items], mine: false, imageUrl: (b.photo ?? undefined) as string | undefined, shellColor: b.shellColor ?? randomShellColor(b.id), coreColor: b.coreColor ?? randomCoreColor(b.id) })),
     ]
       .filter(b => boardTab === 'all' || (boardTab === 'mine' ? b.mine : !b.mine))
       .filter(b => {
@@ -416,14 +464,18 @@ export const CustomPage = ({
                       <span className="author-badge">{ball.author}</span>
                     )}
                   </div>
-                  <div className="saved-items">
-                    {ball.items.slice(0, 5).map(item => (
-                      <span key={item} className="saved-item-chip">{item}</span>
-                    ))}
-                    {ball.items.length > 5 && (
-                      <span className="saved-item-chip more">+{ball.items.length - 5}</span>
-                    )}
-                  </div>
+                  {'tagline' in ball && (ball as { tagline?: string }).tagline ? (
+                    <p className="saved-card-tagline">{(ball as { tagline?: string }).tagline}</p>
+                  ) : (
+                    <div className="saved-items">
+                      {ball.items.slice(0, 5).map(item => (
+                        <span key={item} className="saved-item-chip">{item}</span>
+                      ))}
+                      {ball.items.length > 5 && (
+                        <span className="saved-item-chip more">+{ball.items.length - 5}</span>
+                      )}
+                    </div>
+                  )}
                   <div className="saved-card-footer">
                     {ball.mine && ball.sound && ball.sound !== 'classic' && (
                       <span className="sound-badge">
@@ -533,6 +585,10 @@ export const CustomPage = ({
       </div>
 
       <div className="custom-scene">
+        <div className="ball-type-tags">
+          <span className={`ball-type-tag${items.length >= 2 ? ' active' : ''}`}>뽑기</span>
+          <span className={`ball-type-tag${items.length < 2 ? ' active' : ''}`}>일반</span>
+        </div>
         <BallScene
           background={background}
           faceUrl={imageUrl ?? undefined}

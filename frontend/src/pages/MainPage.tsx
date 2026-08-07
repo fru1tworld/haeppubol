@@ -7,6 +7,7 @@ import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { ModeSelector } from '../components/ModeSelector'
 import { Controls } from '../components/Controls'
+import { PlayButtons } from '../components/PlayButtons'
 import { ResultCard } from '../components/ResultCard'
 import { useSound } from '../audio/useSound'
 import './MainPage.css'
@@ -47,6 +48,9 @@ export const MainPage = () => {
   const [result, setResult] = useState<SmashResult | null>(null)
   const [ballSize, setBallSize] = useState(100)
   const [resetKey, setResetKey] = useState(0)
+  const [spinOn, setSpinOn] = useState(false)
+  const [frozen, setFrozen] = useState(false)
+  const [freezeKey, setFreezeKey] = useState(0)
   const [customizing, setCustomizing] = useState(false)
   const [customItems, setCustomItems] = useState<string[] | null>(loadCustomItems)
   const [inputValue, setInputValue] = useState('')
@@ -188,6 +192,8 @@ export const MainPage = () => {
       <div className="main-scene">
         <BallScene
           ballSize={ballSize / 100}
+          autoSpin={spinOn}
+          freezeKey={freezeKey}
           resetKey={resetKey}
           smashAt={SMASH_REVEAL_AT}
           coreText={sealed?.name}
@@ -198,15 +204,21 @@ export const MainPage = () => {
         <div className="result-anchor">
           <ResultCard result={result} onRetry={handleRetry} onShare={handleShare} />
         </div>
+        <Controls
+          volume={volume}
+          onVolumeChange={setVolume}
+          ballSize={ballSize}
+          onBallSizeChange={setBallSize}
+          onReset={handleReset}
+        />
+        <PlayButtons
+          frozen={frozen}
+          spinOn={spinOn}
+          onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+          onToggleSpin={() => setSpinOn(v => !v)}
+          onNewBall={handleReset}
+        />
       </div>
-
-      <Controls
-        volume={volume}
-        onVolumeChange={setVolume}
-        ballSize={ballSize}
-        onBallSizeChange={setBallSize}
-        onReset={handleReset}
-      />
     </div>
   )
 }

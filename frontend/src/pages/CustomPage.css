@@ -225,6 +225,13 @@
   color: var(--po-gray-600);
 }
 
+.saved-card-tagline {
+  font-size: 13px;
+  color: var(--po-gray-600);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
 .saved-date {
   font-size: 12px;
   color: var(--po-gray-400);
@@ -361,6 +368,35 @@
   overflow: hidden;
 }
 
+.ball-type-tags {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 100px;
+  padding: 3px;
+}
+
+.ball-type-tag {
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.2s;
+}
+
+.ball-type-tag.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
 .custom-result-card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
@@ -425,6 +461,36 @@
 
 .btn-share:hover {
   background: rgba(245, 198, 160, 0.2);
+}
+
+.btn-slack {
+  padding: 10px 24px;
+  border-radius: 100px;
+  border: none;
+  background: #4a154b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-slack:hover:not(:disabled) {
+  background: #611f69;
+}
+
+.btn-slack:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.btn-slack.done {
+  background: #2e7d4f;
+}
+
+.btn-slack.error {
+  background: #b3382c;
 }
 
 .sound-set-row {
@@ -540,3 +606,33 @@
   object-fit: cover;
   border: 1px solid var(--wak-card-border);
 }
+
+.play-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.play-face-btn {
+  cursor: pointer;
+}
+
+.play-tagline {
+  text-align: center;
+  font-size: 14px;
+  color: var(--wak-text-muted);
+  padding: 0 16px 4px;
+  flex-shrink: 0;
+}
+
+.play-hint {
+  position: absolute;
+  bottom: 76px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--wak-text-muted);
+  pointer-events: none;
+  z-index: 10;
+}
+

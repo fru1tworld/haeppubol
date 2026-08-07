@@ -3,18 +3,9 @@ import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
+import { PlayButtons } from '../components/PlayButtons'
+import { api } from '../api/client'
 import './MinglePage.css'
-
-const CUSTOM_KEY = 'wakbbu-mingle-custom'
-
-const loadCustomItems = (): string[] | null => {
-  try {
-    const raw = localStorage.getItem(CUSTOM_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
 
 export const MinglePage = () => {
   const [teams, setTeams] = useState<string[]>([])
@@ -22,26 +13,17 @@ export const MinglePage = () => {
   const [result, setResult] = useState<string | null>(null)
   const [shareState, setShareState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [resetKey, setResetKey] = useState(0)
-  const [customizing, setCustomizing] = useState(false)
-  const [customItems, setCustomItems] = useState<string[] | null>(loadCustomItems)
-  const [customInput, setCustomInput] = useState('')
-  // 공 안에 미리 넣어두는 당첨 팀. 부술수록 이름이 비쳐 보인다
   const [sealed, setSealed] = useState<string | null>(null)
+  const [spinOn, setSpinOn] = useState(false)
+  const [frozen, setFrozen] = useState(false)
+  const [freezeKey, setFreezeKey] = useState(0)
   const { play, playCracks, setRubbing } = useSound()
 
   useEffect(() => {
-    if (customItems) {
-      localStorage.setItem(CUSTOM_KEY, JSON.stringify(customItems))
-    } else {
-      localStorage.removeItem(CUSTOM_KEY)
-    }
-  }, [customItems])
-
-  useEffect(() => {
-    if (customItems && customItems.length > 0) {
-      setTeams(customItems)
-    }
-  }, [customItems])
+    api.mingleTeams.list()
+      .then(setTeams)
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     setSealed(teams.length ? teams[Math.floor(Math.random() * teams.length)] : null)
@@ -53,10 +35,17 @@ export const MinglePage = () => {
     setTeams(prev => [...prev, trimmed])
     setInputValue('')
     play('pop')
+    api.mingleTeams.add(trimmed).catch(() => {})
   }
 
   const removeTeam = (team: string) => {
+    const pw = prompt('어드민 비밀번호를 입력하세요')
+    if (pw !== 'fritz123') {
+      alert('비밀번호가 틀렸습니다')
+      return
+    }
     setTeams(prev => prev.filter(t => t !== team))
+    api.mingleTeams.remove(team).catch(() => {})
   }
 
   const handleSmash = useCallback(() => {
@@ -88,102 +77,43 @@ export const MinglePage = () => {
     play('click')
   }
 
-  const addCustomItem = () => {
-    const trimmed = customInput.trim()
-    if (!trimmed) return
-    if (customItems?.includes(trimmed)) return
-    const next = [...(customItems ?? []), trimmed]
-    setCustomItems(next)
-    setTeams(next)
-    setCustomInput('')
-    play('pop')
-  }
-
-  const removeCustomItem = (item: string) => {
-    const next = (customItems ?? []).filter(i => i !== item)
-    setCustomItems(next.length > 0 ? next : null)
-    setTeams(next.length > 0 ? next : [])
-  }
-
-  const resetCustom = () => {
-    setCustomItems(null)
-    setTeams([])
-    setCustomizing(false)
-  }
-
   const canSmash = teams.length >= 2
 
   return (
     <div className="mingle-page">
       <div className="mingle-header-row">
         <h1 className="mingle-title">밍글 추첨 왁뿌볼</h1>
-        <button
-          className={`btn-customize${customizing ? ' active' : ''}`}
-          onClick={() => setCustomizing(v => !v)}
-        >
-          {customizing ? '닫기' : '커스텀해보기'}
-        </button>
       </div>
 
-      {customizing ? (
-        <div className="mingle-customize-panel">
-          <div className="customize-input-row">
-            <input
-              type="text"
-              value={customInput}
-              onChange={e => setCustomInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addCustomItem()}
-              placeholder="팀/이름 입력"
-              className="customize-input"
-            />
-            <button className="btn-customize-add" onClick={addCustomItem}>추가</button>
-            {customItems && (
-              <button className="btn-customize-reset" onClick={resetCustom}>초기화</button>
-            )}
-          </div>
-          {customItems && customItems.length > 0 && (
-            <div className="customize-chips">
-              {customItems.map(item => (
-                <span key={item} className="customize-chip">
-                  {item}
-                  <button onClick={() => removeCustomItem(item)}>&times;</button>
-                </span>
-              ))}
-            </div>
-          )}
-          {customItems && (
-            <p className="customize-hint">저장된 커스텀 목록에서 추첨됩니다</p>
-          )}
+      <div className="team-input-area">
+        <div className="team-input-row">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
+            placeholder="팀 이름 입력"
+            className="team-input"
+          />
+          <button className="btn-add" onClick={addTeam}>추가</button>
         </div>
-      ) : (
-        <div className="team-input-area">
-          <div className="team-input-row">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={e => setInputValue(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && addTeam()}
-              placeholder="팀 이름 입력"
-              className="team-input"
-            />
-            <button className="btn-add" onClick={addTeam}>추가</button>
+        {teams.length > 0 && (
+          <div className="team-chips">
+            {teams.map(team => (
+              <span key={team} className="team-chip">
+                {team}
+                <button onClick={() => removeTeam(team)}>&times;</button>
+              </span>
+            ))}
           </div>
-          {teams.length > 0 && (
-            <div className="team-chips">
-              {teams.map(team => (
-                <span key={team} className="team-chip">
-                  {team}
-                  <button onClick={() => removeTeam(team)}>&times;</button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="mingle-scene">
         <BallScene
           resetKey={resetKey}
+          autoSpin={spinOn}
+          freezeKey={freezeKey}
           smashAt={SMASH_REVEAL_AT}
           coreText={canSmash ? sealed ?? undefined : undefined}
           onCracks={playCracks}
@@ -229,6 +159,13 @@ export const MinglePage = () => {
             </motion.div>
           </div>
         )}
+        <PlayButtons
+          frozen={frozen}
+          spinOn={spinOn}
+          onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+          onToggleSpin={() => setSpinOn(v => !v)}
+          onNewBall={handleRetry}
+        />
       </div>
     </div>
   )

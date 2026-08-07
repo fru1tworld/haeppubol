@@ -43,6 +43,24 @@ export const api = {
         '/api/smash-logs/stats',
       ),
   },
+  mingleTeams: {
+    list: () =>
+      fetchJson<{ teams: string[] }>('/api/mingle-teams').then(r => r.teams),
+    add: (name: string) =>
+      fetchJson<void>('/api/mingle-teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      }),
+    replace: (teams: string[]) =>
+      fetchJson<{ teams: string[] }>('/api/mingle-teams', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teams }),
+      }).then(r => r.teams),
+    remove: (name: string) =>
+      fetchJson<void>(`/api/mingle-teams/${encodeURIComponent(name)}`, { method: 'DELETE' }),
+  },
   share: {
     lunch: (data: {
       name: string
@@ -60,6 +78,12 @@ export const api = {
       }),
     mingle: (data: { winner: string; teams: string[] }) =>
       fetchJson<void>('/api/share/mingle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
+    custom: (data: { ballName: string; result: string; items: string[] }) =>
+      fetchJson<void>('/api/share/custom', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

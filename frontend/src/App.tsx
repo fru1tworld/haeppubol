@@ -3,15 +3,13 @@ import { MainPage } from './pages/MainPage'
 import { MinglePage } from './pages/MinglePage'
 import { CustomPage } from './pages/CustomPage'
 import { RequestPage } from './pages/RequestPage'
-import { HealPage } from './pages/HealPage'
 import { HomePage } from './pages/HomePage'
 
-export type Page = 'home' | 'wakbbu' | 'crew' | 'heal' | 'lunch' | 'mingle' | 'request'
+export type Page = 'home' | 'wakbbu' | 'crew' | 'lunch' | 'mingle' | 'request'
 
 export const MENUS: readonly { key: Page; label: string; description: string }[] = [
   { key: 'wakbbu', label: '수제 왁뿌볼', description: '나만의 왁뿌볼 만들기' },
   { key: 'crew', label: '크루볼', description: '크루들이 만든 왁뿌볼 구경하기' },
-  { key: 'heal', label: '힐링 왁뿌볼', description: '크루 얼굴 붙인 말랑이 뿌시기' },
   { key: 'lunch', label: '점메추 왁뿌볼', description: '오늘 점심 메뉴 추천받기' },
   { key: 'mingle', label: '밍글 왁뿌볼', description: '밍글 조 랜덤 추첨' },
   { key: 'request', label: '왁뿌볼 요청사항', description: '공유 링크를 만들어 요청하기' },
