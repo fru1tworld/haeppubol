@@ -8,10 +8,12 @@ import { SOUND_SET_LIST } from '../audio/soundSets'
 import type { SoundSetName } from '../audio/soundSets'
 import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/backgrounds'
 import { BallColorPicker } from '../components/BallColorPicker'
-import { Controls } from '../components/Controls'
+import { Controls, MAX_BALL_SIZE } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
+import { DEFAULT_FACE_OPACITY } from '../three/WaxBall'
 import { getBaseUrl } from '../constants/baseUrl'
+import { useImmersive } from '../hooks/useImmersive'
 import './CustomPage.css'
 
 const hashCode = (str: string): number => {
@@ -41,6 +43,7 @@ interface SavedBall {
   imageUrl?: string
   shellColor?: string
   coreColor?: string
+  faceOpacity?: number
 }
 
 const isSoundSetName = (v: string): v is SoundSetName =>
@@ -80,6 +83,7 @@ export const CustomPage = ({
   const [savedBalls, setSavedBalls] = useState<SavedBall[]>(loadSavedBalls)
   const [background, setBackground] = useState(DEFAULT_BACKGROUND)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [faceOpacity, setFaceOpacity] = useState(DEFAULT_FACE_OPACITY)
   const [shellColor, setShellColor] = useState(DEFAULT_SHELL_COLOR)
   const [coreColor, setCoreColor] = useState(DEFAULT_CORE_COLOR)
   const [mode, setMode] = useState<'board' | 'create' | 'play'>(initialMode)
@@ -89,13 +93,16 @@ export const CustomPage = ({
   const [resetKey, setResetKey] = useState(0)
   // 공 안에 미리 넣어두는 당첨 아이템. 부술수록 이름이 비쳐 보인다
   const [sealed, setSealed] = useState<string | null>(null)
-  const [ballSize, setBallSize] = useState(100)
+  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
   const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
   const [tagline, setTagline] = useState<string | null>(null)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
+
+  // 부수는 화면에선 상단 헤더를 접고 넓게 쓴다
+  useImmersive(mode === 'play')
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -181,6 +188,7 @@ export const CustomPage = ({
   }
 
   const resetColors = () => {
+    setFaceOpacity(DEFAULT_FACE_OPACITY)
     setBackground(DEFAULT_BACKGROUND)
     setShellColor(DEFAULT_SHELL_COLOR)
     setCoreColor(DEFAULT_CORE_COLOR)
@@ -198,6 +206,7 @@ export const CustomPage = ({
       imageUrl: imageUrl ?? undefined,
       shellColor,
       coreColor,
+      faceOpacity,
     }
     setSavedBalls(prev => [ball, ...prev])
     setMode('board')
@@ -216,6 +225,7 @@ export const CustomPage = ({
     imageUrl?: string
     shellColor?: string
     coreColor?: string
+    faceOpacity?: number
     mine?: boolean
     tagline?: string
     healMode?: boolean
@@ -225,6 +235,7 @@ export const CustomPage = ({
     setSoundSet(ball.sound ?? 'classic')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
     setImageUrl(ball.imageUrl ?? null)
+    setFaceOpacity(ball.faceOpacity ?? DEFAULT_FACE_OPACITY)
     setShellColor(ball.shellColor ?? DEFAULT_SHELL_COLOR)
     setCoreColor(ball.coreColor ?? DEFAULT_CORE_COLOR)
     setPlayMode(ball.items.length >= 2 ? 'lottery' : 'smash')
@@ -314,6 +325,7 @@ export const CustomPage = ({
           <BallScene
             background={background}
             faceUrl={imageUrl ?? undefined}
+            faceOpacity={faceOpacity}
             coreText={sealed ?? undefined}
             shellColor={shellColor}
             coreColor={coreColor}
@@ -361,6 +373,8 @@ export const CustomPage = ({
             ballSize={ballSize}
             onBallSizeChange={setBallSize}
             onReset={() => newBall('reset')}
+            faceOpacity={imageUrl ? faceOpacity : undefined}
+            onFaceOpacityChange={setFaceOpacity}
           />
           <PlayButtons
             frozen={frozen}
@@ -592,6 +606,7 @@ export const CustomPage = ({
         <BallScene
           background={background}
           faceUrl={imageUrl ?? undefined}
+            faceOpacity={faceOpacity}
           coreText={sealed ?? undefined}
           shellColor={shellColor}
           coreColor={coreColor}

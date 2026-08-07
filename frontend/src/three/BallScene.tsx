@@ -18,6 +18,7 @@ interface BallSceneProps {
   coreColor?: string
   coreText?: string
   faceUrl?: string
+  faceOpacity?: number
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
@@ -90,13 +91,15 @@ export function BallScene({
   coreColor,
   coreText,
   faceUrl,
+  faceOpacity,
   smashAt,
   onCracks,
   onRubbing,
   onSmash,
   onSnapshot,
 }: BallSceneProps) {
-  const [distance, setDistance] = useState(4.55)
+  // 큰 볼도 잘리지 않게 처음 거리를 볼 크기에 맞춘다 (fov 38°, 여백 8%)
+  const [distance, setDistance] = useState(() => Math.max(4.55, ballSize * 3.15))
   const theme = getBackgroundTheme(background)
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -133,6 +136,7 @@ export function BallScene({
           coreColor={coreColor}
           coreText={coreText}
           faceUrl={faceUrl}
+          faceOpacity={faceOpacity}
           smashAt={smashAt}
           onCracks={onCracks}
           onRubbing={onRubbing}

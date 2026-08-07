@@ -30,6 +30,8 @@ const RUBBER_RADIUS = 1.03
 const SQUEEZE_DEPTH = 0.17
 const SQUASH_EPS = 0.0006
 const DEFAULT_SMASH_AT = 0.94
+/** 사진 데칼 기본 진하기 */
+export const DEFAULT_FACE_OPACITY = 0.72
 
 const CORE_LABEL_W = 1.24
 const CLAY_OPACITY_FULL = 0.66
@@ -59,6 +61,8 @@ interface WaxBallProps {
   coreText?: string
   /** 공 표면에 붙일 얼굴 사진(URL 또는 data URL). 깨지면 같이 조각난다 */
   faceUrl?: string
+  /** 사진이 말랑이 위에 얹히는 진하기 0~1. 낮출수록 속 색이 비친다 */
+  faceOpacity?: number
   /** onSmash가 터지는 파괴 진행도(0~1). 0.8이면 80% 부수면 발화 */
   smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
@@ -80,6 +84,7 @@ export function WaxBall({
   coreColor = DEFAULT_CORE_COLOR,
   coreText,
   faceUrl,
+  faceOpacity = DEFAULT_FACE_OPACITY,
   smashAt = DEFAULT_SMASH_AT,
   onCracks,
   onRubbing,
@@ -158,7 +163,11 @@ export function WaxBall({
   // 얼굴 데칼 — 겉면 왁스는 색 그대로 두고 안쪽 말랑이에만 반투명하게 얹는다.
   // 클레이에 붙였으므로 눌리면 사진도 같이 구겨진다.
   const face = useMemo(() => createFaceUniforms(), [])
-  const faceClayStrength = useMemo(() => ({ value: 0.72 }), [])
+  const faceClayStrength = useMemo(() => ({ value: faceOpacity }), [])
+  // 유니폼이라 리렌더 없이 값만 갈아끼운다
+  useEffect(() => {
+    faceClayStrength.value = faceOpacity
+  }, [faceOpacity, faceClayStrength])
 
   useEffect(() => {
     if (!faceUrl) {

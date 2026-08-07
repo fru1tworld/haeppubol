@@ -5,7 +5,7 @@ import { api } from '../api/client'
 import { SEONGSU_RESTAURANTS } from '../constants/restaurants'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
-import { Controls } from '../components/Controls'
+import { Controls, MAX_BALL_SIZE } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
 import { ResultCard } from '../components/ResultCard'
 import { useSound } from '../audio/useSound'
@@ -22,7 +22,7 @@ const localPick = (mode: DiningMode): Restaurant => {
 
 export const MainPage = () => {
   const [result, setResult] = useState<SmashResult | null>(null)
-  const [ballSize, setBallSize] = useState(100)
+  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
   const [resetKey, setResetKey] = useState(0)
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)

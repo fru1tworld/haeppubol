@@ -6,6 +6,9 @@ import { useSound } from '../audio/useSound'
 import { PlayButtons } from '../components/PlayButtons'
 import { api } from '../api/client'
 import { PICK_COUNT, pickSome } from '../constants/mingleRule'
+
+/** 밍글 볼은 화면을 시원하게 채운다 */
+const MINGLE_BALL_SIZE = 1.6
 import './MinglePage.css'
 
 export const MinglePage = () => {
@@ -116,6 +119,7 @@ export const MinglePage = () => {
 
       <div className="mingle-scene">
         <BallScene
+          ballSize={MINGLE_BALL_SIZE}
           resetKey={resetKey}
           autoSpin={spinOn}
           freezeKey={freezeKey}

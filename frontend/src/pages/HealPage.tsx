@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BallScene } from '../three/BallScene'
-import { Controls } from '../components/Controls'
+import { Controls, MAX_BALL_SIZE } from '../components/Controls'
 import { useSound } from '../audio/useSound'
 import { DEFAULT_HEAL_BALL, HEAL_BALLS } from '../constants/healBalls'
 import './HealPage.css'
@@ -20,7 +20,7 @@ const loadFaces = (): Record<string, string> => {
 export const HealPage = () => {
   const [ballId, setBallId] = useState(DEFAULT_HEAL_BALL)
   const [faces, setFaces] = useState<Record<string, string>>(loadFaces)
-  const [ballSize, setBallSize] = useState(100)
+  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
   const [spinOn, setSpinOn] = useState(true)
   const [frozen, setFrozen] = useState(false)
   const [resetKey, setResetKey] = useState(0)

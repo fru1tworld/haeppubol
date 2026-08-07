@@ -1,14 +1,14 @@
 import * as THREE from 'three'
 
-// 얼굴 데칼. 사진을 볼의 로컬 좌표계에 정사영으로 투영한다.
-// 로컬이라 공을 돌려도 얼굴은 그 자리에 붙어 있고, 프래그먼트에서
-// normalize(position)을 쓰므로 깨지면 조각나고 눌리면 같이 구겨진다.
+// 사진 데칼. 보이는 면 하나를 사진 한 장이 통째로 덮고, 뒤로 돌리면 좌우를 뒤집은
+// 같은 사진이 이어진다 — 어느 각도에서도 맨 색 면이 나오지 않는다. 로컬이라 공을 돌려도 사진은 제자리에 있고,
+// 프래그먼트에서 normalize(position)을 쓰므로 깨지면 조각나고 눌리면 같이 구겨진다.
 // wakbboolball-3d 레퍼런스 v2의 hookFace/makeFaceTexture 이식.
 
 export interface FaceUniforms {
   map: { value: THREE.Texture | null }
   on: { value: number }
-  /** 붙일 당시의 볼 회전 — 이 축을 정면으로 본다 */
+  /** 투영 축 회전 */
   mat: { value: THREE.Matrix3 }
   scale: { value: number }
   bright: { value: number }
@@ -19,7 +19,7 @@ export const createFaceUniforms = (): FaceUniforms => ({
   map: { value: null },
   on: { value: 0 },
   mat: { value: new THREE.Matrix3() },
-  scale: { value: 0.9 },
+  scale: { value: 1 },
   // 레퍼런스 기본값(0.34)은 흰 왁스 위 기준이라 사진이 너무 어둡게 눌린다.
   // 말랑이 위에 반투명하게 얹는 용도라 노출을 올리고 대비는 낮춘다.
   bright: { value: 0.62 },
@@ -72,15 +72,16 @@ ${sh.fragmentShader}`
       gFaceW = 0.0;
       if ( faceOn > 0.5 && faceStrength > 0.001 ) {
         vec3 fd = faceMat * normalize( vFaceDir );
-        if ( fd.z > 0.01 ) {
-          vec2 fuv = fd.xy / faceScale * 0.5 + 0.5;
-          if ( fuv.x > 0.0 && fuv.x < 1.0 && fuv.y > 0.0 && fuv.y < 1.0 ) {
-            vec4 fc = texture2D( faceMap, fuv );
-            gFaceW = smoothstep( 0.01, 0.26, fd.z ) * fc.a * faceStrength;
-            vec3 fcol = clamp( ( fc.rgb - 0.5 ) * faceContrast + 0.5, 0.0, 1.0 );
-            diffuseColor.rgb = mix( diffuseColor.rgb, fcol, gFaceW );
-          }
-        }
+        // 보이는 반구 하나를 사진 한 장이 통째로 덮는다. 뒤로 돌아가면 좌우를
+        // 뒤집은 같은 사진이 이어져서 맨 색 면이 나오지 않는다.
+        vec2 fuv = clamp(
+          vec2( fd.z >= 0.0 ? fd.x : -fd.x, fd.y ) * 0.5 / faceScale + 0.5,
+          0.0, 1.0
+        );
+        vec4 fc = texture2D( faceMap, fuv );
+        gFaceW = fc.a * faceStrength;
+        vec3 fcol = clamp( ( fc.rgb - 0.5 ) * faceContrast + 0.5, 0.0, 1.0 );
+        diffuseColor.rgb = mix( diffuseColor.rgb, fcol, gFaceW );
       }`)
       // 얼굴이 씻겨 나가는 원인은 알베도가 아니라 광택이다. 얼굴 영역만 매트하게.
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
@@ -104,7 +105,7 @@ ${sh.fragmentShader}`
 
 const FACE_SIZE = 512
 
-/** 가운데를 꽉 채우고 가장자리는 눕혀서 "인쇄된" 느낌으로 만든다 */
+/** 정사각형을 꽉 채우게 잘라 담는다. 면 끝까지 이미지가 가도록 알파를 남기지 않는다 */
 export const makeFaceTexture = (img: HTMLImageElement): THREE.CanvasTexture => {
   const c = document.createElement('canvas')
   c.width = c.height = FACE_SIZE
@@ -118,18 +119,6 @@ export const makeFaceTexture = (img: HTMLImageElement): THREE.CanvasTexture => {
   g.filter = 'contrast(1.06) saturate(1.14)'
   g.drawImage(img, (FACE_SIZE - w) / 2, (FACE_SIZE - h) / 2, w, h)
   g.filter = 'none'
-
-  g.globalCompositeOperation = 'destination-in'
-  const rg = g.createRadialGradient(
-    FACE_SIZE / 2, FACE_SIZE / 2, FACE_SIZE * 0.2,
-    FACE_SIZE / 2, FACE_SIZE / 2, FACE_SIZE * 0.5,
-  )
-  rg.addColorStop(0, 'rgba(0,0,0,1)')
-  rg.addColorStop(0.7, 'rgba(0,0,0,1)')
-  rg.addColorStop(1, 'rgba(0,0,0,0)')
-  g.fillStyle = rg
-  g.fillRect(0, 0, FACE_SIZE, FACE_SIZE)
-  g.globalCompositeOperation = 'source-over'
 
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace

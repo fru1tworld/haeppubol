@@ -231,3 +231,17 @@ body {
 .btn-retry:hover {
   background: var(--po-peach-deeper);
 }
+
+/* 볼을 부수는 동안 — 사이드바만 남기고 위 헤더를 접어 화면을 넓게 쓴다 */
+body.immersive .app-header {
+  display: none;
+}
+
+body.immersive .app-sidebar {
+  background: transparent;
+  border-right: none;
+}
+
+body.immersive .app-content {
+  overflow: hidden;
+}
