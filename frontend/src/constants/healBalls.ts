@@ -32,7 +32,7 @@ export const HEAL_BALLS: readonly HealBall[] = [
   {
     id: 'dan',
     name: 'Dan 왁뿌볼',
-    tagline: '배포 실패한 날, 댄을 뿌시며 힐링',
+    tagline: '지치는 날, 댄을 조물조물',
     shellColor: shell('sky'),
     coreColor: core('ocean'),
     background: 'charcoal',

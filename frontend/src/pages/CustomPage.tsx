@@ -63,7 +63,14 @@ const BOARD_TABS: readonly { key: BoardTab; label: string }[] = [
   { key: 'crew', label: '크루' },
 ]
 
-export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' | 'create' }) => {
+export const CustomPage = ({
+  initialMode = 'create',
+  crew = false,
+}: {
+  initialMode?: 'board' | 'create'
+  /** 크루볼 페이지 — 구경만 하는 곳이라 만들기 버튼을 두지 않는다 */
+  crew?: boolean
+}) => {
   const [items, setItems] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [ballName, setBallName] = useState('')
@@ -345,10 +352,12 @@ export const CustomPage = ({ initialMode = 'create' }: { initialMode?: 'board' |
     return (
       <div className="custom-page">
         <div className="custom-header">
-          <h1>왁뿌볼 게시판</h1>
-          <button className="btn-new" onClick={() => setMode('create')}>
-            + 새 왁뿌볼 만들기
-          </button>
+          <h1>{crew ? '크루볼' : '왁뿌볼 게시판'}</h1>
+          {!crew && (
+            <button className="btn-new" onClick={() => setMode('create')}>
+              + 새 왁뿌볼 만들기
+            </button>
+          )}
         </div>
 
         <div className="board-filter-row">
