@@ -1,5 +1,6 @@
+/* 페이지 안에 붙는다 — fixed면 좌측 메뉴 내비게이션 위로 올라온다 */
 .controls-left {
-  position: fixed;
+  position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
@@ -32,7 +33,7 @@
 }
 
 .controls-bottom {
-  position: fixed;
+  position: absolute;
   bottom: 22px;
   left: 0;
   right: 0;
@@ -73,7 +74,7 @@
 }
 
 .controls-reset {
-  position: fixed;
+  position: absolute;
   right: 24px;
   bottom: 24px;
   padding: 10px 24px;

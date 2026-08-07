@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
+import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
 import { CREW_BALLS } from '../constants/crewBalls'
 import { SOUND_SET_LIST } from '../audio/soundSets'
 import type { SoundSetName } from '../audio/soundSets'
 import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/backgrounds'
+import { BallColorPicker } from '../components/BallColorPicker'
+import { Controls } from '../components/Controls'
+import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
 import './CustomPage.css'
 
 interface SavedBall {
@@ -17,6 +21,8 @@ interface SavedBall {
   sound?: SoundSetName
   background?: string
   imageUrl?: string
+  shellColor?: string
+  coreColor?: string
 }
 
 const isSoundSetName = (v: string): v is SoundSetName =>
@@ -49,10 +55,14 @@ export const CustomPage = () => {
   const [savedBalls, setSavedBalls] = useState<SavedBall[]>(loadSavedBalls)
   const [background, setBackground] = useState(DEFAULT_BACKGROUND)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [shellColor, setShellColor] = useState(DEFAULT_SHELL_COLOR)
+  const [coreColor, setCoreColor] = useState(DEFAULT_CORE_COLOR)
   const [mode, setMode] = useState<'board' | 'create' | 'play'>('board')
   const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<string | null>(null)
-  const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
+  const [resetKey, setResetKey] = useState(0)
+  const [ballSize, setBallSize] = useState(100)
+  const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume } = useSound()
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -72,11 +82,15 @@ export const CustomPage = () => {
     const name = params.get('name')
     const sound = params.get('sound')
     const bg = params.get('bg')
+    const shell = params.get('shell')
+    const core = params.get('core')
     if (encoded) {
       setItems(encoded.split(',').map(decodeURIComponent))
       if (name) setBallName(name)
       if (sound && isSoundSetName(sound)) setSoundSet(sound)
       if (bg && isBackgroundId(bg)) setBackground(bg)
+      if (shell && isHexColor(shell)) setShellColor(shell)
+      if (core && isHexColor(core)) setCoreColor(core)
       setMode('play')
     }
   }, [setSoundSet])
@@ -99,6 +113,19 @@ export const CustomPage = () => {
     play('reveal')
   }, [items, play])
 
+  // 부순 공으로는 다시 뽑을 수 없다 — 결과를 닫으면 새 공으로 갈아끼운다
+  const newBall = (sound: 'click' | 'reset') => {
+    setResult(null)
+    setResetKey(k => k + 1)
+    play(sound)
+  }
+
+  const resetColors = () => {
+    setBackground(DEFAULT_BACKGROUND)
+    setShellColor(DEFAULT_SHELL_COLOR)
+    setCoreColor(DEFAULT_CORE_COLOR)
+  }
+
   const saveBall = () => {
     const name = ballName.trim() || `왁뿌볼 #${savedBalls.length + 1}`
     const ball: SavedBall = {
@@ -109,22 +136,34 @@ export const CustomPage = () => {
       sound: soundSet,
       background,
       imageUrl: imageUrl ?? undefined,
+      shellColor,
+      coreColor,
     }
     setSavedBalls(prev => [ball, ...prev])
     setMode('board')
     setItems([])
     setBallName('')
-    setBackground(DEFAULT_BACKGROUND)
+    resetColors()
     setImageUrl(null)
     setResult(null)
   }
 
-  const loadBall = (ball: { name: string; items: readonly string[]; sound?: SoundSetName; background?: string; imageUrl?: string }) => {
+  const loadBall = (ball: {
+    name: string
+    items: readonly string[]
+    sound?: SoundSetName
+    background?: string
+    imageUrl?: string
+    shellColor?: string
+    coreColor?: string
+  }) => {
     setItems([...ball.items])
     setBallName(ball.name)
     setSoundSet(ball.sound ?? 'classic')
     setBackground(ball.background ?? DEFAULT_BACKGROUND)
     setImageUrl(ball.imageUrl ?? null)
+    setShellColor(ball.shellColor ?? DEFAULT_SHELL_COLOR)
+    setCoreColor(ball.coreColor ?? DEFAULT_CORE_COLOR)
     setMode('play')
     setResult(null)
   }
@@ -140,7 +179,9 @@ export const CustomPage = () => {
     if (ballName.trim()) params.set('name', ballName.trim())
     if (soundSet !== 'classic') params.set('sound', soundSet)
     if (background !== DEFAULT_BACKGROUND) params.set('bg', background)
-    return `${base}?${params.toString()}#/custom`
+    if (shellColor !== DEFAULT_SHELL_COLOR) params.set('shell', shellColor)
+    if (coreColor !== DEFAULT_CORE_COLOR) params.set('core', coreColor)
+    return `${base}?${params.toString()}#/wakbbu`
   }
 
   const copyShareLink = async () => {
@@ -153,7 +194,10 @@ export const CustomPage = () => {
     return (
       <div className="custom-page dark">
         <div className="custom-create-header">
-          <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setResult(null) }}>
+          <button
+            className="btn-back"
+            onClick={() => { setMode('board'); setItems([]); setBallName(''); resetColors(); setResult(null) }}
+          >
             &larr; 목록
           </button>
           <h2 className="play-title">{ballName || '왁뿌볼'}</h2>
@@ -165,6 +209,11 @@ export const CustomPage = () => {
           <BallScene
             background={background}
             textureUrl={imageUrl ?? undefined}
+            shellColor={shellColor}
+            coreColor={coreColor}
+            ballSize={ballSize / 100}
+            resetKey={resetKey}
+            smashAt={SMASH_REVEAL_AT}
             onCracks={playCracks}
             onRubbing={setRubbing}
             onSmash={() => { play('smash'); handleSmash() }}
@@ -185,7 +234,7 @@ export const CustomPage = () => {
                 <h2>{result}</h2>
                 <p className="result-sub">{ballName}에서 뽑혔습니다!</p>
                 <div className="result-actions">
-                  <button className="btn-retry" onClick={() => { setResult(null); play('click') }}>다시 뿌수기</button>
+                  <button className="btn-retry" onClick={() => newBall('click')}>다시 뿌수기</button>
                 </div>
               </motion.div>
             </div>
@@ -196,6 +245,13 @@ export const CustomPage = () => {
             <span key={item} className="crew-item-chip">{item}</span>
           ))}
         </div>
+        <Controls
+          volume={volume}
+          onVolumeChange={setVolume}
+          ballSize={ballSize}
+          onBallSizeChange={setBallSize}
+          onReset={() => newBall('reset')}
+        />
       </div>
     )
   }
@@ -293,7 +349,10 @@ export const CustomPage = () => {
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
-        <button className="btn-back" onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); setBackground(DEFAULT_BACKGROUND); setImageUrl(null); setResult(null) }}>
+        <button
+          className="btn-back"
+          onClick={() => { setMode('board'); setItems([]); setBallName(''); setSoundSet('classic'); resetColors(); setImageUrl(null); setResult(null) }}
+        >
           &larr; 목록
         </button>
         <input
@@ -369,12 +428,23 @@ export const CustomPage = () => {
             </>
           )}
         </div>
+        <BallColorPicker
+          className="custom-colors"
+          shellColor={shellColor}
+          coreColor={coreColor}
+          onShellChange={setShellColor}
+          onCoreChange={setCoreColor}
+        />
       </div>
 
       <div className="custom-scene">
         <BallScene
           background={background}
           textureUrl={imageUrl ?? undefined}
+          shellColor={shellColor}
+          coreColor={coreColor}
+          resetKey={resetKey}
+          smashAt={SMASH_REVEAL_AT}
           onCracks={playCracks}
           onRubbing={setRubbing}
           onSmash={() => { play('smash'); handleSmash() }}
@@ -395,7 +465,7 @@ export const CustomPage = () => {
               <h2>{result}</h2>
               <p className="result-sub">왁뿌볼에서 뽑혔습니다!</p>
               <div className="result-actions">
-                <button className="btn-retry" onClick={() => { setResult(null); play('click') }}>다시 뿌수기</button>
+                <button className="btn-retry" onClick={() => newBall('click')}>다시 뿌수기</button>
                 <button className="btn-share" onClick={copyShareLink}>
                   {copied ? '복사됨!' : '공유 링크'}
                 </button>

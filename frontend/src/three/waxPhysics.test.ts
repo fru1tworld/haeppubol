@@ -242,13 +242,13 @@ describe('stepPhysics', () => {
     throw new Error('crack did not occur')
   }
 
-  it('힘이 1.75/s로 쌓여 임계를 넘으면 크랙, snap-through로 힘 ×0.50', () => {
+  it('힘이 2.625/s로 쌓여 임계를 넘으면 크랙, snap-through로 힘 ×0.50', () => {
     const state = createPhysicsState()
     const { evts, prevForce, nowMs } = stepUntilCrack(makeShell(), state)
     expect(evts.length).toBe(1)
     expect(state.cracks).toBe(1)
     expect(state.lastFractureMs).toBe(nowMs)
-    expect(state.force).toBeCloseTo((prevForce + 0.016 * 1.75) * 0.5)
+    expect(state.force).toBeCloseTo((prevForce + 0.016 * 2.625) * 0.5)
   })
 
   it('크랙 직후 저항 급락(give), 시간이 지나면 -4.0/s로 회복', () => {

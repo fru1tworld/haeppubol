@@ -129,3 +129,24 @@
   color: var(--po-gray-600);
   margin-left: auto;
 }
+.result-btn.share {
+  background: #4a154b;
+  color: #fff;
+}
+
+.result-btn.share:hover:not(:disabled) {
+  background: #611f69;
+}
+
+.result-btn.share:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.result-btn.share.done {
+  background: #2e7d4f;
+}
+
+.result-btn.share.error {
+  background: #b3382c;
+}

@@ -10,6 +10,12 @@ export type OnDent = (dir: Vector3, depth: number, radAng: number) => void
 const clamp = (v: number, lo: number, hi: number): number =>
   Math.min(hi, Math.max(lo, v))
 
+/**
+ * 추첨 왁뿌볼(점메추·밍글·커스텀)이 결과를 공개하는 파괴 진행도(= 1 - integrity).
+ * 완파(integrity < 0.06)까지 갈아야 했던 걸 절반 지점으로 당긴 값이다.
+ */
+export const SMASH_REVEAL_AT = 0.5
+
 /** 셀별 max(0, 1 - 0.22·c1 - 0.30·c2 - 0.48·wear) 평균. 죽은 셀은 0 취급 */
 export function waxIntegrity(shell: WaxShell): number {
   let s = 0
@@ -116,7 +122,7 @@ export interface StepInput {
 /**
  * 프레임 1회분 물리. state와 shell을 변형하고, 이번 프레임의 크랙
  * 이벤트를 돌려준다(없으면 빈 배열).
- * 힘 적분 +1.75/s(상한 1.5), 크랙 시 snap-through ×0.50, 비압착 감쇠
+ * 힘 적분 +2.625/s(상한 1.5), 크랙 시 snap-through ×0.50, 비압착 감쇠
  * -4.2/s, give -4.0/s, squash 보간 dt·20, 최소 파괴 간격 45ms,
  * 해동 90초, integrity<0.06이면 dead.
  */

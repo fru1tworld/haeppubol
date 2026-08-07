@@ -43,4 +43,26 @@ export const api = {
         '/api/smash-logs/stats',
       ),
   },
+  share: {
+    lunch: (data: {
+      name: string
+      category: string
+      mode: string
+      address: string
+      distanceFromStation: string
+      priceRange: string
+      mapUrl?: string
+    }) =>
+      fetchJson<void>('/api/share/lunch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
+    mingle: (data: { winner: string; teams: string[] }) =>
+      fetchJson<void>('/api/share/mingle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }),
+  },
 } as const

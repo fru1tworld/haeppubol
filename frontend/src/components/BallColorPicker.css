@@ -1,0 +1,42 @@
+.color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-picker-label {
+  font-size: 13px;
+  color: var(--wak-text-muted);
+  white-space: nowrap;
+}
+
+.color-picker-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.12);
+}
+
+.color-swatch.selected {
+  border-color: var(--wak-accent);
+}

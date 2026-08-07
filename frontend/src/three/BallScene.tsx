@@ -14,6 +14,9 @@ interface BallSceneProps {
   autoSpin?: boolean
   resetKey?: number
   freezeKey?: number
+  shellColor?: string
+  coreColor?: string
+  smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
   onSmash?: () => void
@@ -81,6 +84,9 @@ export function BallScene({
   autoSpin = true,
   resetKey,
   freezeKey,
+  shellColor,
+  coreColor,
+  smashAt,
   onCracks,
   onRubbing,
   onSmash,
@@ -119,6 +125,9 @@ export function BallScene({
           textureUrl={textureUrl}
           resetKey={resetKey}
           freezeKey={freezeKey}
+          shellColor={shellColor}
+          coreColor={coreColor}
+          smashAt={smashAt}
           onCracks={onCracks}
           onRubbing={onRubbing}
           onSmash={onSmash}

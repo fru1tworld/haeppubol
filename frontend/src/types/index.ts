@@ -10,6 +10,11 @@ export type FoodCategory =
   | 'snack'
   | 'etc'
 
+export const DINING_MODE_LABEL: Record<DiningMode, string> = {
+  'dine-in': '직접방문',
+  delivery: '배달',
+} as const
+
 export const FOOD_CATEGORY_LABEL: Record<FoodCategory, string> = {
   korean: '한식',
   chinese: '중식',

@@ -10,8 +10,6 @@ export const Controls = ({
   frozen,
   onToggleSpin,
   spinOn,
-  onTogglePanel,
-  panelOn,
   onNew,
 }: {
   volume: number
@@ -23,8 +21,6 @@ export const Controls = ({
   frozen?: boolean
   onToggleSpin?: () => void
   spinOn?: boolean
-  onTogglePanel?: () => void
-  panelOn?: boolean
   onNew?: () => void
 }) => (
   <>
@@ -48,7 +44,7 @@ export const Controls = ({
         onChange={e => onBallSizeChange(Number(e.target.value))}
       />
     </div>
-    {(onFreeze || onToggleSpin || onTogglePanel || onNew) && (
+    {(onFreeze || onToggleSpin || onNew) && (
       <div className="controls-bottom">
         {onFreeze && (
           <button
@@ -64,14 +60,6 @@ export const Controls = ({
             onClick={onToggleSpin}
           >
             자동 회전
-          </button>
-        )}
-        {onTogglePanel && (
-          <button
-            className={`controls-button${panelOn ? ' on' : ''}`}
-            onClick={onTogglePanel}
-          >
-            물성 패널
           </button>
         )}
         {onNew && (

@@ -12,6 +12,7 @@ import {
 } from './deformField'
 import { createPhysicsState, freeze, stepPhysics } from './waxPhysics'
 import { createWaxBuffers, updateSoftMesh, updateWax } from './waxGeometry'
+import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, waxPalette } from './ballColors'
 import type { CrackEvent, PhysicsSnapshot } from './waxTypes'
 
 const HOLD_PRESS_MS = 190
@@ -23,6 +24,8 @@ const CLAY_RADIUS = 0.94
 const RUBBER_RADIUS = 1.03
 const SQUEEZE_DEPTH = 0.17
 const SQUASH_EPS = 0.0006
+/** integrity < 0.06 = 완파. 기본값은 이 지점에서 onSmash */
+const DEFAULT_SMASH_AT = 0.94
 
 export interface CrackCondition {
   integrity: number
@@ -40,8 +43,15 @@ interface WaxBallProps {
   textureUrl?: string
   resetKey?: number
   freezeKey?: number
+  /** 겉면(왁스) 색 */
+  shellColor?: string
+  /** 속(클레이) 색 */
+  coreColor?: string
+  /** onSmash가 터지는 파괴 진행도(0~1). 0.8이면 80% 부수면 발화 */
+  smashAt?: number
   onCracks?: (events: CrackEvent[], cond: CrackCondition) => void
   onRubbing?: (force: number) => void
+  /** 파괴 진행도가 smashAt에 도달하면 1회 */
   onSmash?: () => void
   onSnapshot?: (snap: PhysicsSnapshot, sample: ForceSample) => void
 }
@@ -54,6 +64,9 @@ export function WaxBall({
   textureUrl,
   resetKey = 0,
   freezeKey = 0,
+  shellColor = DEFAULT_SHELL_COLOR,
+  coreColor = DEFAULT_CORE_COLOR,
+  smashAt = DEFAULT_SMASH_AT,
   onCracks,
   onRubbing,
   onSmash,
@@ -102,10 +115,15 @@ export function WaxBall({
   }, [freezeKey, physics])
 
   const dirtyRef = useRef(true)
-  const deadRef = useRef(false)
+  const smashedRef = useRef(false)
   useEffect(() => {
-    deadRef.current = false
+    smashedRef.current = false
   }, [resetKey])
+
+  const palette = useMemo(() => waxPalette(shellColor), [shellColor])
+  useEffect(() => {
+    dirtyRef.current = true
+  }, [palette])
 
   const modeRef = useRef<Mode>('idle')
   const downRef = useRef({ t: 0, x: 0, y: 0, lastX: 0, lastY: 0 })
@@ -246,7 +264,7 @@ export function WaxBall({
     const squashMoved = Math.abs(physics.squash - prevSquashRef.current) > SQUASH_EPS
     if (cracked || anim || squashMoved || dirtyRef.current) {
       prevSquashRef.current = physics.squash
-      updateWax(shell, field, waxBuffers)
+      updateWax(shell, field, waxBuffers, palette)
       updateSoftMesh(clay.geo, clay.base, d => deformClay(deform, d), CLAY_RADIUS)
       updateSoftMesh(rubber.geo, rubber.base, d => deformSmooth(deform, d), RUBBER_RADIUS)
       dirtyRef.current = false
@@ -270,8 +288,8 @@ export function WaxBall({
 
     onRubbing?.(pressing ? physics.force : 0)
 
-    if (physics.dead && !deadRef.current) {
-      deadRef.current = true
+    if (!smashedRef.current && 1 - physics.integrity >= smashAt) {
+      smashedRef.current = true
       onSmash?.()
     }
 
@@ -293,7 +311,7 @@ export function WaxBall({
     <group ref={groupRef} scale={size}>
       <mesh geometry={clay.geo}>
         <meshPhysicalMaterial
-          {...(clayTexture ? { map: clayTexture } : { color: '#e0405c' })}
+          {...(clayTexture ? { map: clayTexture } : { color: coreColor })}
           roughness={0.66}
           clearcoat={0.3}
           clearcoatRoughness={0.6}

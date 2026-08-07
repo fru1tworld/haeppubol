@@ -7,8 +7,18 @@ import type { DeformField, WaxShell } from './waxTypes'
 /** 왁스 두께 */
 const TH = 0.05
 
-const WAX_BASE = [0.96, 0.935, 0.885] as const
+const WAX_BASE: readonly [number, number, number] = [0.96, 0.935, 0.885]
 const WAX_DEEP: readonly [number, number, number] = [0.52, 0.47, 0.4]
+
+/** 왁스 색. 선형 색공간 — 정점 색 버퍼에 그대로 들어간다 */
+export interface WaxPalette {
+  /** 겉면/안쪽면 */
+  base: readonly [number, number, number]
+  /** 깨진 단면 */
+  deep: readonly [number, number, number]
+}
+
+export const DEFAULT_WAX_PALETTE: WaxPalette = { base: WAX_BASE, deep: WAX_DEEP }
 
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
@@ -174,7 +184,12 @@ function shardVert(a: number, b: number, idx: number): void {
 }
 
 /** 셸의 현재 파괴/변형 상태를 왁스 버퍼에 굽는다 */
-export function updateWax(shell: WaxShell, field: DeformField, buffers: WaxBuffers): void {
+export function updateWax(
+  shell: WaxShell,
+  field: DeformField,
+  buffers: WaxBuffers,
+  palette: WaxPalette = DEFAULT_WAX_PALETTE,
+): void {
   wp = 0
   _P = buffers.position
   _Nb = buffers.normal
@@ -229,9 +244,9 @@ export function updateWax(shell: WaxShell, field: DeformField, buffers: WaxBuffe
     for (let k = 0; k < nv; k++) shardVert(_ab[k * 2] * 0.5, _ab[k * 2 + 1] * 0.5, 1 + 2 * nv + k)
 
     const t = c.tone - c.sink * 0.16
-    _tint[0] = clamp(WAX_BASE[0] + t, 0, 1)
-    _tint[1] = clamp(WAX_BASE[1] + t, 0, 1)
-    _tint[2] = clamp(WAX_BASE[2] + t, 0, 1)
+    _tint[0] = clamp(palette.base[0] + t, 0, 1)
+    _tint[1] = clamp(palette.base[1] + t, 0, 1)
+    _tint[2] = clamp(palette.base[2] + t, 0, 1)
 
     for (let k = 0; k < nv; k++) {
       const kk = (k + 1) % nv
@@ -252,8 +267,8 @@ export function updateWax(shell: WaxShell, field: DeformField, buffers: WaxBuffe
       const sn = _sn
         .crossVectors(_sA.subVectors(_vo[B], _vo[A]), _sB.subVectors(_vi[A], _vo[A]))
         .normalize()
-      pushTri(_vo[A], _vo[B], _vi[B], sn, sn, sn, WAX_DEEP)
-      pushTri(_vo[A], _vi[B], _vi[A], sn, sn, sn, WAX_DEEP)
+      pushTri(_vo[A], _vo[B], _vi[B], sn, sn, sn, palette.deep)
+      pushTri(_vo[A], _vi[B], _vi[A], sn, sn, sn, palette.deep)
     }
   }
   // 남은 버퍼는 축퇴 삼각형으로

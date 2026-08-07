@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
+import { api } from '../api/client'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
+import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
 import './MinglePage.css'
 
@@ -8,6 +10,8 @@ export const MinglePage = () => {
   const [teams, setTeams] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [result, setResult] = useState<string | null>(null)
+  const [shareState, setShareState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+  const [resetKey, setResetKey] = useState(0)
   const { play, playCracks, setRubbing } = useSound()
 
   const addTeam = () => {
@@ -24,12 +28,26 @@ export const MinglePage = () => {
 
   const handleSmash = useCallback(() => {
     if (teams.length === 0) return
+    setShareState('idle')
     setResult(teams[Math.floor(Math.random() * teams.length)])
     play('reveal')
   }, [teams, play])
 
+  const handleShare = async () => {
+    if (!result || shareState === 'sending' || shareState === 'done') return
+    setShareState('sending')
+    try {
+      await api.share.mingle({ winner: result, teams: [...teams] })
+      setShareState('done')
+    } catch {
+      setShareState('error')
+    }
+  }
+
+  // 결과를 닫으면 새 왁뿌볼 — 부순 공으로는 다시 뽑을 수 없다
   const handleRetry = () => {
     setResult(null)
+    setResetKey(k => k + 1)
     play('click')
   }
 
@@ -62,7 +80,13 @@ export const MinglePage = () => {
       </div>
 
       <div className="mingle-scene">
-        <BallScene onCracks={playCracks} onRubbing={setRubbing} onSmash={() => { play('smash'); handleSmash() }} />
+        <BallScene
+          resetKey={resetKey}
+          smashAt={SMASH_REVEAL_AT}
+          onCracks={playCracks}
+          onRubbing={setRubbing}
+          onSmash={() => { play('smash'); handleSmash() }}
+        />
         {!canSmash && (
           <div className="scene-blocker">
             <p>팀을 2개 이상 추가하세요</p>
@@ -91,6 +115,13 @@ export const MinglePage = () => {
                   ))}
                 </div>
               </div>
+              <button
+                className={`btn-share ${shareState}`}
+                onClick={handleShare}
+                disabled={shareState === 'sending' || shareState === 'done'}
+              >
+                {{ idle: '슬랙 공유', sending: '전송 중...', done: '공유 완료', error: '전송 실패 - 다시 시도' }[shareState]}
+              </button>
               <button className="btn-retry" onClick={handleRetry}>다시 추첨</button>
             </motion.div>
           </div>

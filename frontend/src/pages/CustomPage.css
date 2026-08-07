@@ -11,6 +11,8 @@
   display: flex;
   flex-direction: column;
   padding: 0;
+  /* 음량·크기 조절바가 이 안에 앉는다 */
+  position: relative;
 }
 
 .custom-header {
@@ -374,6 +376,10 @@
 .sound-set-chip.selected {
   border-color: var(--wak-accent);
   background: color-mix(in srgb, var(--wak-accent) 18%, var(--wak-card-bg));
+}
+
+.color-picker.custom-colors {
+  margin-top: 14px;
 }
 
 .bg-chip {

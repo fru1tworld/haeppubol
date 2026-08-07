@@ -145,3 +145,32 @@
   background: var(--po-peach-dark);
   font-weight: 600;
 }
+
+.btn-share {
+  background: #4a154b;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.btn-share:hover:not(:disabled) {
+  background: #611f69;
+}
+
+.btn-share:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.btn-share.done {
+  background: #2e7d4f;
+}
+
+.btn-share.error {
+  background: #b3382c;
+}

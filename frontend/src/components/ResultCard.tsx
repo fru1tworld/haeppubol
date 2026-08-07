@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { SmashResult } from '../types'
 import { FOOD_CATEGORY_LABEL } from '../types'
@@ -14,14 +15,41 @@ const CATEGORY_COLORS: Record<string, string> = {
   etc: '#6b7280',
 }
 
+type ShareState = 'idle' | 'sending' | 'done' | 'error'
+
+const SHARE_LABEL: Record<ShareState, string> = {
+  idle: '슬랙 공유',
+  sending: '전송 중...',
+  done: '공유 완료',
+  error: '전송 실패 - 다시 시도',
+}
+
 export const ResultCard = ({
   result,
   onRetry,
+  onShare,
 }: {
   result: SmashResult | null
   onRetry: () => void
+  onShare?: () => Promise<void>
 }) => {
+  const [shareState, setShareState] = useState<ShareState>('idle')
+  useEffect(() => {
+    setShareState('idle')
+  }, [result])
+
   if (!result) return null
+
+  const handleShare = async () => {
+    if (!onShare || shareState === 'sending' || shareState === 'done') return
+    setShareState('sending')
+    try {
+      await onShare()
+      setShareState('done')
+    } catch {
+      setShareState('error')
+    }
+  }
 
   const { restaurant, mode } = result
   const mapLink =
@@ -79,6 +107,15 @@ export const ResultCard = ({
           <a href={mapLink} target="_blank" rel="noopener noreferrer" className="result-btn primary">
             지도 보기
           </a>
+        )}
+        {onShare && (
+          <button
+            className={`result-btn share ${shareState}`}
+            onClick={handleShare}
+            disabled={shareState === 'sending' || shareState === 'done'}
+          >
+            {SHARE_LABEL[shareState]}
+          </button>
         )}
         <button className="result-btn retry" onClick={onRetry}>
           다시 뿌수기
