@@ -258,6 +258,13 @@
   margin-top: 4px;
 }
 
+.req-sound-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
 .req-input {
   flex: 1;
   padding: 12px 16px;

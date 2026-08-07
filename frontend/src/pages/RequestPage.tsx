@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { useSound } from '../audio/useSound'
+import { SOUND_SET_LIST } from '../audio/soundSets'
 import { PlayButtons } from '../components/PlayButtons'
 import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
 import { SHELL_COLORS, CORE_COLORS } from '../three/ballColors'
@@ -81,7 +82,7 @@ export const RequestPage = () => {
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
   const [playingReq, setPlayingReq] = useState<WakRequest | null>(null)
-  const { play, playCracks, setRubbing } = useSound()
+  const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -282,6 +283,19 @@ export const RequestPage = () => {
               rows={3}
             />
 
+            <label className="req-label">소리</label>
+            <div className="req-sound-row">
+              {SOUND_SET_LIST.map(s => (
+                <button
+                  key={s.name}
+                  className={`customizer-chip${soundSet === s.name ? ' selected' : ''}`}
+                  onClick={() => { setSoundSet(s.name); play('pop') }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
             <label className="req-label">왁뿌볼 커스텀</label>
             <BallCustomizer value={customization} onChange={setCustomization} />
 
@@ -326,12 +340,9 @@ export const RequestPage = () => {
             </div>
             <div className="request-card-body">
               <div className="request-card-header">
-                <div>
-                  <h3>{req.title}</h3>
-                  <div className="request-card-meta">
-                    {req.author && <span className="request-card-from">from {req.author}</span>}
-                    {req.team && <span className="request-card-to">to {req.team}</span>}
-                  </div>
+                <div className="request-card-meta">
+                  {req.author && <span className="request-card-from">from {req.author}</span>}
+                  {req.team && <span className="request-card-to">to {req.team}</span>}
                 </div>
                 <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
               </div>
