@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { Background } from './Background'
 import { WaxBall } from './WaxBall'
 import type { CrackCondition, ForceSample } from './WaxBall'
 import { getBackgroundTheme } from './backgrounds'
@@ -114,7 +113,6 @@ export function BallScene({
         <directionalLight position={[-2.2, 2.6, 2.4]} intensity={2.0} color="#fff4e2" />
         <directionalLight position={[2.6, -1.0, 1.6]} intensity={0.55} color="#9fb6ff" />
         <directionalLight position={[0.6, 0.4, -3.0]} intensity={1.1} color="#ffd9c0" />
-        <Background theme={theme} />
         <WaxBall
           size={ballSize}
           autoSpin={autoSpin}
