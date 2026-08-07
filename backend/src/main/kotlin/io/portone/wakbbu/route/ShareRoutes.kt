@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.portone.wakbbu.slack.LunchShare
 import io.portone.wakbbu.slack.MingleShare
-import io.portone.wakbbu.slack.SlackWebhook
+import io.portone.wakbbu.slack.SlackClient
 import io.portone.wakbbu.slack.lunchMessage
 import io.portone.wakbbu.slack.mingleMessage
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ data class MingleShareRequest(
     val teams: List<String>,
 )
 
-fun Route.shareRoutes(webhook: SlackWebhook?) {
+fun Route.shareRoutes(webhook: SlackClient?) {
     route("/api/share") {
         post("/lunch") {
             if (webhook == null) {

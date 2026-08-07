@@ -21,7 +21,7 @@ import io.portone.wakbbu.route.restaurantRoutes
 import io.portone.wakbbu.route.reviewRoutes
 import io.portone.wakbbu.route.shareRoutes
 import io.portone.wakbbu.route.smashLogRoutes
-import io.portone.wakbbu.slack.SlackWebhook
+import io.portone.wakbbu.slack.SlackClient
 import kotlinx.serialization.json.Json
 
 fun main() {
@@ -37,7 +37,9 @@ fun main() {
             restaurantRoutes(RestaurantRepository(dsl))
             reviewRoutes(ReviewRepository(dsl))
             smashLogRoutes(SmashLogRepository(dsl))
-            shareRoutes(System.getenv("SLACK_WEBHOOK_URL")?.let(::SlackWebhook))
+            val slackToken = System.getenv("SLACK_BOT_TOKEN")
+            val slackChannel = System.getenv("SLACK_CHANNEL")
+            shareRoutes(if (slackToken != null && slackChannel != null) SlackClient(slackToken, slackChannel) else null)
         }
     }.start(wait = true)
 }

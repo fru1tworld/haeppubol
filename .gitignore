@@ -8,6 +8,10 @@ backend/build/
 backend/.gradle/
 backend/*.db
 
+# Env
+frontend/.env
+frontend/.env.local
+
 # Misc
 .DS_Store
 

@@ -1,24 +1,30 @@
 package io.portone.wakbbu.slack
 
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 
-/** Slack Incoming Webhook 호출. IO 셸 — 얇게 유지하고 테스트하지 않는다. */
-class SlackWebhook(private val url: String) {
+class SlackClient(private val token: String, private val channel: String) {
     private val client = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(5))
         .build()
 
-    /** 성공하면 true, Slack이 2xx 외를 돌려주면 false */
     fun send(message: JsonObject): Boolean {
-        val request = HttpRequest.newBuilder(URI.create(url))
+        val payload = buildJsonObject {
+            put("channel", channel)
+            message["text"]?.let { put("text", it) }
+            message["blocks"]?.let { put("blocks", it) }
+        }
+        val request = HttpRequest.newBuilder(URI.create("https://slack.com/api/chat.postMessage"))
             .header("Content-Type", "application/json")
+            .header("Authorization", "Bearer $token")
             .timeout(Duration.ofSeconds(10))
-            .POST(HttpRequest.BodyPublishers.ofString(message.toString()))
+            .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         return response.statusCode() in 200..299
