@@ -1,22 +1,19 @@
-import { useRef, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { createAudioManager } from './AudioManager'
 import type { SoundName } from './sounds'
 import type { SoundSetName } from './soundSets'
 import type { CrackEvent } from '../three/waxTypes'
 import type { CrackCondition } from './crackSounds'
 
-export const useSound = () => {
-  const managerRef = useRef<ReturnType<typeof createAudioManager> | null>(null)
-  const [volume, setVolumeState] = useState(70)
-  const [muted, setMutedState] = useState(false)
-  const [soundSet, setSoundSetState] = useState<SoundSetName>('slime')
+// 페이지마다 AudioContext를 만들면 이동할수록 컨텍스트가 쌓여 브라우저 상한에
+// 걸리고, 음량·음소거 설정도 페이지마다 초기화된다 — 앱 전체가 하나를 공유한다.
+let sharedManager: ReturnType<typeof createAudioManager> | null = null
+const getManager = () => (sharedManager ??= createAudioManager(Math.random))
 
-  const getManager = () => {
-    if (!managerRef.current) {
-      managerRef.current = createAudioManager(Math.random)
-    }
-    return managerRef.current
-  }
+export const useSound = () => {
+  const [volume, setVolumeState] = useState(() => getManager().getVolume())
+  const [muted, setMutedState] = useState(() => getManager().isMuted())
+  const [soundSet, setSoundSetState] = useState<SoundSetName>(() => getManager().getSoundSet())
 
   const play = useCallback((name: SoundName) => {
     getManager().play(name)
