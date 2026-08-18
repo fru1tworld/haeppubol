@@ -8,7 +8,7 @@ import { SOUND_SET_LIST } from '../audio/soundSets'
 import type { SoundSetName } from '../audio/soundSets'
 import { BACKGROUND_THEMES, DEFAULT_BACKGROUND, isBackgroundId } from '../three/backgrounds'
 import { BallColorPicker } from '../components/BallColorPicker'
-import { Controls, MAX_BALL_SIZE } from '../components/Controls'
+import { Controls, initialBallSize } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
 import { DEFAULT_FACE_OPACITY } from '../three/WaxBall'
@@ -92,7 +92,7 @@ export const CustomPage = ({
   const [result, setResult] = useState<string | null>(null)
   const [resetKey, setResetKey] = useState(0)
   const [sealed, setSealed] = useState<string | null>(null)
-  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
+  const [ballSize, setBallSize] = useState(initialBallSize)
   const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)

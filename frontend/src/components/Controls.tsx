@@ -4,6 +4,10 @@ import './Controls.css'
 export const MIN_BALL_SIZE = 33
 export const MAX_BALL_SIZE = 170
 
+/** 좁은 화면에선 공이 화면을 다 덮어 컨트롤이 묻힌다 — 모바일 기본 크기는 절반 */
+export const initialBallSize = (): number =>
+  window.innerWidth <= 600 ? Math.round(MAX_BALL_SIZE / 2) : MAX_BALL_SIZE
+
 export const Controls = ({
   volume,
   onVolumeChange,

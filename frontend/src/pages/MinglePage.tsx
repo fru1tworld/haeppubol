@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { useSound } from '../audio/useSound'
-import { Controls, MAX_BALL_SIZE } from '../components/Controls'
+import { Controls, initialBallSize } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
 import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
 import { SOUND_SET_LIST } from '../audio/soundSets'
@@ -46,7 +46,7 @@ export const MinglePage = () => {
   const [spinOn, setSpinOn] = useState(false)
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
-  const [ballSize, setBallSize] = useState(MAX_BALL_SIZE)
+  const [ballSize, setBallSize] = useState(initialBallSize)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
 
   useEffect(() => {
