@@ -77,3 +77,31 @@
   background: var(--po-peach-dark);
   border-color: var(--po-peach-dark);
 }
+
+@media (max-width: 600px) {
+  .controls-left {
+    right: 8px;
+    padding: 8px 5px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+
+  .controls-slider.vertical {
+    height: 72px;
+    width: 24px;
+  }
+
+  .controls-mute,
+  .controls-label {
+    font-size: 10px;
+  }
+
+  /* 하단 중앙 플레이 버튼과 겹치지 않게 리셋은 상단 우측으로 */
+  .controls-reset {
+    bottom: auto;
+    top: 12px;
+    right: 12px;
+    padding: 9px 18px;
+    font-size: 13px;
+  }
+}

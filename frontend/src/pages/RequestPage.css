@@ -554,3 +554,39 @@
   background: var(--wak-card-bg);
   color: var(--wak-text);
 }
+
+@media (max-width: 600px) {
+  .request-page {
+    padding: 20px 16px;
+  }
+
+  .request-page.play-mode {
+    padding: 0;
+  }
+
+  .request-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .request-list {
+    grid-template-columns: 1fr;
+  }
+
+  .request-form {
+    padding: 20px 16px;
+  }
+
+  .request-result-card {
+    padding: 28px 20px;
+  }
+
+  .request-result-card h2 {
+    font-size: 22px;
+  }
+
+  .request-play-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

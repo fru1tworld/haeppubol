@@ -25,13 +25,17 @@ export const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    const onHashChange = () => setPage(parseHash())
+    const onHashChange = () => {
+      setPage(parseHash())
+      setSidebarOpen(false)
+    }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   const navigate = (target: Page) => {
     window.location.hash = target === 'home' ? '/' : `/${target}`
+    setSidebarOpen(false)
   }
 
   return (
@@ -43,6 +47,9 @@ export const App = () => {
       </header>
 
       <div className="app-body">
+        {sidebarOpen && (
+          <div className="sidebar-scrim" onClick={() => setSidebarOpen(false)} />
+        )}
         <aside className={`app-sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
           <button
             className="sidebar-toggle"

@@ -22,9 +22,11 @@
   border-right: none;
 }
 
-.mode-pill:hover {
-  color: var(--po-gray-900);
-  background: rgba(245, 198, 160, 0.3);
+@media (hover: hover) {
+  .mode-pill:hover {
+    color: var(--po-gray-900);
+    background: rgba(245, 198, 160, 0.3);
+  }
 }
 
 .mode-pill.active {

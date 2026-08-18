@@ -40,3 +40,15 @@
   border-color: var(--po-black);
   color: var(--po-white);
 }
+
+@media (max-width: 600px) {
+  .play-buttons {
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    gap: 6px;
+  }
+
+  .play-button {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}

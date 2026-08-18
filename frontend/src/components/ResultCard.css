@@ -157,3 +157,23 @@
 .result-btn.share.error {
   background: #b3382c;
 }
+
+@media (max-width: 600px) {
+  .result-card {
+    width: min(480px, calc(100vw - 24px));
+    padding: 20px 16px;
+  }
+
+  .result-name {
+    font-size: 20px;
+  }
+
+  .result-description {
+    white-space: normal;
+  }
+
+  .result-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}

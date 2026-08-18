@@ -36,6 +36,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 input, textarea, [contenteditable] {
@@ -58,8 +59,13 @@ body {
 
 .app {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-scrim {
+  display: none;
 }
 
 .app-header {
@@ -230,6 +236,63 @@ body {
 
 .btn-retry:hover {
   background: var(--po-peach-deeper);
+}
+
+/* 모바일 — 사이드바를 오버레이 드로어로 전환해 콘텐츠가 화면 전체를 쓴다 */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 12px 16px 12px 56px;
+  }
+
+  .app-logo {
+    font-size: 19px;
+  }
+
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 200;
+    width: min(260px, 78vw);
+    padding: 16px 12px;
+    background: rgba(253, 232, 216, 0.92);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .app-sidebar.collapsed {
+    bottom: auto;
+    width: 48px;
+    padding: 6px 4px;
+    background: transparent;
+    border-right: none;
+    box-shadow: none;
+  }
+
+  .app-sidebar button {
+    padding: 13px 14px;
+    font-size: 15px;
+  }
+
+  .sidebar-toggle {
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  .sidebar-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  /* iOS는 16px 미만 입력을 포커스하면 화면을 확대한다 — 입력만 16px로 고정 */
+  input:not([type='range']):not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 /* 볼을 부수는 동안 — 사이드바만 남기고 위 헤더를 접어 화면을 넓게 쓴다 */

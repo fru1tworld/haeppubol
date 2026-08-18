@@ -135,3 +135,17 @@
   color: var(--po-white);
 }
 
+@media (max-width: 600px) {
+  .heal-page {
+    padding: 12px 12px 0;
+  }
+
+  .heal-buttons {
+    bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .heal-hint {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+

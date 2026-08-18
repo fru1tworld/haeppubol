@@ -689,3 +689,48 @@
   min-width: 36px;
   text-align: right;
 }
+
+@media (max-width: 600px) {
+  .custom-page {
+    padding: 20px 16px;
+  }
+
+  .custom-page.dark {
+    padding: 0;
+  }
+
+  .custom-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .board-search {
+    width: 100%;
+  }
+
+  .saved-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-create-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ball-name-input {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .custom-result-card {
+    padding: 28px 20px;
+  }
+
+  .custom-result-card h2 {
+    font-size: 22px;
+  }
+
+  .play-hint {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
