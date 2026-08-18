@@ -141,14 +141,16 @@ export const CustomPage = ({
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const encoded = params.get('items')
+    // 아이템은 반복 파라미터(items=a&items=b). 쉼표 결합 구형 링크는 하나로 들어오므로 쪼갠다
+    let shared = params.getAll('items')
+    if (shared.length === 1 && shared[0].includes(',')) shared = shared[0].split(',')
     const name = params.get('name')
     const sound = params.get('sound')
     const bg = params.get('bg')
     const shell = params.get('shell')
     const core = params.get('core')
-    if (encoded) {
-      setItems(encoded.split(','))
+    if (shared.length > 0) {
+      setItems(shared)
       if (name) setBallName(name)
       if (sound && isSoundSetName(sound)) setSoundSet(sound)
       if (bg && isBackgroundId(bg)) setBackground(bg)
@@ -286,7 +288,7 @@ export const CustomPage = ({
   const getShareUrl = () => {
     const base = getBaseUrl()
     const params = new URLSearchParams()
-    if (items.length > 0) params.set('items', items.join(','))
+    items.forEach(item => params.append('items', item))
     if (ballName.trim()) params.set('name', ballName.trim())
     if (soundSet !== 'slime') params.set('sound', soundSet)
     if (background !== DEFAULT_BACKGROUND) params.set('bg', background)

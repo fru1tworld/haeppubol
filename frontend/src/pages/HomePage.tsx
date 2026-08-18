@@ -142,16 +142,26 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
       <section className="crew-section">
         <h2 className="crew-section-title">크루들의 왁뿌볼</h2>
         <div className="crew-grid">
-          {paged.map(ball => (
+          {paged.map(ball => {
+            const openBall = () => {
+              const params = new URLSearchParams()
+              ball.items.forEach(item => params.append('items', item))
+              params.set('name', ball.name)
+              window.history.replaceState(null, '', `?${params.toString()}${window.location.hash}`)
+              onNavigate('wakbbu')
+            }
+            return (
             <div
               key={ball.id}
               className="crew-card"
-              onClick={() => {
-                const params = new URLSearchParams()
-                params.set('items', ball.items.join(','))
-                params.set('name', ball.name)
-                window.history.replaceState(null, '', `?${params.toString()}${window.location.hash}`)
-                onNavigate('wakbbu')
+              role="button"
+              tabIndex={0}
+              onClick={openBall}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  openBall()
+                }
               }}
             >
               <div className="crew-card-header">
@@ -168,7 +178,8 @@ export const HomePage = ({ onNavigate }: HomePageProps) => {
               </div>
               <p className="crew-date">{new Date(ball.createdAt).toLocaleDateString('ko-KR')}</p>
             </div>
-          ))}
+            )
+          })}
         </div>
         {totalPages > 1 && (
           <div className="crew-pagination">
