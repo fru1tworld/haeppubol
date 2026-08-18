@@ -33,6 +33,15 @@ export const App = () => {
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
+  useEffect(() => {
+    if (!sidebarOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSidebarOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [sidebarOpen])
+
   const navigate = (target: Page) => {
     window.location.hash = target === 'home' ? '/' : `/${target}`
     setSidebarOpen(false)
@@ -48,7 +57,7 @@ export const App = () => {
 
       <div className="app-body">
         {sidebarOpen && (
-          <div className="sidebar-scrim" onClick={() => setSidebarOpen(false)} />
+          <div className="sidebar-scrim" aria-hidden="true" onClick={() => setSidebarOpen(false)} />
         )}
         <aside className={`app-sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
           <button

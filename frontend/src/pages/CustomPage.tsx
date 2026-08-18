@@ -13,6 +13,7 @@ import { PlayButtons } from '../components/PlayButtons'
 import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ballColors'
 import { DEFAULT_FACE_OPACITY } from '../three/WaxBall'
 import { getBaseUrl } from '../constants/baseUrl'
+import { copyText } from '../utils/clipboard'
 import { useImmersive } from '../hooks/useImmersive'
 import './CustomPage.css'
 
@@ -97,7 +98,11 @@ export const CustomPage = ({
   const [frozen, setFrozen] = useState(false)
   const [freezeKey, setFreezeKey] = useState(0)
   const [tagline, setTagline] = useState<string | null>(null)
+  const [lotteryOpenManual, setLotteryOpenManual] = useState(false)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
+
+  // 아이템이 있으면 뽑기 UI는 항상 열려 있어야 한다 (공유 링크로 아이템이 주입되는 경우 포함)
+  const lotteryOpen = lotteryOpenManual || items.length > 0
 
   // 부수는 화면에선 상단 헤더를 접고 넓게 쓴다
   useImmersive(view === 'play')
@@ -288,19 +293,8 @@ export const CustomPage = ({
   }
 
   const copyShareLink = async () => {
-    const url = getShareUrl()
-    try {
-      await navigator.clipboard.writeText(url)
-    } catch {
-      const ta = document.createElement('textarea')
-      ta.value = url
-      ta.style.position = 'fixed'
-      ta.style.opacity = '0'
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
-    }
+    const ok = await copyText(getShareUrl())
+    if (!ok) return
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -496,7 +490,19 @@ export const CustomPage = ({
             const sc = ball.shellColor ?? randomShellColor(ball.id)
             const cc = ball.coreColor ?? randomCoreColor(ball.id)
             return (
-              <div key={ball.id} className="saved-card" onClick={() => loadBall(ball)}>
+              <div
+                key={ball.id}
+                className="saved-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => loadBall(ball)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    loadBall(ball)
+                  }
+                }}
+              >
                 <div className="saved-card-preview">
                   {ball.imageUrl ? (
                     <img src={ball.imageUrl} alt="" className="saved-card-thumb" />
@@ -519,6 +525,7 @@ export const CustomPage = ({
                     {ball.mine ? (
                       <button
                         className="btn-delete"
+                        aria-label={`${ball.name} 삭제`}
                         onClick={e => { e.stopPropagation(); deleteBall(ball.id) }}
                       >
                         &times;
@@ -551,8 +558,6 @@ export const CustomPage = ({
     )
   }
 
-  const [lotteryOpen, setLotteryOpen] = useState(items.length > 0)
-
   return (
     <div className="custom-page dark">
       <div className="custom-create-header">
@@ -574,13 +579,13 @@ export const CustomPage = ({
         <div className="ball-type-tags create-mode-tags">
           <button
             className={`ball-type-tag${items.length < 2 ? ' active' : ''}`}
-            onClick={() => { play('pop'); setLotteryOpen(false); setItems([]); setInputValue('') }}
+            onClick={() => { play('pop'); setLotteryOpenManual(false); setItems([]); setInputValue('') }}
           >
             일반
           </button>
           <button
             className={`ball-type-tag${items.length >= 2 ? ' active' : ''}`}
-            onClick={() => { play('pop'); setLotteryOpen(true) }}
+            onClick={() => { play('pop'); setLotteryOpenManual(true) }}
           >
             뽑기
           </button>
@@ -606,7 +611,7 @@ export const CustomPage = ({
                 {items.map(item => (
                   <span key={item} className="item-chip">
                     {item}
-                    <button onClick={() => removeItem(item)}>&times;</button>
+                    <button aria-label={`${item} 삭제`} onClick={() => removeItem(item)}>&times;</button>
                   </span>
                 ))}
               </div>

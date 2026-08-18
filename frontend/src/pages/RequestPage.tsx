@@ -8,6 +8,7 @@ import { BallCustomizer, type BallCustomization } from '../components/BallCustom
 import { SHELL_COLORS, CORE_COLORS } from '../three/ballColors'
 import { getBackgroundTheme } from '../three/backgrounds'
 import { getBaseUrl } from '../constants/baseUrl'
+import { copyText } from '../utils/clipboard'
 import './RequestPage.css'
 
 const DEFAULT_SHELL = SHELL_COLORS[0].hex
@@ -137,11 +138,10 @@ export const RequestPage = () => {
   }
 
   const copyLink = async (req: WakRequest) => {
-    try {
-      await navigator.clipboard.writeText(getShareUrl(req))
-      setCopiedId(req.id)
-      setTimeout(() => setCopiedId(null), 2000)
-    } catch { /* non-HTTPS or permission denied */ }
+    const ok = await copyText(getShareUrl(req))
+    if (!ok) return
+    setCopiedId(req.id)
+    setTimeout(() => setCopiedId(null), 2000)
   }
 
   const saveRequest = () => {
@@ -339,7 +339,19 @@ export const RequestPage = () => {
 
       <div className="request-list">
         {requests.map(req => (
-          <div key={req.id} className="request-card" onClick={() => playRequest(req)}>
+          <div
+            key={req.id}
+            className="request-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => playRequest(req)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                playRequest(req)
+              }
+            }}
+          >
             <div className="request-card-preview" style={{ background: getBackgroundTheme(req.background).gradient }}>
               <div
                 className="saved-card-ball"
@@ -356,7 +368,7 @@ export const RequestPage = () => {
                   {req.author && <span className="request-card-from">from {req.author}</span>}
                   {req.team && <span className="request-card-to">to {req.team}</span>}
                 </div>
-                <button className="btn-delete-req" onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
+                <button className="btn-delete-req" aria-label={`${req.title} 삭제`} onClick={e => { e.stopPropagation(); deleteRequest(req.id) }}>&times;</button>
               </div>
               <div className="request-card-footer">
                 <span className="request-date">{new Date(req.createdAt).toLocaleDateString('ko-KR')}</span>

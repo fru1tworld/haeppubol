@@ -152,7 +152,7 @@ export const MinglePage = () => {
                     <td style={{ width: 40, color: 'var(--po-gray-400)' }}>{i + 1}</td>
                     <td className="col-name">{team}</td>
                     {editing && (
-                      <td><button className="btn-row-delete" onClick={() => removeTeam(team)}>&times;</button></td>
+                      <td><button className="btn-row-delete" aria-label={`${team} 삭제`} onClick={() => removeTeam(team)}>&times;</button></td>
                     )}
                   </tr>
                 ))}

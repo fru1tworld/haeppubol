@@ -115,33 +115,32 @@ export const MainPage = () => {
 
   const addRestaurant = async () => {
     if (!newForm.name.trim()) return
-    try {
-      const created = await api.restaurants.create({
-        name: newForm.name.trim(),
-        category: newForm.category,
-        description: newForm.description.trim(),
-        address: newForm.address.trim(),
-        distanceFromStation: newForm.distanceFromStation.trim(),
-        priceRange: newForm.priceRange.trim(),
-        availableModes: ['dine-in'],
-        tags: [],
-        password: 'fritz123',
-      })
-      setRestaurants(prev => [...prev, created])
-      setNewForm({ name: '', category: 'etc', description: '', address: '', distanceFromStation: '', priceRange: '' })
-    } catch {}
+    const data = {
+      name: newForm.name.trim(),
+      category: newForm.category,
+      description: newForm.description.trim(),
+      address: newForm.address.trim(),
+      distanceFromStation: newForm.distanceFromStation.trim(),
+      priceRange: newForm.priceRange.trim(),
+      availableModes: ['dine-in'],
+      tags: [],
+    } as const
+    // 백엔드가 없어도 동작해야 한다 — 서버 실패 시 로컬에만 추가
+    const created = await api.restaurants
+      .create({ ...data, password: 'fritz123' })
+      .catch(() => ({ ...data, id: `local-${Date.now()}` }))
+    setRestaurants(prev => [...prev, created])
+    setNewForm({ name: '', category: 'etc', description: '', address: '', distanceFromStation: '', priceRange: '' })
   }
 
-  const removeRestaurant = async (r: Restaurant) => {
+  const removeRestaurant = (r: Restaurant) => {
     const pw = prompt('어드민 비밀번호를 입력하세요')
     if (pw !== 'fritz123') {
       alert('비밀번호가 틀렸습니다')
       return
     }
-    try {
-      await api.restaurants.remove(r.id, pw)
-      setRestaurants(prev => prev.filter(x => x.id !== r.id))
-    } catch {}
+    setRestaurants(prev => prev.filter(x => x.id !== r.id))
+    api.restaurants.remove(r.id, pw).catch(() => {})
   }
 
   return (
@@ -203,7 +202,7 @@ export const MainPage = () => {
                     <td>{r.distanceFromStation}</td>
                     <td>{r.priceRange}</td>
                     {editing && (
-                      <td><button className="btn-row-delete" onClick={() => removeRestaurant(r)}>&times;</button></td>
+                      <td><button className="btn-row-delete" aria-label={`${r.name} 삭제`} onClick={() => removeRestaurant(r)}>&times;</button></td>
                     )}
                   </tr>
                 ))}
