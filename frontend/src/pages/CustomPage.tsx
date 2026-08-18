@@ -52,6 +52,7 @@ const isSoundSetName = (v: string): v is SoundSetName =>
   SOUND_SET_LIST.some(s => s.name === v)
 
 const STORAGE_KEY = 'wakbbuball-custom'
+const AUTHOR_KEY = 'wakbbuball-author'
 
 const loadSavedBalls = (): SavedBall[] => {
   try {
@@ -79,6 +80,7 @@ export const CustomPage = ({
   const [items, setItems] = useState<string[]>([])
   const [inputValue, setInputValue] = useState('')
   const [ballName, setBallName] = useState('')
+  const [author, setAuthor] = useState(() => localStorage.getItem(AUTHOR_KEY) ?? '')
   const [boardTab, setBoardTab] = useState<BoardTab>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [savedBalls, setSavedBalls] = useState<SavedBall[]>(loadSavedBalls)
@@ -228,9 +230,11 @@ export const CustomPage = ({
       faceOpacity,
     }
     setSavedBalls(prev => [ball, ...prev])
+    const authorName = author.trim() || '익명'
+    safeSetItem(AUTHOR_KEY, authorName)
     api.crewBalls.create({
       name,
-      author: 'me',
+      author: authorName,
       items: [...items],
       shellColor,
       coreColor,
@@ -567,6 +571,13 @@ export const CustomPage = ({
           onChange={e => setBallName(e.target.value)}
           placeholder="왁뿌볼 이름"
           className="ball-name-input"
+        />
+        <input
+          type="text"
+          value={author}
+          onChange={e => setAuthor(e.target.value)}
+          placeholder="만든 사람"
+          className="ball-name-input author"
         />
         <button className="btn-share-header" onClick={copyShareLink}>
           {copied ? '복사됨!' : '공유 링크'}

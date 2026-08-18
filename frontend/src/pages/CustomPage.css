@@ -301,6 +301,13 @@
   border-color: var(--wak-accent);
 }
 
+.ball-name-input.author {
+  flex: 0 1 130px;
+  min-width: 0;
+  font-weight: 400;
+  font-size: 14px;
+}
+
 .btn-save {
   padding: 10px 20px;
   border-radius: 100px;
