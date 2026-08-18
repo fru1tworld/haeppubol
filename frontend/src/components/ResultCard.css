@@ -154,6 +154,10 @@
   background: #2e7d4f;
 }
 
+.result-btn.share.copied {
+  background: var(--po-gray-600);
+}
+
 .result-btn.share.error {
   background: #b3382c;
 }

@@ -15,12 +15,16 @@ const CATEGORY_COLORS: Record<string, string> = {
   etc: '#6b7280',
 }
 
-type ShareState = 'idle' | 'sending' | 'done' | 'error'
+type ShareState = 'idle' | 'sending' | 'done' | 'copied' | 'error'
+
+/** 슬랙 전송에 성공했는지, 클립보드 폴백으로 끝났는지 */
+export type ShareOutcome = 'slack' | 'clipboard'
 
 const SHARE_LABEL: Record<ShareState, string> = {
   idle: '슬랙 공유',
   sending: '전송 중...',
   done: '공유 완료',
+  copied: '클립보드에 복사됨',
   error: '전송 실패 - 다시 시도',
 }
 
@@ -31,7 +35,7 @@ export const ResultCard = ({
 }: {
   result: SmashResult | null
   onRetry: () => void
-  onShare?: () => Promise<void>
+  onShare?: () => Promise<ShareOutcome>
 }) => {
   const [shareState, setShareState] = useState<ShareState>('idle')
   useEffect(() => {
@@ -44,8 +48,8 @@ export const ResultCard = ({
     if (!onShare || shareState === 'sending' || shareState === 'done') return
     setShareState('sending')
     try {
-      await onShare()
-      setShareState('done')
+      const outcome = await onShare()
+      setShareState(outcome === 'slack' ? 'done' : 'copied')
     } catch {
       setShareState('error')
     }

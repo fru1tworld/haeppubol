@@ -7,7 +7,7 @@ import { BallScene } from '../three/BallScene'
 import { SMASH_REVEAL_AT } from '../three/waxPhysics'
 import { Controls, initialBallSize } from '../components/Controls'
 import { PlayButtons } from '../components/PlayButtons'
-import { ResultCard } from '../components/ResultCard'
+import { ResultCard, type ShareOutcome } from '../components/ResultCard'
 import { PageTabs } from '../components/PageTabs'
 import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
 import { SOUND_SET_LIST } from '../audio/soundSets'
@@ -73,8 +73,8 @@ export const MainPage = () => {
     play('reveal')
   }, [play, sealed])
 
-  const handleShare = useCallback(async () => {
-    if (!result) return
+  const handleShare = useCallback(async (): Promise<ShareOutcome> => {
+    if (!result) return 'clipboard'
     const r = result.restaurant
     const shortAddress = r.address.split(',')[0].trim()
     const searchQuery = `${shortAddress} ${r.name}`
@@ -89,6 +89,7 @@ export const MainPage = () => {
         priceRange: r.priceRange,
         mapUrl,
       })
+      return 'slack'
     } catch {
       const text = [
         `[점메추 왁뿌볼] ${r.name}`,
@@ -98,6 +99,7 @@ export const MainPage = () => {
         mapUrl,
       ].filter(Boolean).join('\n')
       await navigator.clipboard.writeText(text)
+      return 'clipboard'
     }
   }, [result])
 
