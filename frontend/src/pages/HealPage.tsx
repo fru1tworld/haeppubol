@@ -3,6 +3,7 @@ import { BallScene } from '../three/BallScene'
 import { Controls, initialBallSize } from '../components/Controls'
 import { useSound } from '../audio/useSound'
 import { DEFAULT_HEAL_BALL, HEAL_BALLS } from '../constants/healBalls'
+import { fileToDataUrl, safeSetItem } from '../utils/image'
 import './HealPage.css'
 
 const FREEZE_MS = 90_000
@@ -25,20 +26,20 @@ export const HealPage = () => {
   const [frozen, setFrozen] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [freezeKey, setFreezeKey] = useState(0)
-  const { play, playCracks, setRubbing, setVolume, volume, setSoundSet } = useSound()
+  const { play, playCracks, setRubbing, setVolume, volume, muted, toggleMute, setSoundSet } = useSound()
 
   const ball = HEAL_BALLS.find(b => b.id === ballId) ?? HEAL_BALLS[0]
 
   // 올린 사진이 있으면 그걸, 없으면 크루 기본 사진을 붙인다
-  const faceUrl = faces[ball.id] ?? ball.photo
+  const faceUrl = ball ? faces[ball.id] ?? ball.photo : undefined
 
   useEffect(() => {
-    localStorage.setItem(FACE_KEY, JSON.stringify(faces))
+    safeSetItem(FACE_KEY, JSON.stringify(faces))
   }, [faces])
 
   useEffect(() => {
-    setSoundSet(ball.sound)
-  }, [ball.sound, setSoundSet])
+    if (ball) setSoundSet(ball.sound)
+  }, [ball, setSoundSet])
 
   const pickBall = (id: string) => {
     if (id === ballId) return
@@ -49,16 +50,17 @@ export const HealPage = () => {
 
   const handleFace = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      setFaces(prev => ({ ...prev, [ball.id]: reader.result as string }))
-      setResetKey(k => k + 1)
-    }
-    reader.readAsDataURL(file)
+    if (!file || !ball) return
+    fileToDataUrl(file)
+      .then(url => {
+        setFaces(prev => ({ ...prev, [ball.id]: url }))
+        setResetKey(k => k + 1)
+      })
+      .catch(() => {})
   }
 
   const clearFace = () => {
+    if (!ball) return
     setFaces(prev => {
       const next = { ...prev }
       delete next[ball.id]
@@ -76,6 +78,14 @@ export const HealPage = () => {
   const handleNew = () => {
     setResetKey(k => k + 1)
     play('reset')
+  }
+
+  if (!ball) {
+    return (
+      <div className="heal-page">
+        <p className="heal-tagline">등록된 힐링볼이 없습니다</p>
+      </div>
+    )
   }
 
   return (
@@ -141,6 +151,8 @@ export const HealPage = () => {
       <Controls
         volume={volume}
         onVolumeChange={setVolume}
+        muted={muted}
+        onToggleMute={toggleMute}
         ballSize={ballSize}
         onBallSizeChange={setBallSize}
         onReset={handleNew}
