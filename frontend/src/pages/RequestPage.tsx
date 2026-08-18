@@ -10,6 +10,7 @@ import { getBackgroundTheme } from '../three/backgrounds'
 import { getBaseUrl } from '../constants/baseUrl'
 import { copyText } from '../utils/clipboard'
 import { safeSetItem } from '../utils/image'
+import { useFreeze } from '../hooks/useFreeze'
 import './RequestPage.css'
 
 const DEFAULT_SHELL = SHELL_COLORS[0].hex
@@ -92,8 +93,7 @@ export const RequestPage = () => {
   const [smashed, setSmashed] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const [spinOn, setSpinOn] = useState(false)
-  const [frozen, setFrozen] = useState(false)
-  const [freezeKey, setFreezeKey] = useState(0)
+  const { frozen, freezeKey, freeze } = useFreeze()
   const [playingReq, setPlayingReq] = useState<WakRequest | null>(null)
   const { play, playCracks, setRubbing, soundSet, setSoundSet } = useSound()
 
@@ -240,7 +240,7 @@ export const RequestPage = () => {
           <PlayButtons
             frozen={frozen}
             spinOn={spinOn}
-            onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+            onFreeze={freeze}
             onToggleSpin={() => setSpinOn(v => !v)}
             onNewBall={() => { setSmashed(false); setResetKey(k => k + 1); play('reset') }}
           />

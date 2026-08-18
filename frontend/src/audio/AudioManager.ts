@@ -45,7 +45,7 @@ export const createAudioManager = (rng: Rng): AudioManager => {
       if (audioCtx.state === 'suspended') {
         audioCtx.resume()
       }
-      const pitch = 0.95 + Math.random() * 0.1
+      const pitch = 0.95 + rng() * 0.1
       soundSets[soundSet][name](audioCtx, gain, pitch)
     },
 

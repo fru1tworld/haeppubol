@@ -234,7 +234,12 @@ export function WaxBall({
       group.quaternion.premultiply(q)
     }
 
+    // 손가락 하나만 상호작용에 쓴다 — 두 번째 손가락이 모드/방향 상태를 덮어쓰지 않게
+    let activePointer: number | null = null
+
     const down = (e: PointerEvent) => {
+      if (activePointer !== null) return
+      activePointer = e.pointerId
       canvas.setPointerCapture(e.pointerId)
       const d = downRef.current
       d.t = performance.now()
@@ -249,6 +254,7 @@ export function WaxBall({
       spinRef.current.x = spinRef.current.y = 0
     }
     const move = (e: PointerEvent) => {
+      if (e.pointerId !== activePointer) return
       const d = downRef.current
       const dx = e.clientX - d.lastX
       const dy = e.clientY - d.lastY
@@ -273,7 +279,9 @@ export function WaxBall({
       d.lastX = e.clientX
       d.lastY = e.clientY
     }
-    const up = () => {
+    const up = (e: PointerEvent) => {
+      if (e.pointerId !== activePointer) return
+      activePointer = null
       modeRef.current = 'idle'
     }
 

@@ -7,15 +7,16 @@ interface Tab {
 }
 
 export const PageTabs = ({ tabs }: { tabs: Tab[] }) => (
-  <header className="page-tabs">
+  <div className="page-tabs">
     {tabs.map(tab => (
       <button
         key={tab.label}
         className={`page-tab${tab.active ? ' active' : ''}`}
+        aria-pressed={!!tab.active}
         onClick={tab.onClick}
       >
         {tab.label}
       </button>
     ))}
-  </header>
+  </div>
 )

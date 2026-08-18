@@ -12,6 +12,7 @@ import { PageTabs } from '../components/PageTabs'
 import { BallCustomizer, type BallCustomization } from '../components/BallCustomizer'
 import { SOUND_SET_LIST } from '../audio/soundSets'
 import { useSound } from '../audio/useSound'
+import { useFreeze } from '../hooks/useFreeze'
 import './MainPage.css'
 
 type ActiveTab = 'list' | 'custom' | null
@@ -30,8 +31,7 @@ export const MainPage = () => {
   const [ballSize, setBallSize] = useState(initialBallSize)
   const [resetKey, setResetKey] = useState(0)
   const [spinOn, setSpinOn] = useState(false)
-  const [frozen, setFrozen] = useState(false)
-  const [freezeKey, setFreezeKey] = useState(0)
+  const { frozen, freezeKey, freeze } = useFreeze()
   const [sealed, setSealed] = useState<Restaurant | null>(null)
   const [activeTab, setActiveTab] = useState<ActiveTab>(null)
   const [editing, setEditing] = useState(false)
@@ -267,7 +267,7 @@ export const MainPage = () => {
         <PlayButtons
           frozen={frozen}
           spinOn={spinOn}
-          onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+          onFreeze={freeze}
           onToggleSpin={() => setSpinOn(v => !v)}
           onNewBall={handleReset}
         />

@@ -16,6 +16,7 @@ import { getBaseUrl } from '../constants/baseUrl'
 import { copyText } from '../utils/clipboard'
 import { fileToDataUrl, safeSetItem } from '../utils/image'
 import { useImmersive } from '../hooks/useImmersive'
+import { useFreeze } from '../hooks/useFreeze'
 import './CustomPage.css'
 
 const hashCode = (str: string): number => {
@@ -98,8 +99,7 @@ export const CustomPage = ({
   const [ballSize, setBallSize] = useState(initialBallSize)
   const [slackState, setSlackState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [spinOn, setSpinOn] = useState(false)
-  const [frozen, setFrozen] = useState(false)
-  const [freezeKey, setFreezeKey] = useState(0)
+  const { frozen, freezeKey, freeze, unfreeze } = useFreeze()
   const [tagline, setTagline] = useState<string | null>(null)
   const [lotteryOpenManual, setLotteryOpenManual] = useState(false)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
@@ -276,7 +276,7 @@ export const CustomPage = ({
     setPlayMode(ball.items.length >= 2 ? 'lottery' : 'smash')
     setTagline(ball.tagline ?? null)
     setSpinOn(!!ball.healMode)
-    setFrozen(false)
+    unfreeze()
     setView('play')
     setResult(null)
   }
@@ -304,12 +304,6 @@ export const CustomPage = ({
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleFreeze = () => {
-    setFreezeKey(k => k + 1)
-    setFrozen(true)
-    setTimeout(() => setFrozen(false), 90_000)
-  }
-
   const handleFaceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -327,7 +321,7 @@ export const CustomPage = ({
       setResult(null)
       setTagline(null)
       setSpinOn(false)
-      setFrozen(false)
+      unfreeze()
     } else {
       setView('main')
       setItems([])
@@ -336,7 +330,7 @@ export const CustomPage = ({
       setResult(null)
       setTagline(null)
       setSpinOn(false)
-      setFrozen(false)
+      unfreeze()
     }
   }
 
@@ -423,7 +417,7 @@ export const CustomPage = ({
           <PlayButtons
             frozen={frozen}
             spinOn={spinOn}
-            onFreeze={handleFreeze}
+            onFreeze={freeze}
             onToggleSpin={() => setSpinOn(v => !v)}
             onNewBall={() => newBall('reset')}
           />
@@ -725,7 +719,7 @@ export const CustomPage = ({
         <PlayButtons
           frozen={frozen}
           spinOn={spinOn}
-          onFreeze={handleFreeze}
+          onFreeze={freeze}
           onToggleSpin={() => setSpinOn(v => !v)}
           onNewBall={() => newBall('reset')}
         />

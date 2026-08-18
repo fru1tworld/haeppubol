@@ -4,9 +4,9 @@ import { Controls, initialBallSize } from '../components/Controls'
 import { useSound } from '../audio/useSound'
 import { DEFAULT_HEAL_BALL, HEAL_BALLS } from '../constants/healBalls'
 import { fileToDataUrl, safeSetItem } from '../utils/image'
+import { useFreeze } from '../hooks/useFreeze'
 import './HealPage.css'
 
-const FREEZE_MS = 90_000
 const FACE_KEY = 'wakbbu-heal-faces'
 
 /** 크루별로 올린 얼굴 사진(data URL) */
@@ -23,9 +23,8 @@ export const HealPage = () => {
   const [faces, setFaces] = useState<Record<string, string>>(loadFaces)
   const [ballSize, setBallSize] = useState(initialBallSize)
   const [spinOn, setSpinOn] = useState(true)
-  const [frozen, setFrozen] = useState(false)
   const [resetKey, setResetKey] = useState(0)
-  const [freezeKey, setFreezeKey] = useState(0)
+  const { frozen, freezeKey, freeze } = useFreeze()
   const { play, playCracks, setRubbing, setVolume, volume, muted, toggleMute, setSoundSet } = useSound()
 
   const ball = HEAL_BALLS.find(b => b.id === ballId) ?? HEAL_BALLS[0]
@@ -67,12 +66,6 @@ export const HealPage = () => {
       return next
     })
     setResetKey(k => k + 1)
-  }
-
-  const handleFreeze = () => {
-    setFreezeKey(k => k + 1)
-    setFrozen(true)
-    setTimeout(() => setFrozen(false), FREEZE_MS)
   }
 
   const handleNew = () => {
@@ -135,7 +128,7 @@ export const HealPage = () => {
       <div className="heal-buttons">
         <button
           className={`heal-button${frozen ? ' on' : ''}`}
-          onClick={handleFreeze}
+          onClick={freeze}
         >
           {frozen ? '-18°C 해동 중' : '냉동실에 넣기'}
         </button>

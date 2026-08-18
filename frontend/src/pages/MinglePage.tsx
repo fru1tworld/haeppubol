@@ -10,6 +10,7 @@ import { SOUND_SET_LIST } from '../audio/soundSets'
 import { api } from '../api/client'
 import { PageTabs } from '../components/PageTabs'
 import { PICK_COUNT, pickSome } from '../constants/mingleRule'
+import { useFreeze } from '../hooks/useFreeze'
 
 import './MinglePage.css'
 
@@ -44,8 +45,7 @@ export const MinglePage = () => {
   const [resetKey, setResetKey] = useState(0)
   const [sealed, setSealed] = useState<string[]>([])
   const [spinOn, setSpinOn] = useState(false)
-  const [frozen, setFrozen] = useState(false)
-  const [freezeKey, setFreezeKey] = useState(0)
+  const { frozen, freezeKey, freeze } = useFreeze()
   const [ballSize, setBallSize] = useState(initialBallSize)
   const { play, playCracks, setRubbing, soundSet, setSoundSet, volume, setVolume, muted, toggleMute } = useSound()
 
@@ -258,7 +258,7 @@ export const MinglePage = () => {
         <PlayButtons
           frozen={frozen}
           spinOn={spinOn}
-          onFreeze={() => { setFreezeKey(k => k + 1); setFrozen(true); setTimeout(() => setFrozen(false), 90_000) }}
+          onFreeze={freeze}
           onToggleSpin={() => setSpinOn(v => !v)}
           onNewBall={handleRetry}
         />
