@@ -9,6 +9,7 @@ import { SHELL_COLORS, CORE_COLORS } from '../three/ballColors'
 import { getBackgroundTheme } from '../three/backgrounds'
 import { getBaseUrl } from '../constants/baseUrl'
 import { copyText } from '../utils/clipboard'
+import { safeSetItem } from '../utils/image'
 import './RequestPage.css'
 
 const DEFAULT_SHELL = SHELL_COLORS[0].hex
@@ -120,7 +121,7 @@ export const RequestPage = () => {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(requests))
+    safeSetItem(STORAGE_KEY, JSON.stringify(requests))
   }, [requests])
 
   const handleSmash = useCallback(() => {

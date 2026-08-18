@@ -14,6 +14,7 @@ import { DEFAULT_CORE_COLOR, DEFAULT_SHELL_COLOR, isHexColor } from '../three/ba
 import { DEFAULT_FACE_OPACITY } from '../three/WaxBall'
 import { getBaseUrl } from '../constants/baseUrl'
 import { copyText } from '../utils/clipboard'
+import { fileToDataUrl, safeSetItem } from '../utils/image'
 import { useImmersive } from '../hooks/useImmersive'
 import './CustomPage.css'
 
@@ -110,9 +111,7 @@ export const CustomPage = ({
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setImageUrl(reader.result as string)
-    reader.readAsDataURL(file)
+    fileToDataUrl(file).then(setImageUrl).catch(() => {})
   }
 
   const [crewBalls, setCrewBalls] = useState<SavedBall[]>([])
@@ -135,7 +134,7 @@ export const CustomPage = ({
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBalls))
+    safeSetItem(STORAGE_KEY, JSON.stringify(savedBalls))
   }, [savedBalls])
 
   useEffect(() => {
@@ -308,12 +307,12 @@ export const CustomPage = ({
   const handleFaceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      setImageUrl(reader.result as string)
-      setResetKey(k => k + 1)
-    }
-    reader.readAsDataURL(file)
+    fileToDataUrl(file)
+      .then(url => {
+        setImageUrl(url)
+        setResetKey(k => k + 1)
+      })
+      .catch(() => {})
   }
 
   const backFromPlay = () => {
